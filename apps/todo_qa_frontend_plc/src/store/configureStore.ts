@@ -24,8 +24,8 @@ export function configureAppStore() {
 
   const store = configureStore({
     reducer: createReducer(),
-    middleware: gDM => gDM().concat(middlewares),
-    devTools: process.env.NODE_ENV !== 'production',
+    middleware: gDM => gDM().concat(middlewares) as any,
+    devTools: process.env.NODE_ENV !== 'development',
     enhancers: gDE => gDE().concat(enhancers),
   });
 
