@@ -1,0 +1,10 @@
+import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { {{camelCase name}} } from './{{camelCase name}}';
+
+describe('{{camelCase name}}', () => {
+  it('should return initial value', () => {
+    const { result } = renderHook(() => {{camelCase name}}());
+    expect(result.current.value).toBeNull();
+  });
+});

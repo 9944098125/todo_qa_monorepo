@@ -1,0 +1,14 @@
+import { useState, useCallback } from 'react';
+
+export function {{camelCase name}}() {
+  const [value, setValue] = useState(null);
+
+  const updateValue = useCallback((newValue: any) => {
+    setValue(newValue);
+  }, []);
+
+  return {
+    value,
+    updateValue,
+  };
+}

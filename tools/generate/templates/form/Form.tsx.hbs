@@ -1,0 +1,44 @@
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { {{camelCase name}}Schema } from './schema';
+import { {{pascalCase name}}Values, {{pascalCase name}}Props } from './types';
+
+export function {{pascalCase name}}({ onSubmit, className }: {{pascalCase name}}Props) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<{{pascalCase name}}Values>({
+    resolver: zodResolver({{camelCase name}}Schema),
+    defaultValues: {
+      name: '',
+    },
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className={className}>
+      <div className="mb-4">
+        <label htmlFor="name" className="block text-sm font-medium">
+          Name
+        </label>
+        <input
+          id="name"
+          type="text"
+          {...register('name')}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+        />
+        {errors.name && (
+          <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+        )}
+      </div>
+      
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+      >
+        {isSubmitting ? 'Submitting...' : 'Submit'}
+      </button>
+    </form>
+  );
+}

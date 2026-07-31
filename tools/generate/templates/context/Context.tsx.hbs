@@ -1,0 +1,41 @@
+import { createContext, useContext, ReactNode, useState, useMemo } from 'react';
+
+export interface {{pascalCase name}}State {
+  // Add state properties here
+  value: string | null;
+}
+
+export interface {{pascalCase name}}Actions {
+  // Add actions here
+  setValue: (value: string) => void;
+}
+
+type {{pascalCase name}}Type = {{pascalCase name}}State & {{pascalCase name}}Actions;
+
+const {{pascalCase name}} = createContext<{{pascalCase name}}Type | undefined>(undefined);
+
+export function {{pascalCase name}}Provider({ children }: { children: ReactNode }) {
+  const [value, setValue] = useState<string | null>(null);
+
+  const contextValue = useMemo(
+    () => ({
+      value,
+      setValue,
+    }),
+    [value]
+  );
+
+  return (
+    <{{pascalCase name}}.Provider value={contextValue}>
+      {children}
+    </{{pascalCase name}}.Provider>
+  );
+}
+
+export function use{{pascalCase name}}() {
+  const context = useContext({{pascalCase name}});
+  if (context === undefined) {
+    throw new Error('use{{pascalCase name}} must be used within a {{pascalCase name}}Provider');
+  }
+  return context;
+}

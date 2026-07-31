@@ -1,0 +1,9 @@
+import { z } from 'zod';
+import { {{camelCase name}}Schema } from './schema';
+
+export type {{pascalCase name}}Values = z.infer<typeof {{camelCase name}}Schema>;
+
+export interface {{pascalCase name}}Props {
+  onSubmit: (data: {{pascalCase name}}Values) => void;
+  className?: string;
+}

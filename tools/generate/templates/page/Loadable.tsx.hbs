@@ -1,0 +1,3 @@
+import { lazyLoad } from 'utils/loadable';
+
+export const {{name}} = lazyLoad(() => import('./index'), module => module.{{name}});

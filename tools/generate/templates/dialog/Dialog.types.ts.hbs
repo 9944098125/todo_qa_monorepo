@@ -1,0 +1,10 @@
+import { ReactNode } from 'react';
+
+export interface {{pascalCase name}}Props {
+  trigger?: ReactNode;
+  title: string;
+  description?: string;
+  children: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
