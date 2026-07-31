@@ -5,12 +5,7 @@ import { GlobalState } from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
 
-export const initialState: GlobalState = {
-  user: JSON.parse(localStorage.getItem('asp-ja-user') || 'null') || null,
-  token: localStorage.getItem('asp-ja-token') || null,
-  editFeed: null,
-  editJob: null,
-};
+export const initialState: GlobalState = {};
 
 const slice = createSlice({
   name: 'global',

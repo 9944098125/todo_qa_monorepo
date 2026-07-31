@@ -1,45 +1,43 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-{{#if requiresApi}}
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-{{/if}}
+import { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from 'utils/@reduxjs/toolkit';
+import { useInjectReducer } from 'utils/redux-injectors';
 import { {{pascalCase name}}State } from './types';
+{{#if requiresApi}}
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
+{{/if}}
 
-const initialState: {{pascalCase name}}State = {
-  data: null,
-  isLoading: false,
-  error: null,
-};
+export const initialState: {{pascalCase name}}State = {};
 
-export const {{camelCase sliceName}} = createSlice({
+const slice = createSlice({
   name: '{{camelCase name}}',
   initialState,
   reducers: {
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
-    setData: (state, action: PayloadAction<any>) => {
-      state.data = action.payload;
-    },
-    setError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    },
+    // required functions
   },
 });
-
-export const { setLoading, setData, setError } = {{camelCase sliceName}}.actions;
-export const reducer = {{camelCase sliceName}}.reducer;
 
 {{#if requiresApi}}
 export const api = createApi({
   reducerPath: '{{camelCase name}}Api',
-  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
-  endpoints: (builder) => ({
-    // Add endpoints here
+  baseQuery,
+  endpoints: build => ({
+  // api integration functions
   }),
 });
-
-export const { } = api;
 {{/if}}
 
-export * from './selectors';
-export * from './types';
+export const { actions: {{camelCase name}}Actions } = slice;
+
+export const use{{pascalCase name}}Slice = () => {
+  useInjectReducer({ key: slice.name, reducer: slice.reducer });
+{{#if requiresApi}}
+  useInjectReducer({ key: api.reducerPath, reducer: api.reducer });
+{{/if}}
+  return {
+    actions: slice.actions,
+{{#if requiresApi}}
+    ...api,
+{{/if}}
+  };
+};
