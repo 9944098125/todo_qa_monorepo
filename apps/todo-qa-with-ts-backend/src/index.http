@@ -1,0 +1,103 @@
+######### REGISTER
+POST https://todo-qa-with-ts-backend-production.up.railway.app/api/auth/register
+Content-Type: application/json
+# with request body
+
+{
+  "name":"John Wick",
+  "email":"johnWick@yopmail.com",
+  "password":"JohnWick@8",
+  "phone":"7995643256",
+  "profilePicture":"https://www.shutterstock.com/image-photo/business-portrait-confident-businessman-entrepreneur-600nw-2480068229.jpg",
+  "bio":"A MERN stack developer",
+  "isAdmin":false
+}
+
+############### LOGIN
+POST https://todo-qa-with-ts-backend-production.up.railway.app/api/auth/login
+Content-Type: application/json
+# with request body
+
+{
+  "emailOrPhone":"7995643256",
+  "password":"JohnWick@8"
+}
+
+############ CREATE QA
+POST https://todo-qa-with-ts-backend-production.up.railway.app/api/qa/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+# with authorization token
+
+{
+  "question":"What is React ?",
+  "answer":"React is a javascript library that is used for building user interfaces.",
+  "userId":"685ec8256a3964581b1c8357",
+  "toolId":"1",
+  "importance":"Important"
+}
+
+######### GET QA
+GET https://todo-qa-with-ts-backend-production.up.railway.app/api/qa/685ec8256a3964581b1c8357/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+# with api/qa/:userId/:toolId in params
+
+########### UPDATE QA
+PATCH https://todo-qa-with-ts-backend-production.up.railway.app/api/qa/685ee0836a3964581b1c8387/685ec8256a3964581b1c8357
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+# with api/:qaId/:userId
+
+{
+  "question":"What is ReactJS ?",
+  "answer":"ReactJs is a Javascript library that is used for building user interfaces.",
+  "userId":"685ec8256a3964581b1c8357",
+  "toolId":"1",
+  "importance":"Very Important"
+}
+
+####### DELETE QA
+DELETE https://todo-qa-with-ts-backend-production.up.railway.app/api/qa/685ee0836a3964581b1c8387/685ec8256a3964581b1c8357
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+# with /api/qa/:qaId/:userId
+
+################ CREATE TODO
+POST https://todo-qa-with-ts-backend-production.up.railway.app/api/todo/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+# with request body
+{
+  "title":"Todo 100",
+  "description":"Description 1",
+  "urgency":false,
+  "deadline":"12/12/25",
+  "userId":"685ec8256a3964581b1c8357"
+}
+
+##########3 GET TODO
+GET https://todo-qa-with-ts-backend-production.up.railway.app/api/todo/685ec8256a3964581b1c8357
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+# with /api/todo/:userId
+
+########## UPDATE TODO
+PATCH https://todo-qa-with-ts-backend-production.up.railway.app/api/todo/685ed0406a3964581b1c8375
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+# with /api/todo/:todoId
+
+{
+  "title":"Todo 1000",
+  "description":"Description 1000",
+  "urgency":false,
+  "deadline":"12/31/25",
+  "userId":"685ec8256a3964581b1c8357"
+}
+
+########## DELETE TODO
+DELETE https://todo-qa-with-ts-backend-production.up.railway.app/api/todo/685ed0406a3964581b1c8375/685ec8256a3964581b1c8357
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+# with /api/todo/:todoId/:userId
