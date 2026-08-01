@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalSlice } from './slice';
 
 import { Toaster } from './components/ui/toaster';
+import { Layout } from './components/Layout';
 
 export function App() {
   const { i18n } = useTranslation();
@@ -33,7 +34,9 @@ export function App() {
           <meta name="description" content="Todo Qa" />
         </Helmet>
         <Routes>
-          <Route path="*" element={<NotFound />} />
+          <Route element={<Layout />}>
+            <Route path="*" element={<NotFound />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </>

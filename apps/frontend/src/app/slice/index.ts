@@ -1,17 +1,26 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
-import { GlobalState } from './types';
+import { GlobalState, Theme } from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
 
-export const initialState: GlobalState = {};
+const getInitialTheme = (): Theme => {
+  return (localStorage.getItem('theme') as Theme) || 'system';
+};
+
+export const initialState: GlobalState = {
+  theme: getInitialTheme(),
+};
 
 const slice = createSlice({
   name: 'global',
   initialState,
   reducers: {
-    // required functions
+    setTheme(state, action: PayloadAction<Theme>) {
+      state.theme = action.payload;
+      localStorage.setItem('theme', action.payload);
+    },
   },
 });
 
