@@ -22,7 +22,7 @@ export const lazyLoad = <
 
   const LazyComponent = lazy(lazyFactory);
 
-  return (props: React.ComponentProps<U>): JSX.Element => (
+  return (props: React.ComponentProps<U>): React.ReactElement => (
     <Suspense fallback={opts.fallback!}>
       <LazyComponent {...props} />
     </Suspense>

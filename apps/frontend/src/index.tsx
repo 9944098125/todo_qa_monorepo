@@ -45,8 +45,8 @@ root.render(
 );
 
 // Hot reloadable translation json files
-if (module.hot) {
-  module.hot.accept(['./locales/i18n'], () => {
+if ((module as any).hot) {
+  (module as any).hot.accept(['./locales/i18n'], () => {
     // No need to render the App again because i18next works with the hooks
   });
 }

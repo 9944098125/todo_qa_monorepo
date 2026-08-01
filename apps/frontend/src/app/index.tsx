@@ -16,7 +16,6 @@ import { NotFound } from './pages/NotFound/Loadable';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSlice } from './slice';
 
-import Layout from './components/layout';
 import { Toaster } from './components/ui/toaster';
 
 export function App() {
@@ -34,11 +33,8 @@ export function App() {
           <meta name="description" content="Todo Qa" />
         </Helmet>
         <Routes>
-          <Route element={<Layout />}>
-            <Route path="*" element={<NotFound />} />
-          </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
-        {/* <GlobalStyle /> */}
       </BrowserRouter>
     </>
   );

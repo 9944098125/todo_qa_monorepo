@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import fs from 'fs';
-import rimraf from 'rimraf';
+import { rimrafSync } from 'rimraf';
 import shell from 'shelljs';
 import path from 'path';
 import nodePlop from 'node-plop';
@@ -21,9 +21,8 @@ interface PlopGenerator extends PG {
 
 process.chdir(path.join(__dirname, '../../generators'));
 
-const plop = nodePlop('./plopfile.ts');
-const componentGen = plop.getGenerator('component') as PlopGenerator;
-const sliceGen = plop.getGenerator('slice') as PlopGenerator;
+let componentGen: PlopGenerator;
+let sliceGen: PlopGenerator;
 
 const BACKUPFILE_EXTENSION = 'rbgen';
 
@@ -82,6 +81,9 @@ async function generateSlices() {
  * Run
  */
 (async function () {
+  const plop = await nodePlop('./plopfile.ts');
+  componentGen = plop.getGenerator('component') as PlopGenerator;
+  sliceGen = plop.getGenerator('slice') as PlopGenerator;
   const componentCleanup = await generateComponents().catch(reason => {
     reportErrors(reason);
     return [];
@@ -122,7 +124,7 @@ async function generateSlices() {
 function runLinting() {
   return new Promise<void>((resolve, reject) => {
     shell.exec(
-      `yarn run lint`,
+      `pnpm run lint`,
       {
         silent: false, // so that we can see the errors in the console
       },
@@ -134,7 +136,7 @@ function runLinting() {
 function checkTypescript() {
   return new Promise<void>((resolve, reject) => {
     shell.exec(
-      `yarn run checkTs`,
+      `pnpm run checkTs`,
       {
         silent: false, // so that we can see the errors in the console
       },
@@ -144,10 +146,10 @@ function checkTypescript() {
 }
 
 function removeGeneratedComponent(folderPath: string, name: string) {
-  return rimraf.sync(path.join(baseGeneratorPath, folderPath, name));
+  return rimrafSync(path.join(baseGeneratorPath, folderPath, name));
 }
 function removeGeneratedSlice(folderPath: string) {
-  return rimraf.sync(path.join(baseGeneratorPath, folderPath, 'slice'));
+  return rimrafSync(path.join(baseGeneratorPath, folderPath, 'slice'));
 }
 
 async function handleResult({

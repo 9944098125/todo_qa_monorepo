@@ -2,3 +2,6 @@
 
 // To solve the issue: https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31245
 /// <reference types="styled-components/cssprop" />
+
+declare module '*.css';
+declare module 'sanitize.css/sanitize.css';

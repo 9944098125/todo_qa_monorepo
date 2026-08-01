@@ -1,2 +1,4 @@
 /* --- STATE --- */
-export interface GlobalState {}
+export interface GlobalState {
+  token?: string;
+}
