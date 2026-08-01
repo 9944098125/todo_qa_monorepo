@@ -26,9 +26,15 @@
     "typescript": "^5.7.3"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
+    "apps/frontend/**/*.{js,jsx,ts,tsx}": [
       "prettier --write",
-      "pnpm lint"
+      "pnpm --filter frontend exec eslint"
+    ],
+    "packages/**/*.{js,jsx,ts,tsx}": [
+      "prettier --write"
+    ],
+    "apps/backend/**/*.{js,jsx,ts,tsx}": [
+      "prettier --write"
     ],
     "*.{json,md,yml,yaml}": [
       "prettier --write"
