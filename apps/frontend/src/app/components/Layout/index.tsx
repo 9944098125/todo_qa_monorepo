@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from './components/navbar';
+import { Sidebar } from './components/sidebar';
 
 export function Layout() {
   return (
@@ -11,7 +12,7 @@ export function Layout() {
         </div>
         <div className="flex">
           <aside className="w-1/6 h-[calc(100vh-7rem)] bg-black" id="sidebar">
-            <h1 className="text-white text-2xl">Sidebar</h1>
+            <Sidebar />
           </aside>
           <main className="flex-1" id="outlet-container">
             <Outlet />
