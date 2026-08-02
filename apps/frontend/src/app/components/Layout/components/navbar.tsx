@@ -1,40 +1,26 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from 'app/components/ui/button';
-import { Menu } from 'lucide-react';
-import { ThemeToggle } from './theme-toggle';
+import { Button } from '../../ui/button';
+import { Sun } from 'lucide-react';
 
-interface NavbarProps {
-  onMobileMenuClick: () => void;
-}
-
-export function Navbar({ onMobileMenuClick }: NavbarProps) {
+export function Navbar() {
   return (
-    <header className="h-[70px] shrink-0 bg-white dark:bg-slate-950 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 md:px-6 z-20 relative text-black dark:text-white">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden -ml-2"
-          onClick={onMobileMenuClick}
-          aria-label="Open Menu"
-        >
-          <Menu size={24} />
-        </Button>
-        <Link to="/" className="flex items-center gap-3">
-          <img
-            src="/logo.png"
-            alt="TodoQa Souvenir Logo"
-            className="w-8 h-8 object-contain"
-          />
-          <span className="font-bold text-lg hidden sm:inline-block">
-            TodoQa Souvenir
-          </span>
-        </Link>
+    <React.Fragment>
+      <div
+        id="navbar"
+        className="h-full flex justify-between items-center px-10"
+      >
+        <div id="logo-container" className="w-[5rem] h-[5rem]">
+          <img src="/logo.png" alt="" />{' '}
+        </div>
+        <div>
+          <Button
+            variant="ghost"
+            className="w-[3rem] h-[3rem] text-white border border-white rounded-[1rem]"
+          >
+            <Sun size={20} />
+          </Button>
+        </div>
       </div>
-      <div className="flex items-center">
-        <ThemeToggle />
-      </div>
-    </header>
+    </React.Fragment>
   );
 }

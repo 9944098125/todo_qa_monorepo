@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalSlice } from './slice';
 
 import { Toaster } from './components/ui/toaster';
-import { Layout } from './components/Layout';
+import { Layout } from './components/Layout/index';
 
 export function App() {
   const { i18n } = useTranslation();

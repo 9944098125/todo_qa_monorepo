@@ -8,7 +8,7 @@ export function NotFound() {
         <title>404 Page Not Found</title>
         <meta name="description" content="Page not found" />
       </Helmet>
-      <div className="bg-red-50 w-full h-screen flex flex-col items-center justify-center">
+      <div className="bg-red-50 w-full h-full flex flex-col items-center justify-center">
         <div className="flex items-center w-full max-w-[200px]">
           {/* Left line */}
           <div className="flex-grow h-[2px] bg-red-500"></div>
