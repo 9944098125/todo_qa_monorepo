@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
-import { GlobalState, Theme } from './types';
+import { GlobalState, SidebarToggled, Theme } from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
 
@@ -11,6 +11,8 @@ const getInitialTheme = (): Theme => {
 
 export const initialState: GlobalState = {
   theme: getInitialTheme(),
+  token: '',
+  sidebarToggled: 'opened',
 };
 
 const slice = createSlice({
@@ -20,6 +22,10 @@ const slice = createSlice({
     setTheme(state, action: PayloadAction<Theme>) {
       state.theme = action.payload;
       localStorage.setItem('theme', action.payload);
+    },
+    sidebarToggler(state, action: PayloadAction<SidebarToggled>) {
+      state.sidebarToggled = action.payload;
+      localStorage.setItem('sidebarToggled', action.payload);
     },
   },
 });

@@ -11,3 +11,8 @@ export const selectTheme = createSelector(
   [selectSlice],
   state => state.theme || 'system',
 );
+
+export const selectSidebarToggler = createSelector(
+  [selectSlice],
+  state => state.sidebarToggled,
+);
