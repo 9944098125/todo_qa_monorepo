@@ -38,7 +38,7 @@ body {
   top: 2.5rem;
   position: absolute;
   content: '';
-  background-image: url(../public/images/check-1.svg);
+  background-image: url(/images/check-1.svg);
   height: 2rem;
   width: 2rem;
   background-size: cover;

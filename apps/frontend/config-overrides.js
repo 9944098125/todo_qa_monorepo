@@ -9,6 +9,27 @@ module.exports = {
       '@': path.resolve(__dirname, 'src'),
     }),
     config => {
+      // Find css-loader in the Webpack config and tell it to ignore absolute URLs
+      config.module.rules.forEach(rule => {
+        if (rule.oneOf) {
+          rule.oneOf.forEach(oneOfRule => {
+            if (oneOfRule.use && Array.isArray(oneOfRule.use)) {
+              oneOfRule.use.forEach(useItem => {
+                if (
+                  useItem.loader &&
+                  useItem.loader.includes('css-loader') &&
+                  !useItem.loader.includes('postcss-loader') &&
+                  typeof useItem.options === 'object'
+                ) {
+                  useItem.options.url = {
+                    filter: url => !url.startsWith('/'),
+                  };
+                }
+              });
+            }
+          });
+        }
+      });
       return config;
     },
   ),

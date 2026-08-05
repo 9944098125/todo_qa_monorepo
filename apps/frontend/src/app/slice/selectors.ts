@@ -16,3 +16,5 @@ export const selectSidebarToggler = createSelector(
   [selectSlice],
   state => state.sidebarToggled,
 );
+
+export const selectUser = createSelector([selectSlice], state => state.user);

@@ -18,6 +18,7 @@ import { useGlobalSlice } from './slice';
 
 import { Toaster } from './components/ui/toaster';
 import { Layout } from './components/Layout/index';
+import { Login } from './pages/Login/Loadable';
 
 export function App() {
   const { i18n } = useTranslation();
@@ -34,6 +35,7 @@ export function App() {
           <meta name="description" content="Todo Qa" />
         </Helmet>
         <Routes>
+          <Route path="/" element={<Login />} />
           <Route element={<Layout />}>
             <Route path="*" element={<NotFound />} />
           </Route>

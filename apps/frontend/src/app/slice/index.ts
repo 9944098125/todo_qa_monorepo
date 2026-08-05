@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
-import { GlobalState, SidebarToggled, Theme } from './types';
+import { GlobalState, SidebarToggled, Theme, User } from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
 
@@ -31,6 +31,10 @@ const slice = createSlice({
       state.sidebarToggled = action.payload;
       localStorage.setItem('sidebarToggled', action.payload);
     },
+    setUser(state, action: PayloadAction<User>) {
+      state.user = action.payload;
+      localStorage.setItem('tq_monorepo_user', JSON.stringify(action.payload));
+    },
   },
 });
 
@@ -39,14 +43,15 @@ export const api = createApi({
   baseQuery,
   endpoints: build => ({
     login: build.mutation<any, any>({
-      query: body => {
+      query: requestBody => {
         return {
-          ...endpoints.login,
-          body: body,
+          url: endpoints.login.url,
+          method: endpoints.login.method,
+          body: requestBody,
         };
       },
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
-        return formatErrors(baseQueryReturnValue.data);
+        return formatErrors(baseQueryReturnValue);
       },
     }),
   }),
