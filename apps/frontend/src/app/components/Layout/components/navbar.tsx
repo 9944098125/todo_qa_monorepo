@@ -1,8 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '../../ui/button';
-import { Sun } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { selectTheme } from '@/app/slice/selectors';
+import { useGlobalSlice } from '@/app/slice';
+import { Theme } from '@/app/slice/types';
+import { useDispatch } from 'react-redux';
 
 export function Navbar() {
+  const themeState = useSelector(selectTheme);
+  const { actions } = useGlobalSlice();
+  const dispatch = useDispatch();
+
+  const [isDark, setIsDark] = useState<boolean>(true);
+
+  const toggleTheme = () => {
+    setIsDark(prev => !prev);
+    dispatch(actions.setTheme(isDark ? 'dark' : 'light'));
+  };
+
   return (
     <React.Fragment>
       <div
@@ -17,10 +33,11 @@ export function Navbar() {
         </div>
         <div>
           <Button
+            onClick={toggleTheme}
             variant="ghost"
-            className="w-[3rem] h-[3rem] text-white border border-white rounded-[1rem]"
+            className={`w-[4rem] h-[4rem] border border-cyan-600 rounded-[1rem] ${themeState === 'dark' ? 'text-white' : 'text-black'}`}
           >
-            <Sun size={20} />
+            {themeState === 'dark' ? <Sun size={25} /> : <Moon size={25} />}
           </Button>
         </div>
       </div>

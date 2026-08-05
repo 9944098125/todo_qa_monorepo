@@ -9,10 +9,14 @@ const getInitialTheme = (): Theme => {
   return (localStorage.getItem('theme') as Theme) || 'system';
 };
 
+const getInitialSidebarState = (): SidebarToggled => {
+  return localStorage.getItem('sidebarToggled') as SidebarToggled;
+};
+
 export const initialState: GlobalState = {
   theme: getInitialTheme(),
   token: '',
-  sidebarToggled: 'opened',
+  sidebarToggled: getInitialSidebarState(),
 };
 
 const slice = createSlice({

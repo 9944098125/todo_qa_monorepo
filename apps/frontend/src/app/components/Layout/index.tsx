@@ -3,22 +3,28 @@ import { Outlet } from 'react-router-dom';
 import { Navbar } from './components/navbar';
 import { Sidebar } from './components/sidebar';
 import { useSelector } from 'react-redux';
-import { selectSidebarToggler } from '../../slice/selectors';
+import { selectSidebarToggler, selectTheme } from '../../slice/selectors';
 
 export function Layout() {
   const sidebarState = useSelector(selectSidebarToggler);
+  const themeState = useSelector(selectTheme);
+
   return (
     <React.Fragment>
-      <div className="h-screen text-white">
-        <div id="navbar" className="bg-black w-full h-[7rem]">
+      <div
+        className={`${themeState === 'dark' ? 'text-white' : 'text-black'} h-screen`}
+      >
+        <div
+          id="navbar"
+          className={`border-b ${themeState === 'dark' ? 'bg-black border-white' : 'bg-white border-black'} w-full h-[7rem]`}
+        >
           <Navbar />
         </div>
         <div className="flex">
           <aside
-            className={`${sidebarState === 'opened' ? 'w-1/6' : 'w-[7rem]'} h-[calc(100vh-7rem)] bg-black`}
+            className={`${sidebarState === 'closed' ? 'w-[7rem]' : 'w-1/6'} border-r ${themeState === 'dark' ? 'bg-black border-white' : 'bg-white border-black'} overflow-hidden transition-all duration-500 ease-in-out h-[calc(100vh-7rem)]`}
             id="sidebar"
           >
-            {/* <h1 className="text-white text-2xl">Sidebar</h1> */}
             <Sidebar />
           </aside>
           <main className="flex-1" id="outlet-container">
