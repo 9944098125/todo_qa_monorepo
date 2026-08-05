@@ -22,7 +22,7 @@ export function Layout() {
         </div>
         <div className="flex">
           <aside
-            className={`${sidebarState === 'closed' ? 'w-[7rem]' : 'w-1/6'} border-r ${themeState === 'dark' ? 'bg-black border-white' : 'bg-white border-black'} overflow-hidden transition-all duration-500 ease-in-out h-[calc(100vh-7rem)]`}
+            className={`w-[7rem] ${sidebarState === 'closed' ? 'md:w-[7rem]' : 'md:w-1/6'} border-r ${themeState === 'dark' ? 'bg-black border-white' : 'bg-white border-black'} overflow-hidden transition-all duration-500 ease-in-out h-[calc(100vh-7rem)]`}
             id="sidebar"
           >
             <Sidebar />

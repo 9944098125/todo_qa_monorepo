@@ -27,7 +27,7 @@ export function Navbar() {
       >
         <div id="logo-container" className="flex items-center gap-4">
           <img src="/logo.png" alt="" className="w-[5rem] h-[5rem]" />
-          <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+          <h3 className="text-[1.8rem] md:text-[2.6rem] font-[800] text-green-700/70">
             ToDoQa Souvenir
           </h3>
         </div>
