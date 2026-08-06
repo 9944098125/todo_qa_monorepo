@@ -15,7 +15,6 @@ export const hookGenerator: Generator = {
       message: 'Where do you want to generate it?',
       choices: [
         { name: '1. A specific Page in src/app/pages', value: 'page' },
-        { name: '2. packages/utils (Shared Hook)', value: 'packages/utils' },
       ],
       when: (answers: any) => !answers.shared,
     },

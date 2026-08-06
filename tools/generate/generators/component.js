@@ -19,7 +19,6 @@ exports.componentGenerator = {
             message: 'Where do you want to generate it?',
             choices: [
                 { name: '1. src/app/components', value: 'frontend' },
-                { name: '2. packages/ui (Shared Component)', value: 'packages/ui' },
             ],
             when: (answers) => !answers.shared,
         }
