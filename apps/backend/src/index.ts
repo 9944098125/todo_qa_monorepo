@@ -11,6 +11,7 @@ import todoRoute from "./routes/todo";
 import adminRoute from "./routes/admin";
 import { connect } from "./dbConnection/db";
 import searchRoute from "./routes/search";
+import toolsRoute from "./routes/tool";
 import { sendError } from "./helpers/response";
 
 dotenv.config();
@@ -25,17 +26,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.set("trust proxy", 1); // you need to add this
 app.use(
-	session({
-		secret: process.env.SECRET_TOKEN!,
-		resave: false,
-		saveUninitialized: false,
-		proxy: true, // this is optional it depend which server you host, i am not sure about Heroku if you need it or not
-		cookie: {
-			secure: "auto", // this will set to false on developement, but true on Heroku since is https so this setting is required
-			maxAge: 10000, // 10 sec for testing
-			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", //by default in developement this is false if you're in developement mode
-		},
-	})
+  session({
+    secret: process.env.SECRET_TOKEN!,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true, // this is optional it depend which server you host, i am not sure about Heroku if you need it or not
+    cookie: {
+      secure: "auto", // this will set to false on developement, but true on Heroku since is https so this setting is required
+      maxAge: 10000, // 10 sec for testing
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", //by default in developement this is false if you're in developement mode
+    },
+  }),
 );
 
 // use the routes here
@@ -44,21 +45,22 @@ app.use("/api/qa", qaRoute);
 app.use("/api/todo", todoRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api", searchRoute);
+app.use("/api/tools", toolsRoute);
 
 app.use((error: any, req: Request, res: Response, next: Function): void => {
-	const errStatus = error.status || 500;
-	const errMessage = error.message || "Something went wrong";
-	sendError(req, res, errStatus, errMessage, {
-		stack: error.stack,
-	});
-	return;
+  const errStatus = error.status || 500;
+  const errMessage = error.message || "Something went wrong";
+  sendError(req, res, errStatus, errMessage, {
+    stack: error.stack,
+  });
+  return;
 });
 
-const port = process.env.PORT || 5001
+const port = process.env.PORT || 5001;
 
 app.listen(port, () => {
-	connect();
-	console.log(`Server is running on ${port}`);
+  connect();
+  console.log(`Server is running on ${port}`);
 });
 // small change
 
