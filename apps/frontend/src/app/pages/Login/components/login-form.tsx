@@ -8,9 +8,10 @@ import { Icons } from '@/app/components/ui/icons';
 import { useDispatch } from 'react-redux';
 import { toast } from '@/app/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { LoginFormValues, LoginResponse } from '@/types/login';
 
 export function LoginForm() {
-  const form = useForm();
+  const form = useForm<LoginFormValues>();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { useLoginMutation, actions } = useGlobalSlice();
@@ -22,7 +23,7 @@ export function LoginForm() {
     formState: { errors },
   } = form;
 
-  const authenticate = (data: any) => {
+  const authenticate = (data: LoginFormValues) => {
     login(data);
   };
 
@@ -31,7 +32,7 @@ export function LoginForm() {
       dispatch(actions.setUser(data?.data?.data?.user));
       navigate('/todo', { replace: true });
       toast({
-        description: data?.data?.data?.message,
+        description: data?.data?.message,
         variant: 'success',
       });
     }

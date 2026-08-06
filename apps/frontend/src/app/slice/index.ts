@@ -4,6 +4,7 @@ import { useInjectReducer } from 'utils/redux-injectors';
 import { GlobalState, SidebarToggled, Theme, User } from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
+import { LoginFormValues, LoginResponse } from '@/types/login';
 
 const getInitialTheme = (): Theme => {
   return (localStorage.getItem('theme') as Theme) || 'system';
@@ -13,9 +14,21 @@ const getInitialSidebarState = (): SidebarToggled => {
   return localStorage.getItem('sidebarToggled') as SidebarToggled;
 };
 
+const getInitialUserState = (): User | undefined => {
+  try {
+    const user = localStorage.getItem('tq_monorepo_user');
+
+    return user ? (JSON.parse(user) as User) : undefined;
+  } catch {
+    localStorage.removeItem('tq_monorepo_user');
+    return undefined;
+  }
+};
+
 export const initialState: GlobalState = {
   theme: getInitialTheme(),
   token: '',
+  user: getInitialUserState(),
   sidebarToggled: getInitialSidebarState(),
 };
 
@@ -42,11 +55,10 @@ export const api = createApi({
   reducerPath: 'globalApi',
   baseQuery,
   endpoints: build => ({
-    login: build.mutation<any, any>({
+    login: build.mutation<LoginResponse, LoginFormValues>({
       query: requestBody => {
         return {
-          url: endpoints.login.url,
-          method: endpoints.login.method,
+          ...endpoints.login,
           body: requestBody,
         };
       },
