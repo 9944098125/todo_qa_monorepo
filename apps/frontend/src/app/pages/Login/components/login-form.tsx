@@ -1,7 +1,7 @@
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { useForm } from 'react-hook-form';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Label from '@/app/components/ui/label';
 import { useGlobalSlice } from '@/app/slice';
 import { Icons } from '@/app/components/ui/icons';
@@ -9,11 +9,16 @@ import { useDispatch } from 'react-redux';
 import { toast } from '@/app/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { LoginFormValues, LoginResponse } from '@/types/login';
+import { EyeClosedIcon, EyeIcon } from 'lucide-react';
 
 export function LoginForm() {
   const form = useForm<LoginFormValues>();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // show/hide password
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
   const { useLoginMutation, actions } = useGlobalSlice();
   const [login, { isLoading, isSuccess, isError, error, data }] =
     useLoginMutation();
@@ -30,6 +35,7 @@ export function LoginForm() {
   useEffect(() => {
     if (isSuccess) {
       dispatch(actions.setUser(data?.data?.data?.user));
+      dispatch(actions.setToken(data?.data?.data?.token));
       navigate('/todo', { replace: true });
       toast({
         description: data?.data?.message,
@@ -46,6 +52,10 @@ export function LoginForm() {
       });
     }
   }, [isError, error]);
+
+  const toggleShowPassword = () => {
+    setShowPassword(prev => !prev);
+  };
 
   return (
     <React.Fragment>
@@ -85,20 +95,31 @@ export function LoginForm() {
 
           <div className="px-4 py-2 mb-4">
             <Label htmlFor="password">Password</Label>
-            <Input
-              type="password"
-              placeholder="Enter your Password"
-              className="h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem]"
-              {...register('password', {
-                required: 'Password is required',
-                pattern: {
-                  value:
-                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()[\]{}\-_=+|;:'",.<>/~`\\])[A-Za-z\d@$!%*?&^#()[\]{}\-_=+|;:'",.<>/~`\\]{8,}$/,
-                  message:
-                    'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character.',
-                },
-              })}
-            />
+            <div className="flex items-center">
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter your Password"
+                className="h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem]"
+                {...register('password', {
+                  required: 'Password is required',
+                  pattern: {
+                    value:
+                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()[\]{}\-_=+|;:'",.<>/~`\\])[A-Za-z\d@$!%*?&^#()[\]{}\-_=+|;:'",.<>/~`\\]{8,}$/,
+                    message:
+                      'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character.',
+                  },
+                })}
+              />
+              {showPassword ? (
+                <div onClick={toggleShowPassword} className="pointer">
+                  <EyeIcon className="text-blue-800 font-800 text-xl -ml-[4rem]" />
+                </div>
+              ) : (
+                <div onClick={toggleShowPassword} className="pointer">
+                  <EyeClosedIcon className="text-blue-800 font-800 text-xl -ml-[4rem]" />
+                </div>
+              )}
+            </div>
 
             {errors.password && (
               <div className="text-red-600 text-[1rem] mt-1">

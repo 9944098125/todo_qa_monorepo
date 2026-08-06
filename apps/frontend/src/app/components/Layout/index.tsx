@@ -5,7 +5,11 @@ import { Sidebar } from './components/sidebar';
 import { useSelector } from 'react-redux';
 import { selectSidebarToggler, selectTheme } from '../../slice/selectors';
 
-export function Layout() {
+type Props = {
+  children: React.ReactNode;
+};
+
+export function Layout(props: Props) {
   const sidebarState = useSelector(selectSidebarToggler);
   const themeState = useSelector(selectTheme);
 
@@ -28,7 +32,7 @@ export function Layout() {
             <Sidebar />
           </aside>
           <main className="flex-1" id="outlet-container">
-            <Outlet />
+            {props.children}
           </main>
         </div>
       </div>

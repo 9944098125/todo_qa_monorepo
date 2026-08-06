@@ -8,14 +8,20 @@ import {
 } from 'lucide-react';
 import { useGlobalSlice } from '../../../slice';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectSidebarToggler, selectTheme } from '../../../slice/selectors';
-import { NavLink } from 'react-router-dom';
+import {
+  selectSidebarToggler,
+  selectTheme,
+  selectUser,
+} from '../../../slice/selectors';
+import { NavLink, useNavigate } from 'react-router-dom';
 
 export function Sidebar() {
   const { actions } = useGlobalSlice();
   const sidebarState = useSelector(selectSidebarToggler);
   const themeState = useSelector(selectTheme);
+  const userState = useSelector(selectUser);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [sidebarClosed, setSidebarClosed] = useState<boolean>(false);
 
@@ -72,20 +78,24 @@ export function Sidebar() {
           </NavLink>
         </div>
         <div className="absolute w-full bottom-5 px-5 py-2 border-t border-white flex flex-col md:flex-row justify-between items-center">
-          <div className={`flex items-center gap-4`}>
+          <div className={`flex items-center`}>
             <img
-              src="https://images.unsplash.com/photo-1615109398623-88346a601842?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFufGVufDB8fDB8fHww"
+              src={userState?.profilePicture}
               alt=""
-              className={`rounded-full h-20 w-20`}
+              className={`rounded-full h-[5rem] w-[5rem]`}
             />
             <h4
-              className={`${sidebarState === 'closed' ? 'hidden' : 'block'} text-[1.8rem] font-800`}
+              className={`${sidebarState === 'closed' ? 'hidden' : 'block'} text-[1.8rem] ml-2 font-800`}
             >
-              Srinivas
+              {userState?.name}
             </h4>
           </div>
           <div className="px-2">
             <LogOut
+              onClick={() => {
+                dispatch(actions.logout());
+                navigate('/');
+              }}
               className={`${sidebarState === 'closed' ? '-ml-2' : 'ml-10'} h-[5rem] w-[5rem] bg-red-600 text-white rounded-[.8rem] p-4`}
             />
           </div>

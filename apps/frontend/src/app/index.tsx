@@ -19,6 +19,7 @@ import { useGlobalSlice } from './slice';
 import { Toaster } from './components/ui/toaster';
 import { Layout } from './components/Layout/index';
 import { Login } from './pages/Login/Loadable';
+import { ProtectedRoute } from './components/Parts/protectedRoute';
 
 export function App() {
   const { i18n } = useTranslation();
@@ -36,7 +37,7 @@ export function App() {
         </Helmet>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route element={<Layout />}>
+          <Route element={<ProtectedRoute />}>
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
