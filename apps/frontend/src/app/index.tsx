@@ -37,6 +37,7 @@ export function App() {
         </Helmet>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route element={<ProtectedRoute />}>
             <Route path="*" element={<NotFound />} />
           </Route>
