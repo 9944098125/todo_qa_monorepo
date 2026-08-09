@@ -20,6 +20,7 @@ import { Toaster } from './components/ui/toaster';
 import { Layout } from './components/Layout/index';
 import { Login } from './pages/Login/Loadable';
 import { ProtectedRoute } from './components/Parts/protectedRoute';
+import { Registration } from './pages/Registration/Loadable';
 
 export function App() {
   const { i18n } = useTranslation();
@@ -38,6 +39,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Registration />} />
           <Route element={<ProtectedRoute />}>
             <Route path="*" element={<NotFound />} />
           </Route>

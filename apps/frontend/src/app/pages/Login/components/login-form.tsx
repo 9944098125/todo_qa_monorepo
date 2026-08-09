@@ -7,7 +7,7 @@ import { useGlobalSlice } from '@/app/slice';
 import { Icons } from '@/app/components/ui/icons';
 import { useDispatch } from 'react-redux';
 import { toast } from '@/app/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LoginFormValues, LoginResponse } from '@/types/login';
 import { EyeClosedIcon, EyeIcon } from 'lucide-react';
 
@@ -65,13 +65,23 @@ export function LoginForm() {
             Login
           </h4>
           <p className="text-md font-medium">
-            Don't have an account ? Please Register
+            Don't have an account ? Please{' '}
+            <Link
+              style={{
+                textDecoration: 'underline',
+                fontWeight: 'bold',
+                color: 'blueviolet',
+              }}
+              to="/register"
+            >
+              Register
+            </Link>
           </p>
         </div>
 
         <form onSubmit={handleSubmit(authenticate)}>
-          {/* Input fields  */}
-          <div className="px-4 py-2 mb-4">
+          {/* Email/Phone */}
+          <div className="px-4 py-2 :mb-4">
             <Label htmlFor="emailOrPhone">Email/Phone Number</Label>
             <Input
               type="text"
@@ -92,7 +102,7 @@ export function LoginForm() {
               </div>
             )}
           </div>
-
+          {/* Password  */}
           <div className="px-4 py-2 mb-4">
             <Label htmlFor="password">Password</Label>
             <div className="flex items-center">
@@ -127,7 +137,7 @@ export function LoginForm() {
               </div>
             )}
           </div>
-
+          {/* Button  */}
           <div className="px-4 py-2 mb-4">
             <Button
               type="submit"

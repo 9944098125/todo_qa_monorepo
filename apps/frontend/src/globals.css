@@ -20,14 +20,23 @@ body {
 }
 
 .react-tel-input .form-control {
-  background-color: rgba(24, 23, 23, 0.644) !important;
-  color: white !important;
+  background-color: transparent !important;
+  color: rgb(0, 0, 0) !important;
   width: 100% !important;
-  height: 42px !important;
+  height: 5.5rem !important;
+  border-radius: 1.2rem !important;
+  border: 1px solid rgb(0, 136, 136) !important;
 }
 
 .react-tel-input .flag-dropdown {
-  background-color: rgba(24, 23, 23, 0.644) !important;
+  border: 1px solid rgb(0, 136, 136) !important;
+  background-color: transparent !important;
+  border-top-left-radius: 1.2rem !important;
+  border-bottom-left-radius: 1.2rem !important;
+}
+
+.react-tel-input .flag-dropdown:hover {
+  background-color: transparent !important;
 }
 
 .check-n1 {

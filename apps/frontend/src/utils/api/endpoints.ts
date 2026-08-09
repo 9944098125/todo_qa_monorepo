@@ -21,7 +21,7 @@ export const baseQuery = fetchBaseQuery({
 });
 
 export const formatErrors = (errors: any) => {
-  return errors?.message || 'Something went wrong';
+  return errors?.data?.data?.message || 'Something went wrong';
 };
 
 export const HTTP_METHODS = {
@@ -35,6 +35,10 @@ export const endpoints = {
   baseUrl,
   login: {
     url: '/auth/login',
+    method: HTTP_METHODS.POST,
+  },
+  register: {
+    url: '/auth/register',
     method: HTTP_METHODS.POST,
   },
 };
