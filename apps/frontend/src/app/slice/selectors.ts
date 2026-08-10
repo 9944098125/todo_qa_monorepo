@@ -18,3 +18,4 @@ export const selectSidebarToggler = createSelector(
 );
 
 export const selectUser = createSelector([selectSlice], state => state.user);
+export const selectToken = createSelector([selectSlice], state => state.token);

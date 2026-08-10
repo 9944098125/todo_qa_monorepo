@@ -3,7 +3,7 @@ import { Icons } from '@/app/components/ui/icons';
 import { Input } from '@/app/components/ui/input';
 import Label from '@/app/components/ui/label';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { useForm, Controller } from 'react-hook-form';
@@ -16,6 +16,7 @@ import { useRegistrationSlice } from '../slice';
 import { toast } from '@/app/components/ui/use-toast';
 
 export const RegistrationForm = () => {
+  const navigate = useNavigate();
   const { useRegisterMutation } = useRegistrationSlice();
   const [registerMutation, { isLoading, isSuccess, data, isError, error }] =
     useRegisterMutation();
@@ -94,6 +95,7 @@ export const RegistrationForm = () => {
 
   useEffect(() => {
     if (isSuccess && data) {
+      navigate('/');
       toast({
         description: 'Registration Success',
         variant: 'success',

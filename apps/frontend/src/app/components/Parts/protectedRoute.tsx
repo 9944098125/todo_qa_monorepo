@@ -10,6 +10,7 @@ export function ProtectedRoute() {
   if (!isAuthenticated) {
     return <Navigate to="/" replace state={{ from: location }} />;
   }
+
   return (
     <Layout>
       <Outlet />

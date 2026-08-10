@@ -41,4 +41,20 @@ export const endpoints = {
     url: '/auth/register',
     method: HTTP_METHODS.POST,
   },
+  createTodo: {
+    url: '/todo/create',
+    method: HTTP_METHODS.POST,
+  },
+  getTodoItems: {
+    url: '/todo',
+    method: HTTP_METHODS.GET,
+  },
+  updateTodo: {
+    url: '/todo',
+    method: HTTP_METHODS.PATCH,
+  },
+  deleteTodo: {
+    url: '/todo',
+    method: HTTP_METHODS.DELETE,
+  },
 };

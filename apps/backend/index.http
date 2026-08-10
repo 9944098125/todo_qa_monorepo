@@ -76,10 +76,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlY
   "userId":"685ec8256a3964581b1c8357"
 }
 
-##########3 GET TODO
-GET https://todo-qa-with-ts-backend-production.up.railway.app/api/todo/685ec8256a3964581b1c8357?page=1&pageSize=10
+##########3 GET TODOS
+GET https://todo-qa-with-ts-backend-production.up.railway.app/api/todo/674b366377bb7f58ff4382a0?page=1&pageSize=10
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzRiMzY2Mzc3YmI3ZjU4ZmY0MzgyYTAiLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3ODYzNTkzNjd9.U6Eg_O0kbbFLIYNfiqnYni5dUrNRseOVKMegoun-U2A
 # with /api/todo/:userId
 
 ########## UPDATE TODO

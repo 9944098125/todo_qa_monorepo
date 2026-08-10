@@ -1,4 +1,5 @@
 import { RegistrationState } from '@/app/pages/Registration/slice/types';
+import { TodoState } from '@/app/pages/Todo/slice/types';
 import { GlobalState } from 'app//slice/types';
 // [IMPORT NEW CONTAINERSTATE ABOVE] < Needed for generating containers seamlessly
 
@@ -11,5 +12,7 @@ export interface RootState {
   global?: GlobalState;
   registration: RegistrationState;
   registrationApi?: any;
+  todo: TodoState;
+  todoApi: any;
   // [INSERT NEW REDUCER KEY ABOVE] < Needed for generating containers seamlessly
 }

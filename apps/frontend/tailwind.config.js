@@ -61,24 +61,21 @@ module.exports = {
           foreground: 'hsl(var(--card-foreground))',
         },
       },
-
       fontFamily: {
         poppins: ['Poppins , sans-serif'],
-        playWrite: ['"Playwrite VN"', 'serif'],
+        playWrite: ['Playwrite VN"', 'serif'],
       },
-
       borderRadius: {
-        default: '8px',
         20: '20px',
         24: '24px',
         32: '32px',
         40: '40px',
         80: '80px',
+        default: '8px',
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
-
       keyframes: {
         'accordion-down': {
           from: {
@@ -98,24 +95,109 @@ module.exports = {
         },
       },
       fontSize: {
+        12: [
+          '1.2rem',
+          {
+            lineHeight: '2.4rem',
+          },
+        ],
+        14: [
+          '1.4rem',
+          {
+            lineHeight: '2.4rem',
+          },
+        ],
+        15: [
+          '1.5rem',
+          {
+            lineHeight: '2.4rem',
+          },
+        ],
+        16: [
+          '1.6rem',
+          {
+            lineHeight: '2.8rem',
+          },
+        ],
+        17: [
+          '1.7rem',
+          {
+            lineHeight: '2.4rem',
+          },
+        ],
+        19: [
+          '1.9rem',
+          {
+            lineHeight: '2.4rem',
+          },
+        ],
+        24: [
+          '2.4rem',
+          {
+            lineHeight: '3.8rem',
+          },
+        ],
+        30: [
+          '3.0rem',
+          {
+            lineHeight: '4.5rem',
+          },
+        ],
+        48: [
+          '4.8rem',
+          {
+            lineHeight: '4.5rem',
+          },
+        ],
         DEFAULT: '1.4rem',
-        xs: ['1.6rem', { lineHeight: '2.4rem' }],
-        sm: ['1.8rem', { lineHeight: '2.4rem' }],
-        md: ['2.0rem', { lineHeight: '2.4rem' }],
-        base: ['1.4rem', { lineHeight: '1.5rem' }],
-        lg: ['2.125rem', { lineHeight: '1.75rem' }],
-        xl: ['3.2rem', { lineHeight: '4.4rem' }],
-        '1xl': ['3.6rem', { lineHeight: '4.2rem' }],
-        '2xl': ['3.6rem', { lineHeight: '5.0rem' }],
-        12: ['1.2rem', { lineHeight: '2.4rem' }],
-        14: ['1.4rem', { lineHeight: '2.4rem' }],
-        15: ['1.5rem', { lineHeight: '2.4rem' }],
-        16: ['1.6rem', { lineHeight: '2.8rem' }],
-        17: ['1.7rem', { lineHeight: '2.4rem' }],
-        19: ['1.9rem', { lineHeight: '2.4rem' }],
-        24: ['2.4rem', { lineHeight: '3.8rem' }],
-        30: ['3.0rem', { lineHeight: '4.5rem' }],
-        48: ['4.8rem', { lineHeight: '4.5rem' }],
+        xs: [
+          '1.6rem',
+          {
+            lineHeight: '2.4rem',
+          },
+        ],
+        sm: [
+          '1.8rem',
+          {
+            lineHeight: '2.4rem',
+          },
+        ],
+        md: [
+          '2.0rem',
+          {
+            lineHeight: '2.4rem',
+          },
+        ],
+        base: [
+          '1.4rem',
+          {
+            lineHeight: '1.5rem',
+          },
+        ],
+        lg: [
+          '2.125rem',
+          {
+            lineHeight: '1.75rem',
+          },
+        ],
+        xl: [
+          '3.2rem',
+          {
+            lineHeight: '4.4rem',
+          },
+        ],
+        '1xl': [
+          '3.6rem',
+          {
+            lineHeight: '4.2rem',
+          },
+        ],
+        '2xl': [
+          '3.6rem',
+          {
+            lineHeight: '5.0rem',
+          },
+        ],
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
