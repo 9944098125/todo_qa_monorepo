@@ -37,4 +37,12 @@ export const endpoints = {
     url: '/auth/login',
     method: HTTP_METHODS.POST,
   },
+  register: {
+    url: '/auth/register',
+    method: HTTP_METHODS.POST,
+  },
+  todo: {
+    url: '/auth/todo',
+    method: HTTP_METHODS.POST,
+  },
 };

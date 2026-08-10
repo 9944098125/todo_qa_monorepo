@@ -1,4 +1,4 @@
-import { GlobalState } from 'app//slice/types';
+import { GlobalState, RegistrationState } from 'app//slice/types';
 import { initialState } from 'app/slice';
 // [IMPORT NEW CONTAINERSTATE ABOVE] < Needed for generating containers seamlessly
 
@@ -9,5 +9,7 @@ import { initialState } from 'app/slice';
 export interface RootState {
   globalApi: any;
   global?: GlobalState;
+  registrationApi: any;
+  registration?: RegistrationState;
   // [INSERT NEW REDUCER KEY ABOVE] < Needed for generating containers seamlessly
 }

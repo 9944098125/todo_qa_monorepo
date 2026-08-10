@@ -20,6 +20,8 @@ import { Toaster } from './components/ui/toaster';
 import { Layout } from './components/Layout/index';
 import { Login } from './pages/Login/Loadable';
 import { ProtectedRoute } from './components/Parts/protectedRoute';
+import { RegistrationForm } from './pages/Registration/components/RegistrationForm';
+import { ToDoForm } from './pages/ToDo/components/TodoForm';
 
 export function App() {
   const { i18n } = useTranslation();
@@ -37,6 +39,8 @@ export function App() {
         </Helmet>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/register" element={<RegistrationForm />} />
+          <Route path="/todo" element={<ToDoForm />} />
           <Route element={<ProtectedRoute />}>
             <Route path="*" element={<NotFound />} />
           </Route>

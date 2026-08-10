@@ -5,6 +5,12 @@ import { GlobalState, SidebarToggled, Theme, User } from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
 import { LoginFormValues, LoginResponse } from '@/types/login';
+import {
+  RegistrationFormValues,
+  RegistrationResponse,
+} from '@/types/registration';
+import { ToDo } from '../pages/ToDo';
+import { TodoFormValues, TodoResponse } from '@/types/todo';
 
 const getInitialTheme = (): Theme => {
   return (localStorage.getItem('theme') as Theme) || 'system';
@@ -72,6 +78,28 @@ export const api = createApi({
       query: requestBody => {
         return {
           ...endpoints.login,
+          body: requestBody,
+        };
+      },
+      transformErrorResponse(baseQueryReturnValue, meta, arg) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    Registration: build.mutation<RegistrationResponse, RegistrationFormValues>({
+      query: requestBody => {
+        return {
+          ...endpoints.register,
+          body: requestBody,
+        };
+      },
+      transformErrorResponse(baseQueryReturnValue, meta, arg) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    todo: build.mutation<TodoResponse, TodoFormValues>({
+      query: requestBody => {
+        return {
+          ...endpoints.todo,
           body: requestBody,
         };
       },
