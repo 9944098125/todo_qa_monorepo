@@ -33,3 +33,47 @@ export interface TodoResponse {
     url: 'http://localhost:5001/api/todo/create';
   };
 }
+
+export interface GetTodoResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string;
+    pageNumber: number;
+    pageSize: number;
+    totalPages: number;
+    totalDocuments: number;
+    documents: {
+      _id: string;
+      title: string;
+      description: string;
+      urgency: boolean;
+      deadline: string;
+      userId: string;
+      createdAt: string;
+    }[];
+  };
+  meta: {
+    url: 'http://localhost:5001/api/todo/6a7c479061f3d3519c5f4984?page=1&pageSize=20';
+  };
+}
+
+export interface GetTodoRequest {
+  requestParams: {
+    userId: string;
+  };
+  query: {
+    page: number;
+    pageSize: number;
+  };
+}
+
+export interface TodoItem {
+  _id: string;
+  title: string;
+  description: string;
+  urgency: boolean;
+  deadline: string;
+  userId: string;
+  createdAt: string;
+}

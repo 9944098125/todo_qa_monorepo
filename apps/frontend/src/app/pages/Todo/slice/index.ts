@@ -1,7 +1,13 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
-import { TodoRequest, TodoResponse, TodoState } from './types';
+import {
+  GetTodoRequest,
+  GetTodoResponse,
+  TodoRequest,
+  TodoResponse,
+  TodoState,
+} from './types';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
 
@@ -34,7 +40,7 @@ export const api = createApi({
         return formatErrors(baseQueryReturnValue);
       },
     }),
-    getTodoItems: build.query<any, any>({
+    getTodoItems: build.query<GetTodoResponse, GetTodoRequest>({
       query: ({ requestParams, query }) => {
         return {
           url: `${endpoints.getTodoItems.url}/${requestParams?.userId}`,

@@ -94,9 +94,9 @@ export function Sidebar() {
             <LogOut
               onClick={() => {
                 dispatch(actions.logout());
-                navigate('/');
+                navigate('/', { replace: true });
               }}
-              className={`${sidebarState === 'closed' ? '-ml-2' : 'ml-10'} h-[5rem] w-[5rem] bg-red-600 text-white rounded-[.8rem] p-4`}
+              className={`${sidebarState === 'closed' ? '-ml-2' : 'ml-10'} cursor-pointer h-[5rem] w-[5rem] bg-red-600 text-white rounded-[.8rem] p-4`}
             />
           </div>
         </div>

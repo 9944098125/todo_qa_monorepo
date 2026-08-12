@@ -58,6 +58,7 @@ const slice = createSlice({
     },
     logout(state) {
       state.user = undefined;
+      state.token = undefined;
       localStorage.removeItem('tq_monorepo_user');
       localStorage.removeItem('tq_monorepo_token');
     },
