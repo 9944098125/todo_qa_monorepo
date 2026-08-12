@@ -97,7 +97,7 @@ export const RegistrationForm = () => {
     if (isSuccess && data) {
       navigate('/');
       toast({
-        description: 'Registration Success',
+        description: data?.data?.message || 'Registration Success',
         variant: 'success',
       });
     }

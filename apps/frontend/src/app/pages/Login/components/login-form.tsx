@@ -38,7 +38,7 @@ export function LoginForm() {
       dispatch(actions.setToken(data?.data?.data?.token));
       navigate('/todo', { replace: true });
       toast({
-        description: data?.data?.message,
+        description: data?.data?.message || 'Login Success',
         variant: 'success',
       });
     }

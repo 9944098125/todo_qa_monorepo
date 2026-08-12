@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
-import { TodoState } from './types';
+import { TodoRequest, TodoResponse, TodoState } from './types';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
 
@@ -23,7 +23,7 @@ export const api = createApi({
   reducerPath: 'todoApi',
   baseQuery,
   endpoints: build => ({
-    createTodo: build.mutation<any, any>({
+    createTodo: build.mutation<TodoResponse, TodoRequest>({
       query: body => {
         return {
           ...endpoints.createTodo,
