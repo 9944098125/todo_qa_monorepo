@@ -17,13 +17,33 @@ export const initialState: TodoState = {
   data: null,
   isLoading: false,
   error: null,
+  editableTodo: {
+    _id: '',
+    title: '',
+    description: '',
+    urgency: false,
+    deadline: '',
+    userId: '',
+  },
 };
 
 const slice = createSlice({
   name: 'todo',
   initialState,
   reducers: {
-    // required functions
+    editTodo(state, action: PayloadAction<any>) {
+      state.editableTodo = action.payload;
+    },
+    resetEditableTodo(state) {
+      state.editableTodo = {
+        _id: '',
+        title: '',
+        description: '',
+        urgency: false,
+        deadline: '',
+        userId: '',
+      };
+    },
   },
 });
 

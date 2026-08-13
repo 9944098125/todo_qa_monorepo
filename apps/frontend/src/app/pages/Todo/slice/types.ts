@@ -2,14 +2,22 @@ export interface TodoState {
   data: any | null;
   isLoading: boolean;
   error: string | null;
+  editableTodo: {
+    _id: string;
+    title: string;
+    description: string;
+    urgency: boolean;
+    deadline: string;
+    userId: string;
+  };
 }
 
 export interface TodoRequest {
-  title: string;
-  description: string;
+  title: string | undefined;
+  description: string | undefined;
   urgency: boolean;
-  deadline: Date;
-  userId: string;
+  deadline: string | undefined;
+  userId: string | undefined;
 }
 
 export interface TodoResponse {

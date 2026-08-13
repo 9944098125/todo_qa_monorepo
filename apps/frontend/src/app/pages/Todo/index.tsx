@@ -14,11 +14,12 @@ import { Heading } from '@/app/components/Parts/heading';
 import { useTodoSlice } from './slice';
 import { Accordion } from '@/app/components/ui/accordion';
 import { TodoAccordionItem } from './components/todo-accordion';
+import { useDispatch } from 'react-redux';
 
 export interface TodoProps {}
 
 export function Todo({}: TodoProps) {
-  const { useLazyGetTodoItemsQuery } = useTodoSlice();
+  const { useLazyGetTodoItemsQuery, actions } = useTodoSlice();
 
   const [
     getTodoItems,
@@ -31,8 +32,11 @@ export function Todo({}: TodoProps) {
   ] = useLazyGetTodoItemsQuery();
 
   const user = useSelector(selectUser);
+  const dispatch = useDispatch();
   const themeState = useSelector(selectTheme);
   const [isTodoDialogOpen, setIsTodoDialogOpen] = useState<boolean>(false);
+  const [isEditableDialogOpen, setIsEditableDialogOpen] =
+    useState<boolean>(false);
 
   const [page, setPage] = useState({
     pageNumber: 1,
@@ -40,6 +44,7 @@ export function Todo({}: TodoProps) {
   });
 
   const openTodoDialog = () => {
+    dispatch(actions.resetEditableTodo());
     setIsTodoDialogOpen(true);
   };
 
@@ -92,7 +97,12 @@ export function Todo({}: TodoProps) {
         <Accordion type="multiple" className="w-full">
           {todoDocuments?.map(eachTodo => {
             return (
-              <TodoAccordionItem eachItem={eachTodo} key={eachTodo?._id} />
+              <TodoAccordionItem
+                eachItem={eachTodo}
+                key={eachTodo?._id}
+                open={isEditableDialogOpen}
+                setOpen={setIsEditableDialogOpen}
+              />
             );
           })}
         </Accordion>
