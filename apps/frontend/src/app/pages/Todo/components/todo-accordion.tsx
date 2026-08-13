@@ -65,7 +65,7 @@ export function TodoAccordionItem(props: Props) {
             </div>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="bg-teal-50 p-4 min-h-[15rem] relative">
+        <AccordionContent className="p-4 min-h-[15rem] relative themeState === 'dark' ? 'bg-black' : 'bg-teal-100'} border border-teal-700 rounded-[.8rem]">
           <p className="text-lg font-medium">{description}</p>
           <div className="absolute bottom-2 flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
@@ -79,7 +79,9 @@ export function TodoAccordionItem(props: Props) {
               </p>
             </div>
             <div className="">
-              <p className="text-[1.4rem] font-[800] text-teal-700">
+              <p
+                className={`${themeState === 'dark' ? 'text-white' : 'text-black-700'} text-[1.4rem] font-[800] pr-8`}
+              >
                 {formatDate(deadline || new Date())}
               </p>
             </div>
