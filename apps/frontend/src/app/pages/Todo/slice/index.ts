@@ -2,6 +2,8 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
 import {
+  DeleteTodoRequest,
+  DeleteTodoResponse,
   GetTodoRequest,
   GetTodoResponse,
   TodoRequest,
@@ -28,6 +30,7 @@ const slice = createSlice({
 export const api = createApi({
   reducerPath: 'todoApi',
   baseQuery,
+  tagTypes: ['Todo'],
   endpoints: build => ({
     createTodo: build.mutation<TodoResponse, TodoRequest>({
       query: body => {
@@ -36,6 +39,7 @@ export const api = createApi({
           body,
         };
       },
+      invalidatesTags: ['Todo'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         return formatErrors(baseQueryReturnValue);
       },
@@ -48,6 +52,7 @@ export const api = createApi({
           params: query,
         };
       },
+      providesTags: ['Todo'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         return formatErrors(baseQueryReturnValue);
       },
@@ -60,17 +65,19 @@ export const api = createApi({
           body,
         };
       },
+      invalidatesTags: ['Todo'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         formatErrors(baseQueryReturnValue);
       },
     }),
-    deleteTodo: build.mutation<any, any>({
+    deleteTodo: build.mutation<DeleteTodoResponse, DeleteTodoRequest>({
       query: params => {
         return {
           url: `${endpoints.deleteTodo.url}/${params.todoId}/${params.userId}`,
           method: endpoints.deleteTodo.method,
         };
       },
+      invalidatesTags: ['Todo'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         formatErrors(baseQueryReturnValue);
       },

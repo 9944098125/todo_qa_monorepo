@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { TodoItem } from '../slice/types';
 import {
   AccordionContent,
@@ -6,26 +6,84 @@ import {
   AccordionTrigger,
 } from '@/app/components/ui/accordion';
 import { Edit2Icon, Trash2Icon } from 'lucide-react';
+import { formatDate } from '@/utils/formatDate';
+import { useSelector } from 'react-redux';
+import { selectTheme } from '@/app/slice/selectors';
+import { useTodoSlice } from '../slice';
+import { toast } from '@/app/components/ui/use-toast';
 
 type Props = {
   eachItem: TodoItem;
 };
 export function TodoAccordionItem(props: Props) {
-  const { _id, title, description, urgency, deadline } = props.eachItem;
+  const themeState = useSelector(selectTheme);
+  const { _id, title, description, urgency, deadline, userId } = props.eachItem;
+  const { useDeleteTodoMutation } = useTodoSlice();
+
+  const [deleteTodo, { isSuccess, data, isError, error }] =
+    useDeleteTodoMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast({
+        description: data?.data?.message || 'Deleted Successfully !',
+        variant: 'success',
+      });
+    }
+  }, [isSuccess]);
+
+  useEffect(() => {
+    if (isError || error) {
+      toast({
+        description: String(error) || 'Delete Todo Failed !',
+        variant: 'destructive',
+      });
+    }
+  }, [isError, error]);
+
   return (
     <React.Fragment>
-      <AccordionItem value={_id}>
-        <AccordionTrigger>
-          <div className="flex items-center justify-between px-4 py-2">
-            <h4 className="text-xl font-[600]">{title}</h4>
+      <AccordionItem
+        value={_id}
+        className={`${themeState === 'dark' ? 'bg-black' : 'bg-teal-100'} border border-teal-700 rounded-[.8rem]`}
+      >
+        <AccordionTrigger className="hover:no-underline">
+          <div className="flex items-center justify-between px-4 py-2 w-full">
+            <div>
+              <h4 className="text-xl font-[600]">{title}</h4>
+            </div>
             <div className="flex items-center gap-4">
-              <Edit2Icon className="h-10 w-10 bg-blue-100 hover:bg-blue-200 p-2 rounded-[.8rem]" />
-              <Trash2Icon className="h-10 w-10 bg-red-100 hover:bg-red-200 p-2 rounded-[.8rem]" />
+              <div className="bg-blue-600 hover:bg-blue-800 text-white p-4 rounded-[.8rem]">
+                <Edit2Icon className="h-10 w-10" />
+              </div>
+              <div
+                onClick={() => deleteTodo({ todoId: _id, userId: userId })}
+                className="bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem]"
+              >
+                <Trash2Icon className="h-10 w-10" />
+              </div>
             </div>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="bg-teal-50 p-4">
+        <AccordionContent className="bg-teal-50 p-4 min-h-[15rem] relative">
           <p className="text-lg font-medium">{description}</p>
+          <div className="absolute bottom-2 flex items-center justify-between w-full">
+            <div className="flex items-center gap-4">
+              <div
+                className={`${urgency ? 'bg-red-600' : 'bg-green-600'} rounded-full h-10 w-10`}
+              ></div>
+              <p
+                className={`${urgency ? 'text-red-600' : 'text-green-600'} text-[1.2rem] font-[800]`}
+              >
+                {urgency ? "It's urgent !!!" : 'I can take time !'}
+              </p>
+            </div>
+            <div className="">
+              <p className="text-[1.4rem] font-[800] text-teal-700">
+                {formatDate(deadline || new Date())}
+              </p>
+            </div>
+          </div>
         </AccordionContent>
       </AccordionItem>
     </React.Fragment>

@@ -77,3 +77,20 @@ export interface TodoItem {
   userId: string;
   createdAt: string;
 }
+
+export interface DeleteTodoRequest {
+  userId: string;
+  todoId: string;
+}
+
+export interface DeleteTodoResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string;
+    data: null;
+  };
+  meta: {
+    url: string;
+  };
+}
