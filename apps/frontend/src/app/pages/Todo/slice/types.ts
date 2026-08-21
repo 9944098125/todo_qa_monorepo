@@ -9,7 +9,7 @@ export interface TodoState {
     urgency: boolean;
     deadline: string;
     userId: string;
-  };
+  } | null;
 }
 
 export interface TodoRequest {

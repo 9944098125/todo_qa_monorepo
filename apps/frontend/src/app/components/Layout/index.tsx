@@ -32,7 +32,7 @@ export function Layout(props: Props) {
             <Sidebar />
           </aside>
           <main
-            className={`flex-1 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-teal-50 text-black'}`}
+            className={`flex-1 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-green-50 text-black'}`}
             id="outlet-container"
           >
             {props.children}

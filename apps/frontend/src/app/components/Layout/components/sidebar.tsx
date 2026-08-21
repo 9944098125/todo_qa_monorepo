@@ -47,7 +47,7 @@ export function Sidebar() {
           <NavLink
             to="/todo"
             className={({ isActive }) =>
-              `${isActive ? (themeState === 'dark' ? 'bg-white/50' : 'bg-green-700/70 text-white') : ''} rounded-[.8rem] text-xl font-bold p-4 flex items-center`
+              `${isActive ? (themeState === 'dark' ? 'bg-green-700' : 'bg-green-700/70 text-white') : ''} rounded-[.8rem] text-xl font-bold p-4 flex items-center`
             }
           >
             <div
@@ -64,7 +64,7 @@ export function Sidebar() {
           <NavLink
             to="/qa"
             className={({ isActive }) =>
-              `${isActive ? (themeState === 'dark' ? 'bg-white/50' : 'bg-green-700/70 text-white') : ''} rounded-[.8rem] text-xl font-bold p-4 flex items-center`
+              `${isActive ? (themeState === 'dark' ? 'bg-green-700' : 'bg-green-700/70 text-white') : ''} rounded-[.8rem] text-xl font-bold p-4 flex items-center`
             }
           >
             <div

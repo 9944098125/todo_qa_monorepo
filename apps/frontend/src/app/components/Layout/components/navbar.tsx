@@ -27,7 +27,7 @@ export function Navbar() {
       >
         <div id="logo-container" className="flex items-center gap-4">
           <img src="/logo.png" alt="" className="w-[5rem] h-[5rem]" />
-          <h3 className="text-[1.8rem] md:text-[2.6rem] font-[800] text-green-700/70">
+          <h3 className="text-[1.8rem] md:text-[2.6rem] font-[800] text-green-700">
             ToDoQa Souvenir
           </h3>
         </div>

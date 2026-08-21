@@ -35,14 +35,7 @@ const slice = createSlice({
       state.editableTodo = action.payload;
     },
     resetEditableTodo(state) {
-      state.editableTodo = {
-        _id: '',
-        title: '',
-        description: '',
-        urgency: false,
-        deadline: '',
-        userId: '',
-      };
+      state.editableTodo = null;
     },
   },
 });

@@ -26,7 +26,7 @@ const buttonVariants = cva(
         primary:
           'bg-blue-600/70 text-white hover:bg-blue-800/90 text-xs leading-loose',
         special:
-          'bg-gradient-to-tr from-teal-800 via-teal-500 to-cyan-700 hover:bg-gradient-to-tl text-white',
+          'bg-gradient-to-tr from-green-800 via-green-500 to-green-700 hover:bg-gradient-to-tl text-white',
       },
       size: {
         default: 'h-10 px-4 py-2',

@@ -58,54 +58,20 @@ export function TodoAccordionItem(props: Props) {
     <React.Fragment>
       <AccordionItem
         value={_id}
-        className={`${themeState === 'dark' ? 'bg-black' : 'bg-teal-100'} mb-4 md:mb-8 border border-teal-700 rounded-[.8rem]`}
+        className={`${themeState === 'dark' ? 'bg-black' : 'bg-green-100'} mb-4 md:mb-8 border border-green-700 rounded-[.8rem]`}
       >
         <AccordionTrigger className="hover:no-underline">
           <div className="flex items-center justify-between px-4 py-2 w-full">
             <div>
               <h4 className="text-xl font-[600]">{title}</h4>
             </div>
-            <div className="flex items-center gap-4">
-              <Dialog open={props.open} onOpenChange={props.setOpen}>
-                <DialogTrigger asChild>
-                  <div
-                    onClick={(e: any) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      dispatch(actions.editTodo(props.eachItem));
-                      props.setOpen(true);
-                    }}
-                    className="bg-blue-600 hover:bg-blue-800 text-white p-4 rounded-[.8rem]"
-                  >
-                    <Edit2Icon className="h-10 w-10" />
-                  </div>
-                </DialogTrigger>
-                <DialogContent
-                  onInteractOutside={e => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  className={`w-[90%] md:w-1/2 max-w-none border-0 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white text-black'}`}
-                >
-                  <DialogHeader>
-                    <Heading text="Edit Todo" size="2.6rem" weight="600" />
-                  </DialogHeader>
-                  <TodoDialog closeDialog={() => props.setOpen(false)} />
-                </DialogContent>
-              </Dialog>
-
-              <div
-                onClick={() => deleteTodo({ todoId: _id, userId: userId })}
-                className="bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem]"
-              >
-                <Trash2Icon className="h-10 w-10" />
-              </div>
-            </div>
           </div>
         </AccordionTrigger>
-        <AccordionContent className="p-4 min-h-[15rem] relative themeState === 'dark' ? 'bg-black' : 'bg-teal-100'} border border-teal-700 rounded-[.8rem]">
-          <p className="text-lg font-medium">{description}</p>
-          <div className="absolute bottom-2 flex items-center justify-between w-full">
+        <AccordionContent className="p-4 pb-[12rem] min-h-[15rem] relative rounded-b-[.8rem]">
+          <p className="text-lg leading-normal font-medium">{description}</p>
+          <div
+            className={`border-t border-green-700 shadow-lg absolute bottom-0 right-0 left-0 rounded-b-[.8rem] py-2 px-4 bg-black flex items-center justify-between w-full ${themeState === 'dark' ? 'bg-green-700/70' : 'bg-green-200'}`}
+          >
             <div className="flex items-center gap-4">
               <div
                 className={`${urgency ? 'bg-red-600' : 'bg-green-600'} rounded-full h-10 w-10`}
@@ -117,6 +83,42 @@ export function TodoAccordionItem(props: Props) {
               </p>
             </div>
             <div className="">
+              <div className="flex items-center justify-between mb-4">
+                <Dialog open={props.open} onOpenChange={props.setOpen}>
+                  <DialogTrigger>
+                    <div
+                      onClick={(e: any) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dispatch(actions.editTodo(props.eachItem));
+                        props.setOpen(true);
+                      }}
+                      className="bg-blue-600 hover:bg-blue-800 text-white p-4 rounded-[.8rem]"
+                    >
+                      <Edit2Icon className="h-10 w-10" />
+                    </div>
+                  </DialogTrigger>
+                  <DialogContent
+                    onInteractOutside={e => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    className={`w-[90%] md:w-1/2 max-w-none border-0 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white text-black'}`}
+                  >
+                    <DialogHeader>
+                      <Heading text="Edit Todo" size="2.6rem" weight="600" />
+                    </DialogHeader>
+                    <TodoDialog closeDialog={() => props.setOpen(false)} />
+                  </DialogContent>
+                </Dialog>
+
+                <div
+                  onClick={() => deleteTodo({ todoId: _id, userId: userId })}
+                  className="bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem]"
+                >
+                  <Trash2Icon className="h-10 w-10" />
+                </div>
+              </div>
               <p
                 className={`${themeState === 'dark' ? 'text-white' : 'text-black-700'} text-[1.4rem] font-[800] pr-8`}
               >

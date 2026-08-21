@@ -27,10 +27,29 @@ type TodoForm = {
 };
 
 export const TodoDialog = ({ closeDialog }: Props) => {
-  const { useCreateTodoMutation } = useTodoSlice();
+  const { useCreateTodoMutation, useUpdateTodoMutation } = useTodoSlice();
 
-  const [createTodo, { isLoading, isSuccess, isError, error, data }] =
-    useCreateTodoMutation();
+  const [
+    createTodo,
+    {
+      isLoading: isCreateLoading,
+      isSuccess: isCreateSuccess,
+      isError: isCreateError,
+      error: createErrorMessage,
+      data: createdData,
+    },
+  ] = useCreateTodoMutation();
+
+  const [
+    updateTodo,
+    {
+      isLoading: isUpdateLoading,
+      isSuccess: isUpdateSuccess,
+      isError: isUpdateError,
+      error: updateErrorMessage,
+      data: updatedData,
+    },
+  ] = useUpdateTodoMutation();
 
   const user = useSelector(selectUser);
   const editableTodo = useSelector(selectEditableTodo);
@@ -83,7 +102,6 @@ export const TodoDialog = ({ closeDialog }: Props) => {
   const submitTodoForm = (formData: TodoForm) => {
     const body = {
       ...formData,
-
       // Convert UI value to API value
       urgency: formData.urgency === 'Yes',
 
@@ -92,29 +110,44 @@ export const TodoDialog = ({ closeDialog }: Props) => {
 
       userId: user?._id,
     };
-
-    createTodo(body);
+    editableTodo
+      ? updateTodo({ body, requestParams: { todoId: editableTodo?._id } })
+      : createTodo(body);
   };
 
   useEffect(() => {
-    if (isSuccess && data) {
+    if (isCreateSuccess && createdData) {
       closeDialog();
 
       toast({
-        description: data?.data?.message || 'Todo Created',
+        description: createdData?.data?.message || 'Todo Created',
         variant: 'success',
       });
     }
-  }, [isSuccess, data, closeDialog]);
+    if (isUpdateSuccess && updatedData) {
+      closeDialog();
+
+      toast({
+        description: updatedData?.data?.message || 'Todo updated',
+        variant: 'success',
+      });
+    }
+  }, [isCreateSuccess, createdData, isUpdateSuccess, updatedData, closeDialog]);
 
   useEffect(() => {
-    if (error || isError) {
+    if (createErrorMessage || isCreateError) {
       toast({
-        description: String(error),
+        description: String(createErrorMessage),
         variant: 'destructive',
       });
     }
-  }, [isError, error]);
+    if (updateErrorMessage || isUpdateError) {
+      toast({
+        description: String(updateErrorMessage),
+        variant: 'destructive',
+      });
+    }
+  }, [isCreateError, createErrorMessage, isUpdateError, updateErrorMessage]);
 
   return (
     <div className="w-full p-5">
@@ -211,18 +244,15 @@ export const TodoDialog = ({ closeDialog }: Props) => {
           <Button
             type="submit"
             variant="primary"
-            disabled={isLoading}
+            disabled={isCreateLoading || isUpdateLoading}
             className="w-full rounded-[.8rem] py-4"
           >
-            {isLoading
-              ? editableTodo
-                ? 'Editing Todo...'
-                : 'Creating Todo...'
-              : editableTodo
-                ? 'Edit Todo'
-                : 'Create Todo'}
-
-            {isLoading && <Icons.Spinner className="h-8 w-8 animate-spin" />}
+            {isUpdateLoading && editableTodo && 'Editing Todo...'}
+            {isCreateLoading && !editableTodo && 'Creating Todo...'}
+            {editableTodo ? 'Edit Todo' : 'Create Todo'}
+            {(isCreateLoading || isUpdateLoading) && (
+              <Icons.Spinner className="h-8 w-8 animate-spin" />
+            )}
           </Button>
         </div>
       </form>
