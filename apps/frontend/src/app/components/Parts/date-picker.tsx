@@ -24,7 +24,12 @@ export function DatePicker(props: Props) {
       <PopoverContent
         className={`w-auto p-0 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white text-black'}`}
       >
-        <Calendar mode="single" selected={date} onSelect={setDate} />
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          disabled={d => d < new Date(new Date().setHours(0, 0, 0, 0))}
+        />
       </PopoverContent>
     </Popover>
   );

@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { LoginForm } from './components/login-form';
 import { useSelector } from 'react-redux';
-import { selectToken, selectUser } from '@/app/slice/selectors';
+import { selectUser } from '@/app/slice/selectors';
 import { useNavigate } from 'react-router-dom';
 
 export function Login() {
   const navigate = useNavigate();
-  const tokenState = useSelector(selectToken);
   const userState = useSelector(selectUser);
 
   useEffect(() => {
-    if (tokenState || userState) {
+    if (userState) {
       navigate('/todo');
     }
   }, []);

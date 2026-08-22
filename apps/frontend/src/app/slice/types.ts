@@ -12,7 +12,6 @@ export type User = {
 
 /* --- STATE --- */
 export interface GlobalState {
-  token?: string;
   user?: User;
   theme?: Theme;
   sidebarToggled?: SidebarToggled;

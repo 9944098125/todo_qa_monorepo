@@ -5,11 +5,11 @@ import jwt from "jsonwebtoken";
 import { sendRegistrationEmail } from "../helpers/registerEmail";
 import { sendLoginEmail } from "../helpers/sendLoginEmail";
 import {
-	getPagination,
-	sendError,
-	sendPaginated,
-	sendSuccess,
-	totalPages,
+  getPagination,
+  sendError,
+  sendPaginated,
+  sendSuccess,
+  totalPages,
 } from "../helpers/response";
 
 import OpenAI from "openai";
@@ -20,254 +20,257 @@ const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_API_KEY,
   baseURL: "https://openrouter.ai/api/v1",
   defaultHeaders: {
-    "HTTP-Referer": "http://localhost",   // REQUIRED
-    "X-Title": "My MERN App"               // REQUIRED
-  }
+    "HTTP-Referer": "http://localhost", // REQUIRED
+    "X-Title": "My MERN App", // REQUIRED
+  },
 });
 
 export const register = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> => {
-	try {
-		const { name, email, password, phone, profilePicture, bio, isAdmin } =
-			req.body;
-		const existingUser = await User.findOne({ email });
-		if (existingUser) {
-			sendError(
-				req,
-				res,
-				400,
-				`${email} is already used ! Please try some other email... 🚫`
-			);
-			return;
-		}
-		const saltRounds = bcryptJS.genSaltSync(12);
-		const hashedPassword = bcryptJS.hashSync(password, saltRounds);
-		const newUser = new User({
-			name,
-			email,
-			password: hashedPassword,
-			phone,
-			profilePicture,
-			bio,
-			isAdmin,
-		});
-		await newUser.save();
-		sendRegistrationEmail(email, name);
-		sendSuccess(
-			req,
-			res,
-			201,
-			`Congratulations ${name}!! You have registered successfully 🤩`
-		);
-	} catch (error) {
-		next(error);
-	}
+  try {
+    const { name, email, password, phone, profilePicture, bio, isAdmin } =
+      req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      sendError(
+        req,
+        res,
+        400,
+        `${email} is already used ! Please try some other email... 🚫`,
+      );
+      return;
+    }
+    const saltRounds = bcryptJS.genSaltSync(12);
+    const hashedPassword = bcryptJS.hashSync(password, saltRounds);
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      profilePicture,
+      bio,
+      isAdmin,
+    });
+    await newUser.save();
+    sendRegistrationEmail(email, name);
+    sendSuccess(
+      req,
+      res,
+      201,
+      `Congratulations ${name}!! You have registered successfully 🤩`,
+    );
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const login = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> => {
-	const { emailOrPhone, password } = req.body;
-	try {
-		// check if the req has email or not
-		const isEmail = /^\S+@\S+\.\S+$/.test(emailOrPhone);
+  const { emailOrPhone, password } = req.body;
+  try {
+    // check if the req has email or not
+    const isEmail = /^\S+@\S+\.\S+$/.test(emailOrPhone);
 
-		const query = isEmail ? { email: emailOrPhone } : { phone: emailOrPhone };
-		const existingUser = await User.findOne(query);
-		if (!existingUser) {
-			sendError(req, res, 400, "No User with this email or Phone...❌");
-			return;
-		}
-		const passwordMatches = await bcryptJS.compare(
-			password,
-			existingUser.password
-		);
-		if (!passwordMatches) {
-			sendError(req, res, 504, "Wrong Password !");
-			return;
-		}
-		const userWithoutPassword = await User.findOne(query).select("-password");
-		const token = jwt.sign(
-			{
-				userId: existingUser._id,
-				isAdmin: existingUser.isAdmin,
-			},
-			process.env.SECRET_TOKEN!
-		);
-		sendLoginEmail(existingUser.email, existingUser.name);
-		sendSuccess(req, res, 200, "Login Success ✅", {
-			token: token,
-			user: userWithoutPassword,
-		});
-	} catch (err: any) {
-		next(err);
-	}
+    const query = isEmail ? { email: emailOrPhone } : { phone: emailOrPhone };
+    const existingUser = await User.findOne(query);
+    if (!existingUser) {
+      sendError(req, res, 400, "No User with this email or Phone...❌");
+      return;
+    }
+    const passwordMatches = await bcryptJS.compare(
+      password,
+      existingUser.password,
+    );
+    if (!passwordMatches) {
+      sendError(req, res, 504, "Wrong Password !");
+      return;
+    }
+    const userWithoutPassword = await User.findOne(query).select("-password");
+    const token = jwt.sign(
+      {
+        userId: existingUser._id,
+        isAdmin: existingUser.isAdmin,
+      },
+      process.env.SECRET_TOKEN!,
+    );
+    sendLoginEmail(existingUser.email, existingUser.name);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    sendSuccess(req, res, 200, "Login Success ✅", {
+      user: userWithoutPassword,
+    });
+  } catch (err: any) {
+    next(err);
+  }
 };
 
 export const getAllUsers = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> => {
-	try {
-		const { page, limit, skip } = getPagination(req, 10);
-		const totalDocuments = await User.countDocuments({});
-		const users = await User.find({})
-			.sort({ createdAt: -1 })
-			.skip(skip)
-			.limit(limit);
-		sendPaginated(req, res, {
-			message: "Users fetched successfully ✅",
-			documents: users,
-			pageNumber: page,
-			pageSize: limit,
-			totalPages: totalPages(totalDocuments, limit),
-			totalDocuments,
-		});
-	} catch (error: any) {
-		next(error);
-	}
+  try {
+    const { page, limit, skip } = getPagination(req, 10);
+    const totalDocuments = await User.countDocuments({});
+    const users = await User.find({})
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+    sendPaginated(req, res, {
+      message: "Users fetched successfully ✅",
+      documents: users,
+      pageNumber: page,
+      pageSize: limit,
+      totalPages: totalPages(totalDocuments, limit),
+      totalDocuments,
+    });
+  } catch (error: any) {
+    next(error);
+  }
 };
 
 export const getUserWithId = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> => {
-	try {
-		const { userId } = req.params;
-		const user = await User.findById({ _id: userId });
-		if (!user) {
-			sendError(req, res, 404, `User with id ${userId} does not exist 🚫`);
-			return;
-		}
-		sendSuccess(
-			req,
-			res,
-			200,
-			`${user?.name} has been fetched successfully 🤩`,
-			{ user }
-		);
-	} catch (error) {
-		next(error);
-	}
+  try {
+    const { userId } = req.params;
+    const user = await User.findById({ _id: userId });
+    if (!user) {
+      sendError(req, res, 404, `User with id ${userId} does not exist 🚫`);
+      return;
+    }
+    sendSuccess(
+      req,
+      res,
+      200,
+      `${user?.name} has been fetched successfully 🤩`,
+      { user },
+    );
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const updateUser = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> => {
-	try {
-		const { userId } = req.params;
-		const { name, email, phone, profilePicture, bio } = req.body;
-		const user = await User.findById({ _id: userId });
-		if (!user) {
-			sendError(req, res, 404, `User with id ${userId} does not exist 🚫`);
-			return;
-		}
+  try {
+    const { userId } = req.params;
+    const { name, email, phone, profilePicture, bio } = req.body;
+    const user = await User.findById({ _id: userId });
+    if (!user) {
+      sendError(req, res, 404, `User with id ${userId} does not exist 🚫`);
+      return;
+    }
 
-		const updatedUser = await User.findByIdAndUpdate(
-			{ _id: userId },
-			{
-				name,
-				email,
-				phone,
-				profilePicture,
-				bio,
-			},
-			{ new: true }
-		);
-		const updatedUserWithoutPassword = await User.findOne({
-			_id: updatedUser?._id,
-		}).select("-password");
-		sendSuccess(
-			req,
-			res,
-			200,
-			`Hola, ${user?.name} updated successfully 🤩`,
-			{ user: updatedUserWithoutPassword }
-		);
-	} catch (error) {
-		next(error);
-	}
+    const updatedUser = await User.findByIdAndUpdate(
+      { _id: userId },
+      {
+        name,
+        email,
+        phone,
+        profilePicture,
+        bio,
+      },
+      { new: true },
+    );
+    const updatedUserWithoutPassword = await User.findOne({
+      _id: updatedUser?._id,
+    }).select("-password");
+    sendSuccess(req, res, 200, `Hola, ${user?.name} updated successfully 🤩`, {
+      user: updatedUserWithoutPassword,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const updatePassword = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> => {
-	try {
-		const { userId } = req.params;
-		const { oldPassword, newPassword } = req.body;
-		const user = await User.findById({ _id: userId });
-		if (!user) {
-			sendError(req, res, 404, `User with id ${userId} does not exist 🚫`);
-			return;
-		}
-		const isPasswordCorrect = bcryptJS.compareSync(oldPassword, user.password);
-		if (!isPasswordCorrect) {
-			sendError(
-				req,
-				res,
-				400,
-				`Incorrect old password! Please try again... 😒`
-			);
-			return;
-		}
-		const saltRounds = bcryptJS.genSaltSync(12);
-		const hashedPassword = bcryptJS.hashSync(newPassword, saltRounds);
-		await User.findByIdAndUpdate(
-			{ _id: userId },
-			{
-				password: hashedPassword,
-			}
-		);
-		sendSuccess(
-			req,
-			res,
-			200,
-			`Hola, ${user?.name} updated your password successfully 🤩`
-		);
-	} catch (err: any) {
-		next(err);
-	}
+  try {
+    const { userId } = req.params;
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById({ _id: userId });
+    if (!user) {
+      sendError(req, res, 404, `User with id ${userId} does not exist 🚫`);
+      return;
+    }
+    const isPasswordCorrect = bcryptJS.compareSync(oldPassword, user.password);
+    if (!isPasswordCorrect) {
+      sendError(
+        req,
+        res,
+        400,
+        `Incorrect old password! Please try again... 😒`,
+      );
+      return;
+    }
+    const saltRounds = bcryptJS.genSaltSync(12);
+    const hashedPassword = bcryptJS.hashSync(newPassword, saltRounds);
+    await User.findByIdAndUpdate(
+      { _id: userId },
+      {
+        password: hashedPassword,
+      },
+    );
+    sendSuccess(
+      req,
+      res,
+      200,
+      `Hola, ${user?.name} updated your password successfully 🤩`,
+    );
+  } catch (err: any) {
+    next(err);
+  }
 };
 
 export const deleteUser = async (
-	req: Request,
-	res: Response,
-	next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): Promise<void> => {
-	try {
-		const { userId } = req.params;
-		const user = await User.findById({ _id: userId });
-		if (!user) {
-			sendError(req, res, 404, `User with id ${userId} does not exist 🚫`);
-			return;
-		}
-		await User.findByIdAndDelete({ _id: userId });
-		sendSuccess(
-			req,
-			res,
-			200,
-			`Hola, ${user?.name}'s account is deleted successfully 🤩`
-		);
-	} catch (error) {
-		next(error);
-	}
+  try {
+    const { userId } = req.params;
+    const user = await User.findById({ _id: userId });
+    if (!user) {
+      sendError(req, res, 404, `User with id ${userId} does not exist 🚫`);
+      return;
+    }
+    await User.findByIdAndDelete({ _id: userId });
+    sendSuccess(
+      req,
+      res,
+      200,
+      `Hola, ${user?.name}'s account is deleted successfully 🤩`,
+    );
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const generateProfilePicture = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const { gender, userId } = req.body;
@@ -299,7 +302,7 @@ Photorealistic, LinkedIn-style headshot.
     const imageResponse = await openai.images.generate({
       model: "gpt-image-1",
       prompt,
-      size: "512x512"
+      size: "512x512",
     });
 
     const imageUrl = imageResponse.data?.[0]?.url;
@@ -312,7 +315,7 @@ Photorealistic, LinkedIn-style headshot.
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { profilePicture: imageUrl },
-      { new: true }
+      { new: true },
     );
 
     sendSuccess(req, res, 200, "Profile picture generated successfully.", {

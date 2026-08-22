@@ -14,14 +14,15 @@ export const verifyAdmin = async (
 ): Promise<void> => {
   try {
     const token =
-      req.headers.authorization && req.headers.authorization.split(" ")[1];
+      req.cookies?.token ||
+      (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
     if (!token) {
       res.status(403).json({ message: "Unauthorized! No Token Provided" });
       return; // Ensure no further execution
     }
 
-    jwt.verify(token, process.env.SECRET_TOKEN!, (err, decoded: any) => {
+    jwt.verify(token, process.env.SECRET_TOKEN!, (err: any, decoded: any) => {
       if (err) {
         res.status(403).json({ message: "Invalid Token" });
         return;
@@ -49,7 +50,8 @@ export const verifyQaOwner = async (
 ): Promise<void> => {
   try {
     const token =
-      req.headers.authorization && req.headers.authorization.split(" ")[1];
+      req.cookies?.token ||
+      (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
     if (!token) {
       res.status(403).json({ message: "Unauthorized! No Token Provided" });
@@ -96,7 +98,8 @@ export const verifyTodoOwner = async (
 ): Promise<void> => {
   try {
     const token =
-      req.headers.authorization && req.headers.authorization.split(" ")[1];
+      req.cookies?.token ||
+      (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
     if (!token) {
       res.status(403).json({ message: "Unauthorized! No Token Provided" });
@@ -142,7 +145,8 @@ export const verifyToken = (
   next: NextFunction,
 ): void => {
   const token =
-    req.headers.authorization && req.headers.authorization.split(" ")[1];
+    req.cookies?.token ||
+    (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
   if (!token) {
     res.status(403).json({ message: "No token provided" });

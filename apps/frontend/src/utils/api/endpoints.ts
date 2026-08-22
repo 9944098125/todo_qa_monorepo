@@ -7,17 +7,10 @@ const defaultHeaders = {
   'Content-Type': 'application/json',
 };
 
-const prepareHeaders = (headers: any, { getState }) => {
-  const token = (getState() as RootState)?.global?.token;
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
-  return headers;
-};
 export const baseQuery = fetchBaseQuery({
   baseUrl,
   headers: defaultHeaders,
-  prepareHeaders,
+  credentials: 'include',
 });
 
 export const formatErrors = (errors: any) => {

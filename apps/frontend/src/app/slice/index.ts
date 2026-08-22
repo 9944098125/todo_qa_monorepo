@@ -25,13 +25,8 @@ const getInitialUserState = (): User | undefined => {
   }
 };
 
-const getInitialToken = (): string | undefined => {
-  return localStorage.getItem('tq_monorepo_token') as string;
-};
-
 export const initialState: GlobalState = {
   theme: getInitialTheme(),
-  token: getInitialToken(),
   user: getInitialUserState(),
   sidebarToggled: getInitialSidebarState(),
 };
@@ -52,15 +47,9 @@ const slice = createSlice({
       state.user = action.payload;
       localStorage.setItem('tq_monorepo_user', JSON.stringify(action.payload));
     },
-    setToken(state, action: PayloadAction<string>) {
-      state.token = action.payload;
-      localStorage.setItem('tq_monorepo_token', action.payload);
-    },
     logout(state) {
       state.user = undefined;
-      state.token = undefined;
       localStorage.removeItem('tq_monorepo_user');
-      localStorage.removeItem('tq_monorepo_token');
     },
   },
 });
