@@ -37,6 +37,10 @@ export function Todo({}: TodoProps) {
   const [isTodoDialogOpen, setIsTodoDialogOpen] = useState<boolean>(false);
   const [isEditableDialogOpen, setIsEditableDialogOpen] =
     useState<boolean>(false);
+  const [openDeleteConfirmation, setOpenDeleteConfirmation] =
+    useState<boolean>(false);
+  const [openEditConfirmation, setOpenEditConfirmation] =
+    useState<boolean>(false);
 
   const [page, setPage] = useState({
     pageNumber: 1,

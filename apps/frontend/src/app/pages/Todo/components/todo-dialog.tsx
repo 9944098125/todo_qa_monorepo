@@ -5,7 +5,7 @@ import { Input } from '@/app/components/ui/input';
 import Label from '@/app/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/app/components/ui/radio-group';
 import { Textarea } from '@/app/components/ui/textarea';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTodoSlice } from '../slice';
 import { useSelector } from 'react-redux';
@@ -14,6 +14,7 @@ import { toast } from '@/app/components/ui/use-toast';
 import { Icons } from '@/app/components/ui/icons';
 import { selectEditableTodo } from '../slice/selectors';
 import { isValid, parseISO } from 'date-fns';
+import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 
 type Props = {
   closeDialog: () => void;
@@ -53,6 +54,9 @@ export const TodoDialog = ({ closeDialog }: Props) => {
 
   const user = useSelector(selectUser);
   const editableTodo = useSelector(selectEditableTodo);
+
+  const [openEditConfirmation, setOpenEditConfirmation] =
+    useState<boolean>(false);
 
   const form = useForm<TodoForm>({
     defaultValues: {
@@ -149,6 +153,10 @@ export const TodoDialog = ({ closeDialog }: Props) => {
     }
   }, [isCreateError, createErrorMessage, isUpdateError, updateErrorMessage]);
 
+  const confirmEdit = () => {
+    handleSubmit(submitTodoForm)();
+  };
+
   return (
     <div className="w-full p-5">
       <form onSubmit={handleSubmit(submitTodoForm)}>
@@ -242,7 +250,12 @@ export const TodoDialog = ({ closeDialog }: Props) => {
         {/* Submit */}
         <div className="mb-4 px-4 py-2">
           <Button
-            type="submit"
+            type={editableTodo ? 'button' : 'submit'}
+            onClick={() =>
+              editableTodo
+                ? setOpenEditConfirmation(true)
+                : console.log('create form submitted')
+            }
             variant="primary"
             disabled={isCreateLoading || isUpdateLoading}
             className="w-full rounded-[.8rem] py-4"
@@ -254,6 +267,16 @@ export const TodoDialog = ({ closeDialog }: Props) => {
               <Icons.Spinner className="h-8 w-8 animate-spin" />
             )}
           </Button>
+          {openEditConfirmation && (
+            <ConfirmationDialog
+              module="Todo"
+              operation="update"
+              buttons={{ cancel: 'No', confirm: 'Yes' }}
+              confirm={confirmEdit}
+              open={openEditConfirmation}
+              setOpen={setOpenEditConfirmation}
+            />
+          )}
         </div>
       </form>
     </div>

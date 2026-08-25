@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TodoItem } from '../slice/types';
 import {
   AccordionContent,
@@ -20,6 +20,7 @@ import {
 } from '@/app/components/ui/dialog';
 import { Heading } from '@/app/components/Parts/heading';
 import { TodoDialog } from './todo-dialog';
+import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 
 type Props = {
   eachItem: TodoItem;
@@ -35,6 +36,9 @@ export function TodoAccordionItem(props: Props) {
 
   const [deleteTodo, { isSuccess, data, isError, error }] =
     useDeleteTodoMutation();
+
+  const [openDeleteConfirmation, setOpenDeleteConfirmation] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (isSuccess) {
@@ -113,11 +117,23 @@ export function TodoAccordionItem(props: Props) {
                 </Dialog>
 
                 <div
-                  onClick={() => deleteTodo({ todoId: _id, userId: userId })}
-                  className="bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem]"
+                  onClick={() => setOpenDeleteConfirmation(true)}
+                  className="bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem] cursor-pointer"
                 >
                   <Trash2Icon className="h-10 w-10" />
                 </div>
+                {openDeleteConfirmation && (
+                  <ConfirmationDialog
+                    module="Todo"
+                    operation="delete"
+                    buttons={{ cancel: 'No', confirm: 'Yes' }}
+                    open={openDeleteConfirmation}
+                    setOpen={setOpenDeleteConfirmation}
+                    confirm={() => {
+                      deleteTodo({ todoId: _id, userId: userId });
+                    }}
+                  />
+                )}
               </div>
               <p
                 className={`${themeState === 'dark' ? 'text-white' : 'text-black-700'} text-[1.4rem] font-[800] pr-8`}

@@ -37,8 +37,9 @@ export function Sidebar() {
           className={`flex items-center mt-4 mb-4 px-4 ${sidebarState === 'closed' ? 'justify-center' : 'justify-end'} hidden md:block`}
         >
           <Button
+            variant="ghost"
             onClick={toggleSidebar}
-            className="h-[5rem] w-[5rem] border border-cyan-600 rounded-xl text-inherit"
+            className={`h-[5rem] w-[5rem] border border-cyan-600 rounded-xl text-inherit ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white'}`}
           >
             <MenuIcon className="h-[3rem] w-[3rem]" />
           </Button>
