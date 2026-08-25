@@ -9,6 +9,8 @@ import {
   TodoRequest,
   TodoResponse,
   TodoState,
+  UpdateTodoRequest,
+  UpdateTodoResponse,
 } from './types';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
@@ -70,7 +72,7 @@ export const api = createApi({
         return formatErrors(baseQueryReturnValue);
       },
     }),
-    updateTodo: build.mutation<any, any>({
+    updateTodo: build.mutation<UpdateTodoResponse, UpdateTodoRequest>({
       query: ({ body, todoId }) => {
         return {
           url: `${endpoints.updateTodo.url}/${todoId}`,

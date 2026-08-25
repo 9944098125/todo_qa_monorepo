@@ -86,6 +86,33 @@ export interface TodoItem {
   createdAt: string;
 }
 
+export interface UpdateTodoRequest {
+  todoId: string;
+  body: TodoRequest;
+}
+
+export interface UpdateTodoResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string;
+    data: {
+      todo: {
+        _id: string;
+        title: string;
+        description: string;
+        urgency: boolean;
+        deadline: string;
+        userId: string;
+        createdAt: string;
+      };
+    };
+  };
+  meta: {
+    url: string;
+  };
+}
+
 export interface DeleteTodoRequest {
   userId: string;
   todoId: string;
