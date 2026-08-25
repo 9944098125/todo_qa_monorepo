@@ -1,6 +1,6 @@
 import { RegistrationState } from '@/app/pages/Registration/slice/types';
 import { TodoState } from '@/app/pages/Todo/slice/types';
-import { GlobalState } from 'app//slice/types';
+import { GlobalState } from 'app/slice/types';
 // [IMPORT NEW CONTAINERSTATE ABOVE] < Needed for generating containers seamlessly
 
 /* 
