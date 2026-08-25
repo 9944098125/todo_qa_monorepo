@@ -71,9 +71,9 @@ export const api = createApi({
       },
     }),
     updateTodo: build.mutation<any, any>({
-      query: ({ body, requestParams }) => {
+      query: ({ body, todoId }) => {
         return {
-          url: `${endpoints.updateTodo.url}/${requestParams.todoId}`,
+          url: `${endpoints.updateTodo.url}/${todoId}`,
           method: endpoints.updateTodo.method,
           body,
         };

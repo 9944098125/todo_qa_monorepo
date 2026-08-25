@@ -111,7 +111,7 @@ export const TodoDialog = ({ closeDialog }: Props) => {
       userId: user?._id,
     };
     editableTodo
-      ? updateTodo({ body, requestParams: { todoId: editableTodo?._id } })
+      ? updateTodo({ body, todoId: editableTodo?._id })
       : createTodo(body);
   };
 
