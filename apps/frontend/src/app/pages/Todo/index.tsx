@@ -15,6 +15,7 @@ import { useTodoSlice } from './slice';
 import { Accordion } from '@/app/components/ui/accordion';
 import { TodoAccordionItem } from './components/todo-accordion';
 import { useDispatch } from 'react-redux';
+import { toast } from '@/app/components/ui/use-toast';
 
 export interface TodoProps {}
 
@@ -37,10 +38,6 @@ export function Todo({}: TodoProps) {
   const [isTodoDialogOpen, setIsTodoDialogOpen] = useState<boolean>(false);
   const [isEditableDialogOpen, setIsEditableDialogOpen] =
     useState<boolean>(false);
-  const [openDeleteConfirmation, setOpenDeleteConfirmation] =
-    useState<boolean>(false);
-  const [openEditConfirmation, setOpenEditConfirmation] =
-    useState<boolean>(false);
 
   const [page, setPage] = useState({
     pageNumber: 1,
@@ -60,6 +57,13 @@ export function Todo({}: TodoProps) {
     if (!user?._id) {
       return;
     }
+    if (todoError || isTodoError) {
+      toast({
+        description: String(todoError),
+        variant: 'destructive',
+      });
+      return;
+    }
     getTodoItems({
       requestParams: {
         userId: user?._id,
@@ -69,7 +73,7 @@ export function Todo({}: TodoProps) {
         pageSize: page.pageSize,
       },
     });
-  }, []);
+  }, [isTodoError, todoError]);
 
   const todoDocuments = todoData?.data?.documents ?? [];
 

@@ -14,7 +14,11 @@ export const baseQuery = fetchBaseQuery({
 });
 
 export const formatErrors = (errors: any) => {
-  return errors?.data?.data?.message || 'Something went wrong';
+  return (
+    errors?.data?.data?.message ||
+    errors?.data?.message ||
+    'Something went wrong'
+  );
 };
 
 export const HTTP_METHODS = {
