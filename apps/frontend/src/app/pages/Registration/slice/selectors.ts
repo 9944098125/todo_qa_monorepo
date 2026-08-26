@@ -1,8 +1,17 @@
 import { RootState } from '@/types';
+import { createSelector } from '@reduxjs/toolkit';
+import { initialState } from '.';
 
-export const selectRegistrationData = (state: RootState) =>
-  state.registration.data;
-export const selectRegistrationIsLoading = (state: RootState) =>
-  state.registration.isLoading;
-export const selectRegistrationError = (state: RootState) =>
-  state.registration.error;
+const selectSlice = (state: RootState) => state.registration || initialState;
+export const selectRegistrationData = createSelector(
+  [selectSlice],
+  state => state?.data,
+);
+export const selectRegistrationIsLoading = createSelector(
+  [selectSlice],
+  state => state?.isLoading,
+);
+export const selectRegistrationError = createSelector(
+  [selectSlice],
+  state => state?.error,
+);

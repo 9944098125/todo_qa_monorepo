@@ -1,7 +1,13 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
-import { GlobalState, SidebarToggled, Theme, User } from './types';
+import {
+  GlobalState,
+  SidebarToggled,
+  SubheadToggled,
+  Theme,
+  User,
+} from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
 import { LoginFormValues, LoginResponse } from '@/types/login';
@@ -25,10 +31,15 @@ const getInitialUserState = (): User | undefined => {
   }
 };
 
+const getInitialSubheadState = (): SubheadToggled => {
+  return localStorage.getItem('subheadToggled') as SubheadToggled;
+};
+
 export const initialState: GlobalState = {
   theme: getInitialTheme(),
   user: getInitialUserState(),
   sidebarToggled: getInitialSidebarState(),
+  subheadToggled: getInitialSubheadState(),
 };
 
 const slice = createSlice({
@@ -46,6 +57,10 @@ const slice = createSlice({
     setUser(state, action: PayloadAction<User>) {
       state.user = action.payload;
       localStorage.setItem('tq_monorepo_user', JSON.stringify(action.payload));
+    },
+    setSubheadToggler(state, action: PayloadAction<SubheadToggled>) {
+      state.subheadToggled = action.payload;
+      localStorage.setItem('subheadToggled', action.payload);
     },
     logout(state) {
       state.user = undefined;

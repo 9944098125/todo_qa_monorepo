@@ -82,7 +82,7 @@ export function Todo({}: TodoProps) {
       <div className="p-5">
         {/* Heading & Add Todo Button with dialog  */}
         <div className="flex items-center justify-between p-5">
-          <Heading size="4rem" weight="700" text="Todo Collection" />
+          <Heading size="3rem" weight="700" text="Todo Collection" />
           <Dialog open={isTodoDialogOpen} onOpenChange={setIsTodoDialogOpen}>
             <DialogTrigger asChild>
               <AddTodo openDialog={openTodoDialog} />

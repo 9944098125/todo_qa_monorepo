@@ -22,6 +22,7 @@ import { Login } from './pages/Login/Loadable';
 import { ProtectedRoute } from './components/Parts/protectedRoute';
 import { Registration } from './pages/Registration/Loadable';
 import { Todo } from './pages/Todo/Loadable';
+import { Qa } from './pages/Qa/Loadable';
 
 export function App() {
   const { i18n } = useTranslation();
@@ -43,6 +44,7 @@ export function App() {
           <Route path="/register" element={<Registration />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/todo" element={<Todo />} />
+            <Route path="/qa" element={<Qa />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

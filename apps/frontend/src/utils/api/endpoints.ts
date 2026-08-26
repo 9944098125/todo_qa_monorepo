@@ -54,4 +54,24 @@ export const endpoints = {
     url: '/todo',
     method: HTTP_METHODS.DELETE,
   },
+  createTool: {
+    url: '/tools',
+    method: HTTP_METHODS.POST,
+  },
+  getTools: {
+    url: '/tools',
+    method: HTTP_METHODS.GET,
+  },
+  getToolById: {
+    url: '/tools/tool',
+    method: HTTP_METHODS.GET,
+  },
+  updateTool: {
+    url: '/tools/update-tool',
+    method: HTTP_METHODS.PATCH,
+  },
+  deleteTool: {
+    url: '/tools/delete-tool',
+    method: HTTP_METHODS.DELETE,
+  },
 };

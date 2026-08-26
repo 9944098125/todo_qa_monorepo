@@ -10,7 +10,7 @@ export const Heading = (props: Props) => {
   return (
     <React.Fragment>
       <h4
-        className={`bg-gradient-to-r from-red-900 via-purple-600 to-teal-800 bg-clip-text text-transparent`}
+        className="text-green-600"
         style={{
           fontSize: size,
           fontWeight: weight,

@@ -1,6 +1,9 @@
 import { RootState } from '@/types';
+import { createSelector } from '@reduxjs/toolkit';
 
-export const selectTodoData = (state: RootState) => state.todo.data;
-export const selectTodoIsLoading = (state: RootState) => state.todo.isLoading;
-export const selectTodoError = (state: RootState) => state.todo.error;
-export const selectEditableTodo = (state: RootState) => state.todo.editableTodo;
+const selectSlice = (state: RootState) => state?.todo;
+
+export const selectEditableTodo = createSelector(
+  [selectSlice],
+  state => state?.editableTodo,
+);

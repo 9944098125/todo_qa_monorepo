@@ -1,3 +1,4 @@
+import { QaState } from '@/app/pages/Qa/slice/types';
 import { RegistrationState } from '@/app/pages/Registration/slice/types';
 import { TodoState } from '@/app/pages/Todo/slice/types';
 import { GlobalState } from 'app/slice/types';
@@ -10,9 +11,11 @@ import { GlobalState } from 'app/slice/types';
 export interface RootState {
   globalApi: any;
   global?: GlobalState;
-  registration: RegistrationState;
-  registrationApi?: any;
-  todo: TodoState;
+  registration?: RegistrationState;
+  registrationApi: any;
+  todo?: TodoState;
   todoApi: any;
+  qa?: QaState;
+  qaApi: any;
   // [INSERT NEW REDUCER KEY ABOVE] < Needed for generating containers seamlessly
 }

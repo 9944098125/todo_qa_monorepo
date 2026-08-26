@@ -14,6 +14,7 @@ import {
   selectUser,
 } from '../../../slice/selectors';
 import { NavLink, useNavigate } from 'react-router-dom';
+import QaDropdown from './qa-dropdown';
 
 export function Sidebar() {
   const { actions } = useGlobalSlice();
@@ -62,21 +63,8 @@ export function Sidebar() {
           </NavLink>
         </div>
         <div className="mb-4 px-4">
-          <NavLink
-            to="/qa"
-            className={({ isActive }) =>
-              `${isActive ? (themeState === 'dark' ? 'bg-green-700' : 'bg-green-700/70 text-white') : ''} rounded-[.8rem] text-xl font-bold p-4 flex items-center`
-            }
-          >
-            <div
-              className={`${sidebarState === 'closed' ? 'flex justify-center items-center' : 'flex items-center gap-4'}`}
-            >
-              <MessageCircleQuestion />
-              {sidebarState === 'closed' ? null : (
-                <p className="hidden md:block">Qa</p>
-              )}
-            </div>
-          </NavLink>
+          {/* qa dropdown */}
+          <QaDropdown />
         </div>
         <div className="absolute w-full bottom-5 px-5 py-2 border-t border-white flex flex-col md:flex-row justify-between items-center">
           <div className={`flex items-center`}>
