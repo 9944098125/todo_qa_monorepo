@@ -10,11 +10,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-gray-200',
-        greenBtn: 'text-base h-[50px] rounded-[11px] bg-[#00c687] text-white ',
         inactiveBtn:
           'bg-red-100 text-red-600 text-[1.2rem] font-medium px-[1rem] py-2',
-        blueBtn:
-          'text-base h-[50px] rounded-[11px] bg-blue text-primary text-white font-normal; py-6 hover:text-#0606a6 border hover:border-[#0606a6] hover:bg-[#0606a6]',
         blackBtn: 'text-xs rounded-10 font-poppins bg-[#101828] text-white',
         destructive: 'bg-red-600/70 text-white hover:bg-red-600/90',
         outline:
@@ -22,7 +19,7 @@ const buttonVariants = cva(
         ghost: '',
         link: 'text-primary underline-offset-4 hover:underline',
         primary:
-          'bg-blue-600/70 text-white hover:bg-blue-800/90 text-xs leading-loose',
+          'bg-green-600/70 text-white hover:bg-green-800/90 text-xs leading-loose',
         special:
           'bg-gradient-to-tr from-green-800 via-green-500 to-green-700 hover:bg-gradient-to-tl text-white',
       },

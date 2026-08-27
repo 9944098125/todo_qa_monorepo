@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../../ui/button';
-import {
-  ClipboardList,
-  LogOut,
-  MenuIcon,
-  MessageCircleQuestion,
-} from 'lucide-react';
+import { ClipboardList, LogOut, MenuIcon } from 'lucide-react';
 import { useGlobalSlice } from '../../../slice';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -67,19 +62,22 @@ export function Sidebar() {
           <QaDropdown />
         </div>
         <div className="absolute w-full bottom-5 px-5 py-2 border-t border-white flex flex-col md:flex-row justify-between items-center">
-          <div className={`flex items-center`}>
-            <img
-              src={userState?.profilePicture}
-              alt=""
-              className={`rounded-full h-[5rem] w-[5rem]`}
-            />
+          <div className={`flex items-center flex-1 min-w-0 mr-2`}>
+            <div className="h-[5rem] w-[5rem] shrink-0">
+              <img
+                src={userState?.profilePicture}
+                alt=""
+                className={`rounded-full h-full w-full object-cover`}
+              />
+            </div>
             <h4
-              className={`${sidebarState === 'closed' ? 'hidden' : 'block'} text-[1.8rem] ml-2 font-800`}
+              title={userState?.name}
+              className={`${sidebarState === 'closed' ? 'hidden' : 'block'} text-[1.8rem] ml-2 font-800 truncate`}
             >
               {userState?.name}
             </h4>
           </div>
-          <div className="px-2">
+          <div className="px-2 shrink-0">
             <LogOut
               onClick={() => {
                 dispatch(actions.logout());
