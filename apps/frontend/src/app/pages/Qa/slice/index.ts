@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
-import { QaState } from './types';
+import { GetToolsResponse, QaState, ToolRequest, ToolResponse } from './types';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
 
@@ -23,7 +23,7 @@ export const api = createApi({
   reducerPath: 'qaApi',
   baseQuery,
   endpoints: build => ({
-    createTool: build.mutation<any, any>({
+    createTool: build.mutation<ToolResponse, ToolRequest>({
       query: body => {
         return {
           ...endpoints.createTool,
@@ -34,11 +34,11 @@ export const api = createApi({
         return formatErrors(baseQueryReturnValue);
       },
     }),
-    getTools: build.query<any, any>({
+    getTools: build.query<GetToolsResponse, string>({
       query: userId => {
         return {
           ...endpoints.getTools,
-          query: {
+          params: {
             userId: userId,
           },
         };
@@ -51,7 +51,7 @@ export const api = createApi({
       query: query => {
         return {
           ...endpoints.getToolById,
-          query: {
+          params: {
             ...query,
           },
         };
@@ -64,7 +64,7 @@ export const api = createApi({
       query: query => {
         return {
           ...endpoints.updateTool,
-          query: {
+          params: {
             ...query,
           },
         };
@@ -77,7 +77,7 @@ export const api = createApi({
       query: query => {
         return {
           ...endpoints.deleteTool,
-          query: {
+          params: {
             ...query,
           },
         };

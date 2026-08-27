@@ -10,8 +10,13 @@ import {
 } from '../../../slice/selectors';
 import { NavLink, useNavigate } from 'react-router-dom';
 import QaDropdown from './qa-dropdown';
+import { ToolItem } from '@/app/pages/Qa/slice/types';
 
-export function Sidebar() {
+type Props = {
+  tools: ToolItem[] | undefined;
+};
+
+export function Sidebar(props: Props) {
   const { actions } = useGlobalSlice();
   const sidebarState = useSelector(selectSidebarToggler);
   const themeState = useSelector(selectTheme);
@@ -59,7 +64,7 @@ export function Sidebar() {
         </div>
         <div className="mb-4 px-4">
           {/* qa dropdown */}
-          <QaDropdown />
+          <QaDropdown tools={props.tools} />
         </div>
         <div className="absolute w-full bottom-5 px-5 py-2 border-t border-white flex flex-col md:flex-row justify-between items-center">
           <div className={`flex items-center flex-1 min-w-0 mr-2`}>

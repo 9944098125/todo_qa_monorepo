@@ -8,9 +8,13 @@ import {
 import { Input } from '@/app/components/ui/input';
 import Label from '@/app/components/ui/label';
 import { Textarea } from '@/app/components/ui/textarea';
-import { selectTheme } from '@/app/slice/selectors';
-import React from 'react';
+import { selectTheme, selectUser } from '@/app/slice/selectors';
+import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
+import { useQaSlice } from '../slice';
+import { toast } from '@/app/components/ui/use-toast';
 
 type Props = {
   open: boolean;
@@ -20,6 +24,92 @@ type Props = {
 export const AddTool = (props: Props) => {
   const { open, setOpen } = props;
   const themeState = useSelector(selectTheme);
+  const userState = useSelector(selectUser);
+
+  const { useCreateToolMutation } = useQaSlice();
+
+  const [
+    createTool,
+    {
+      isLoading: createLoading,
+      isSuccess: createSuccess,
+      data: createdData,
+      isError: isCreateError,
+      error: createErrorMessage,
+    },
+  ] = useCreateToolMutation();
+
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const form = useForm();
+
+  const {
+    register,
+    watch,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    setError,
+  } = form;
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('image', {
+        type: 'manual',
+        message: 'File Size cannot exceed 5MB',
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+
+      const imageUrl = await uploadToCloudinary(file);
+      setValue('image', imageUrl);
+    } catch (err) {
+      throw new Error(String(err));
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  function submitToolForm(data: any) {
+    if (data) {
+      createTool({
+        ...data,
+        slug: data?.slug?.toLowerCase(),
+        userId: userState?._id,
+      });
+    }
+  }
+
+  useEffect(() => {
+    if (createSuccess && createdData) {
+      setOpen(false);
+      form.reset();
+      toast({
+        description:
+          createdData?.data?.message || 'Tool Created Successfully !',
+        variant: 'success',
+      });
+    }
+  }, [createSuccess, createdData]);
+
+  useEffect(() => {
+    if (isCreateError || createErrorMessage) {
+      toast({
+        description:
+          String(createErrorMessage) || 'Tool could not be Created !',
+        variant: 'destructive',
+      });
+    }
+  }, [createErrorMessage, isCreateError]);
+
   return (
     <React.Fragment>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -33,72 +123,88 @@ export const AddTool = (props: Props) => {
         >
           {/* tool form  */}
           <Heading text="Create Tool" size="2rem" weight="600" />
-          <div className="w-full p-4">
-            <div className="mb-4 p-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                type="text"
-                placeholder="Enter Tool Name"
-                className="h-[4.5rem] rounded-[.8rem]"
-              />
-            </div>
-            <div className="mb-4 p-2">
-              <Label htmlFor="slug">Slug</Label>
-              <Input
-                type="text"
-                placeholder="Enter Tool Slug"
-                className="h-[4.5rem] rounded-[.8rem]"
-              />
-            </div>
-            <div className="flex items-center">
-              <div className="mb-4 p-2 w-1/2">
-                <Label htmlFor="color">Color</Label>
+          <form onSubmit={handleSubmit(submitToolForm)}>
+            <div className="w-full p-4">
+              <div className="mb-4 p-2">
+                <Label htmlFor="name">Name</Label>
                 <Input
-                  type="color"
+                  type="text"
+                  {...register('name', { required: 'Name is Required !' })}
                   placeholder="Enter Tool Name"
-                  className="h-[10rem] w-[10rem] rounded-[.8rem]"
+                  className="h-[4.5rem] rounded-[.8rem]"
+                />
+                {errors?.name && (
+                  <p className="text-red-600 font-[400] text-[1.2rem]">
+                    {errors.name?.message as string}
+                  </p>
+                )}
+              </div>
+              <div className="mb-4 p-2">
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  type="text"
+                  {...register('slug', { required: 'Slug is Required !' })}
+                  placeholder="Enter Tool Slug"
+                  className="h-[4.5rem] rounded-[.8rem]"
                 />
               </div>
-              <div className="px-4 py-2 mb-4 grid grid-cols-12 gap-4">
-                <div className="px-2 col-space-12 md:col-span-3">
-                  <Label htmlFor="imageUpload">
-                    Tool Logo
-                    <Input
-                      id="imageUpload"
-                      accept="image/*"
-                      type="file"
-                      className="hidden"
-                    />
-                    <div
-                      className={`h-[10rem] w-[10rem] rounded-full cursor-pointer border-2 border-cyan-700`}
-                    >
-                      <img
-                        src={'/images/avatar.webp'}
-                        alt=""
-                        className="w-full h-full rounded-full object-cover"
+              <div className="flex items-center">
+                <div className="mb-4 p-2 w-1/2">
+                  <Label htmlFor="color">Color</Label>
+                  <Input
+                    type="color"
+                    {...register('color', { required: 'Colour is Required !' })}
+                    placeholder="Enter Tool Name"
+                    className="h-[10rem] w-[10rem] rounded-[.8rem]"
+                  />
+                </div>
+                <div className="px-4 py-2 mb-4 grid grid-cols-12 gap-4">
+                  <div className="px-2 col-space-12 md:col-span-3">
+                    <Label htmlFor="imageUpload">
+                      Tool Logo
+                      <Input
+                        id="imageUpload"
+                        accept="image/*"
+                        type="file"
+                        className="hidden"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleImageUpload(e)
+                        }
                       />
-                    </div>
-                  </Label>
+                      <div
+                        className={`h-[10rem] w-[10rem] rounded-full cursor-pointer border-2 border-cyan-700`}
+                      >
+                        <img
+                          src={watch('image') || '/images/avatar.webp'}
+                          alt=""
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      </div>
+                    </Label>
+                  </div>
                 </div>
               </div>
+              <div className="mb-4 p-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  rows={4}
+                  {...register('description', { required: false })}
+                  placeholder="Enter Tool Description"
+                  className="rounded-[.8rem]"
+                />
+              </div>
+              <div className="mb-4 p-2">
+                <Button
+                  disabled={isUploading || createLoading}
+                  type="submit"
+                  variant="primary"
+                  className="w-full h-[4.5rem] rounded-[.8rem]"
+                >
+                  Create Tool
+                </Button>
+              </div>
             </div>
-            <div className="mb-4 p-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                rows={4}
-                placeholder="Enter Tool Name"
-                className="h-[4.5rem] rounded-[.8rem]"
-              />
-            </div>
-            <div className="mb-4 p-2">
-              <Button
-                variant="primary"
-                className="w-full h-[4.5rem] rounded-[.8rem]"
-              >
-                Create Tool
-              </Button>
-            </div>
-          </div>
+          </form>
         </DialogContent>
       </Dialog>
     </React.Fragment>

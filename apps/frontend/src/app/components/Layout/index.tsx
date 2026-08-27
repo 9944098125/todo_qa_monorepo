@@ -4,9 +4,11 @@ import { Navbar } from './components/navbar';
 import { Sidebar } from './components/sidebar';
 import { useSelector } from 'react-redux';
 import { selectSidebarToggler, selectTheme } from '../../slice/selectors';
+import { ToolItem } from '@/app/pages/Qa/slice/types';
 
 type Props = {
   children: React.ReactNode;
+  tools: ToolItem[] | undefined;
 };
 
 export function Layout(props: Props) {
@@ -29,7 +31,7 @@ export function Layout(props: Props) {
             className={`w-[7rem] ${sidebarState === 'closed' ? 'md:w-[7rem]' : 'md:w-1/6'} border-r ${themeState === 'dark' ? 'bg-black border-white' : 'bg-white border-black'} overflow-hidden transition-all duration-500 ease-in-out h-[calc(100vh-7rem)]`}
             id="sidebar"
           >
-            <Sidebar />
+            <Sidebar tools={props.tools} />
           </aside>
           <main
             className={`flex-1 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-green-50 text-black'}`}

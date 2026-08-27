@@ -18,6 +18,9 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
       body: formData,
     },
   );
+  if (!response) {
+    throw new Error('Could not upload image !');
+  }
   if (!response.ok) {
     throw new Error('Image upload failure !');
   }
