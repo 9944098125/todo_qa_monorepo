@@ -1,14 +1,23 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
-import { GetToolsResponse, QaState, ToolRequest, ToolResponse } from './types';
+import {
+  GetToolsResponse,
+  QaState,
+  ToolRequest,
+  ToolResponse,
+  UpdateToolRequest,
+  UpdateToolResponse,
+} from './types';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
+import { UpdateTodoRequest, UpdateTodoResponse } from '../../Todo/slice/types';
 
 export const initialState: QaState = {
   data: null,
   error: null,
   isLoading: false,
+  editableTool: null,
 };
 
 const slice = createSlice({
@@ -16,12 +25,29 @@ const slice = createSlice({
   initialState,
   reducers: {
     // required functions
+    editTool(state, action: PayloadAction<any>) {
+      state.editableTool = {
+        ...action.payload,
+      };
+    },
+    resetTool(state) {
+      state.editableTool = {
+        _id: '',
+        name: '',
+        slug: '',
+        color: '',
+        image: '',
+        description: '',
+        userId: '',
+      };
+    },
   },
 });
 
 export const api = createApi({
   reducerPath: 'qaApi',
   baseQuery,
+  tagTypes: ['Tools'],
   endpoints: build => ({
     createTool: build.mutation<ToolResponse, ToolRequest>({
       query: body => {
@@ -30,6 +56,7 @@ export const api = createApi({
           body,
         };
       },
+      invalidatesTags: ['Tools'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         return formatErrors(baseQueryReturnValue);
       },
@@ -43,6 +70,7 @@ export const api = createApi({
           },
         };
       },
+      providesTags: ['Tools'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         return formatErrors(baseQueryReturnValue);
       },
@@ -56,19 +84,22 @@ export const api = createApi({
           },
         };
       },
+      providesTags: ['Tools'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         return formatErrors(baseQueryReturnValue);
       },
     }),
-    updateTool: build.mutation<any, any>({
-      query: query => {
+    updateTool: build.mutation<UpdateToolResponse, UpdateToolRequest>({
+      query: ({ query, body }) => {
         return {
           ...endpoints.updateTool,
+          body,
           params: {
             ...query,
           },
         };
       },
+      invalidatesTags: ['Tools'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         return formatErrors(baseQueryReturnValue);
       },
@@ -82,6 +113,7 @@ export const api = createApi({
           },
         };
       },
+      invalidatesTags: ['Tools'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         return formatErrors(baseQueryReturnValue);
       },

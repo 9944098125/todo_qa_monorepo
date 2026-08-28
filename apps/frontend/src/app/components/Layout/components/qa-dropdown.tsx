@@ -62,7 +62,7 @@ export default function QaDropdown({
           <div
             className={`transition-transform duration-500 ease-in-out ${
               subheadState === 'view' ? 'rotate-180' : 'rotate-0'
-            }`}
+            } ${sidebarState === 'closed' ? 'hidden' : 'block'}`}
           >
             <ArrowBigDown />
           </div>

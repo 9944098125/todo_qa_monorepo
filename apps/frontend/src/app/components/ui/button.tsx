@@ -10,9 +10,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-gray-200',
+        blueBtn: 'bg-blue-600 text-white hover:bg-blue-800',
         inactiveBtn:
           'bg-red-100 text-red-600 text-[1.2rem] font-medium px-[1rem] py-2',
-        blackBtn: 'text-xs rounded-10 font-poppins bg-[#101828] text-white',
         destructive: 'bg-red-600/70 text-white hover:bg-red-600/90',
         outline:
           'border border-teal-600 shadow-sm shadow-teal-600 bg-background hover:bg-accent hover:text-accent-foreground text-base',

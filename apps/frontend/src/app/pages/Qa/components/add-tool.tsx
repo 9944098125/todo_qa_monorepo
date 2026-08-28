@@ -13,8 +13,11 @@ import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
-import { useQaSlice } from '../slice';
+import { qaActions, useQaSlice } from '../slice';
 import { toast } from '@/app/components/ui/use-toast';
+import { selectEditableTool } from '../slice/selectors';
+import { useDispatch } from 'react-redux';
+import { Icons } from '@/app/components/ui/icons';
 
 type Props = {
   open: boolean;
@@ -23,10 +26,12 @@ type Props = {
 
 export const AddTool = (props: Props) => {
   const { open, setOpen } = props;
+  const dispatch = useDispatch();
   const themeState = useSelector(selectTheme);
   const userState = useSelector(selectUser);
+  const editableTool = useSelector(selectEditableTool);
 
-  const { useCreateToolMutation } = useQaSlice();
+  const { useCreateToolMutation, useUpdateToolMutation } = useQaSlice();
 
   const [
     createTool,
@@ -38,6 +43,17 @@ export const AddTool = (props: Props) => {
       error: createErrorMessage,
     },
   ] = useCreateToolMutation();
+
+  const [
+    updateTool,
+    {
+      isLoading: updateLoading,
+      isSuccess: updateSuccess,
+      data: updatedData,
+      isError: isUpdateError,
+      error: updateErrorMessage,
+    },
+  ] = useUpdateToolMutation();
 
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const form = useForm();
@@ -80,11 +96,18 @@ export const AddTool = (props: Props) => {
 
   function submitToolForm(data: any) {
     if (data) {
-      createTool({
-        ...data,
-        slug: data?.slug?.toLowerCase(),
-        userId: userState?._id,
-      });
+      if (editableTool) {
+        updateTool({
+          query: { toolId: editableTool?._id, userId: editableTool?.userId },
+          body: { ...data },
+        });
+      } else {
+        createTool({
+          ...data,
+          slug: data?.slug?.toLowerCase(),
+          userId: userState?._id,
+        });
+      }
     }
   }
 
@@ -110,19 +133,62 @@ export const AddTool = (props: Props) => {
     }
   }, [createErrorMessage, isCreateError]);
 
+  useEffect(() => {
+    if (updateSuccess && updatedData) {
+      setOpen(false);
+      form.reset();
+      toast({
+        description:
+          updatedData?.data?.message || 'Tool Updated Successfully !',
+        variant: 'success',
+      });
+    }
+  }, [updateSuccess, updatedData]);
+
+  useEffect(() => {
+    if (isUpdateError || updateErrorMessage) {
+      toast({
+        description:
+          String(updateErrorMessage) || 'Tool could not be Updated !',
+        variant: 'destructive',
+      });
+    }
+  }, [updateErrorMessage, isUpdateError]);
+
+  useEffect(() => {
+    if (editableTool) {
+      // assigning the clicked item's values to dialog form
+      form.reset({
+        ...editableTool,
+      });
+    }
+  }, [editableTool]);
+
   return (
     <React.Fragment>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="special" className="px-4 py-2 rounded-[.8rem]">
+          <Button
+            onClick={() => dispatch(qaActions.resetTool())}
+            variant="special"
+            className="px-4 py-2 rounded-[.8rem]"
+          >
             Add Tool
           </Button>
         </DialogTrigger>
         <DialogContent
+          onInteractOutside={e => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           className={`rounded-[.8rem] max-w-[90%] md:max-w-[40%] ${themeState === 'dark' ? 'bg-black text-white border-green-400' : 'bg-green-50 text-black border-green-600'}`}
         >
           {/* tool form  */}
-          <Heading text="Create Tool" size="2rem" weight="600" />
+          {editableTool ? (
+            <Heading text="Edit Tool" size="2rem" weight="600" />
+          ) : (
+            <Heading text="Create Tool" size="2rem" weight="600" />
+          )}
           <form onSubmit={handleSubmit(submitToolForm)}>
             <div className="w-full p-4">
               <div className="mb-4 p-2">
@@ -195,12 +261,21 @@ export const AddTool = (props: Props) => {
               </div>
               <div className="mb-4 p-2">
                 <Button
-                  disabled={isUploading || createLoading}
+                  disabled={isUploading || createLoading || updateLoading}
                   type="submit"
                   variant="primary"
                   className="w-full h-[4.5rem] rounded-[.8rem]"
                 >
-                  Create Tool
+                  {createLoading && !editableTool
+                    ? 'Creating Tool...'
+                    : 'Create Tool'}
+                  {updateLoading && editableTool
+                    ? 'Editing Tool...'
+                    : 'Edit Tool'}
+                  {updateLoading ||
+                    (createLoading && (
+                      <Icons.Spinner className="animate-spin h-10 w-10" />
+                    ))}
                 </Button>
               </div>
             </div>

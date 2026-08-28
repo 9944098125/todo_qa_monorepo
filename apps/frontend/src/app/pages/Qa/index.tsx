@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { selectTheme, selectUser } from '@/app/slice/selectors';
 import { ToolItem } from './slice/types';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
+import { ToolItem as ToolItemComponent } from './components/tool-item';
 export interface QaProps {}
 
 export function Qa({}: QaProps) {
@@ -20,27 +21,16 @@ export function Qa({}: QaProps) {
     <React.Fragment>
       <div className="h-full w-full p-5">
         <Add toolDialog={openToolDialog} setToolDialog={setOpenToolDialog} />
-        {/* flex wrap container  */}
-        <div className="flex flex-wrap gap-4 p-6">
+        {/* Grid container  */}
+        <div className="p-6 grid grid-cols-12 gap-5 auto-rows-[minmax(5rem, auto)]">
           {tools?.map((item: ToolItem) => {
             return (
-              <React.Fragment>
-                <div
-                  className={`${themeState === 'dark' ? 'bg-gray-700 text-white' : 'bg-green-50'} w-[30rem] min-h-[10rem] p-4 rounded-[.8rem] border border-green-600`}
-                >
-                  <div className="flex items-center gap-4 p-4">
-                    <img
-                      src={item?.image}
-                      alt=""
-                      className="h-[5rem] w-[5rem]"
-                    />
-                    <h4 className="text-[2rem] font-[600]">{item?.name}</h4>
-                  </div>
-                  <p className="text-[1.6rem] font-[300]">
-                    {item?.description}
-                  </p>
-                </div>
-              </React.Fragment>
+              <ToolItemComponent
+                item={item}
+                key={item?._id}
+                open={openToolDialog}
+                setOpen={setOpenToolDialog}
+              />
             );
           })}
         </div>
