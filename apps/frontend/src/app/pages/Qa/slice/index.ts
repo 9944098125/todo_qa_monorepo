@@ -2,6 +2,8 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
 import {
+  DeleteToolRequest,
+  DeleteToolResponse,
   GetToolsResponse,
   QaState,
   ToolRequest,
@@ -30,16 +32,8 @@ const slice = createSlice({
         ...action.payload,
       };
     },
-    resetTool(state) {
-      state.editableTool = {
-        _id: '',
-        name: '',
-        slug: '',
-        color: '',
-        image: '',
-        description: '',
-        userId: '',
-      };
+    resetEditableTool(state) {
+      state.editableTool = null;
     },
   },
 });
@@ -104,7 +98,7 @@ export const api = createApi({
         return formatErrors(baseQueryReturnValue);
       },
     }),
-    deleteTool: build.mutation<any, any>({
+    deleteTool: build.mutation<DeleteToolResponse, DeleteToolRequest>({
       query: query => {
         return {
           ...endpoints.deleteTool,

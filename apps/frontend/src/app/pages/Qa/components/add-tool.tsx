@@ -18,6 +18,7 @@ import { toast } from '@/app/components/ui/use-toast';
 import { selectEditableTool } from '../slice/selectors';
 import { useDispatch } from 'react-redux';
 import { Icons } from '@/app/components/ui/icons';
+import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 
 type Props = {
   open: boolean;
@@ -30,6 +31,8 @@ export const AddTool = (props: Props) => {
   const themeState = useSelector(selectTheme);
   const userState = useSelector(selectUser);
   const editableTool = useSelector(selectEditableTool);
+  const { actions } = useQaSlice();
+  console.log(editableTool);
 
   const { useCreateToolMutation, useUpdateToolMutation } = useQaSlice();
 
@@ -56,6 +59,7 @@ export const AddTool = (props: Props) => {
   ] = useUpdateToolMutation();
 
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
   const form = useForm();
 
   const {
@@ -156,20 +160,35 @@ export const AddTool = (props: Props) => {
   }, [updateErrorMessage, isUpdateError]);
 
   useEffect(() => {
+    if (!editableTool) {
+      form.reset({
+        _id: '',
+        name: '',
+        userId: '',
+        slug: '',
+        image: '',
+        color: '',
+        description: '',
+      });
+    }
     if (editableTool) {
       // assigning the clicked item's values to dialog form
       form.reset({
         ...editableTool,
       });
     }
-  }, [editableTool]);
+  }, [editableTool, form.reset]);
+
+  function confirmEdit() {
+    return handleSubmit(submitToolForm)();
+  }
 
   return (
     <React.Fragment>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button
-            onClick={() => dispatch(qaActions.resetTool())}
+            onClick={() => dispatch(actions.resetEditableTool())}
             variant="special"
             className="px-4 py-2 rounded-[.8rem]"
           >
@@ -262,21 +281,33 @@ export const AddTool = (props: Props) => {
               <div className="mb-4 p-2">
                 <Button
                   disabled={isUploading || createLoading || updateLoading}
-                  type="submit"
+                  type={!editableTool ? 'submit' : 'button'}
+                  onClick={() =>
+                    editableTool
+                      ? setOpenConfirmation(true)
+                      : console.log('create form submitted')
+                  }
                   variant="primary"
                   className="w-full h-[4.5rem] rounded-[.8rem]"
                 >
-                  {createLoading && !editableTool
-                    ? 'Creating Tool...'
-                    : 'Create Tool'}
-                  {updateLoading && editableTool
-                    ? 'Editing Tool...'
-                    : 'Edit Tool'}
+                  {updateLoading && editableTool && 'Editing Tool...'}
+                  {createLoading && !editableTool && 'Creating Todo...'}
+                  {editableTool ? 'Edit Todo' : 'Create Todo'}
                   {updateLoading ||
                     (createLoading && (
                       <Icons.Spinner className="animate-spin h-10 w-10" />
                     ))}
                 </Button>
+                {openConfirmation && (
+                  <ConfirmationDialog
+                    module="Qa"
+                    operation="update"
+                    buttons={{ cancel: 'No', confirm: 'Yes' }}
+                    confirm={confirmEdit}
+                    open={openConfirmation}
+                    setOpen={setOpenConfirmation}
+                  />
+                )}
               </div>
             </div>
           </form>

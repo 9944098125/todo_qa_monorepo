@@ -88,3 +88,20 @@ export interface UpdateToolResponse {
     url: string;
   };
 }
+
+export interface DeleteToolRequest {
+  userId: string;
+  toolId: string;
+}
+
+export interface DeleteToolResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string | null;
+    data: null;
+  };
+  meta: {
+    url: string;
+  };
+}
