@@ -20,7 +20,11 @@ export function Qa({}: QaProps) {
   return (
     <React.Fragment>
       <div className="h-full w-full p-5">
-        <Add toolDialog={openToolDialog} setToolDialog={setOpenToolDialog} />
+        <Add
+          tools={tools}
+          toolDialog={openToolDialog}
+          setToolDialog={setOpenToolDialog}
+        />
         {/* Grid container  */}
         <div className="p-6 grid grid-cols-12 gap-5 auto-rows-[minmax(5rem, auto)]">
           {tools?.map((item: ToolItem) => {

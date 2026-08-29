@@ -41,7 +41,7 @@ const slice = createSlice({
 export const api = createApi({
   reducerPath: 'qaApi',
   baseQuery,
-  tagTypes: ['Tools'],
+  tagTypes: ['Tools', 'Qa'],
   endpoints: build => ({
     createTool: build.mutation<ToolResponse, ToolRequest>({
       query: body => {
@@ -108,6 +108,55 @@ export const api = createApi({
         };
       },
       invalidatesTags: ['Tools'],
+      transformErrorResponse(baseQueryReturnValue, meta, arg) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    createQa: build.mutation<any, any>({
+      query: body => {
+        return {
+          ...endpoints.createQa,
+          body,
+        };
+      },
+      invalidatesTags: ['Qa'],
+      transformErrorResponse(baseQueryReturnValue, meta, arg) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    getQaByTool: build.query<any, any>({
+      query: requestParams => {
+        return {
+          url: `${endpoints.getQaByToolId.url}/${requestParams?.userId}/${requestParams?.toolId}`,
+          method: endpoints.getQaByToolId.method,
+        };
+      },
+      providesTags: ['Qa'],
+      transformErrorResponse(baseQueryReturnValue, meta, arg) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    updateQa: build.mutation<any, any>({
+      query: ({ body, params }) => {
+        return {
+          url: `${endpoints.updateQa.url}/${params?.qaId}/${params?.userId}`,
+          method: endpoints.updateQa.method,
+          body,
+        };
+      },
+      invalidatesTags: ['Qa'],
+      transformErrorResponse(baseQueryReturnValue, meta, arg) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    deleteQa: build.mutation<any, any>({
+      query: params => {
+        return {
+          url: `${endpoints.deleteQa.url}/${params?.qaId}/${params?.userId}`,
+          method: endpoints.deleteQa.method,
+        };
+      },
+      invalidatesTags: ['Qa'],
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         return formatErrors(baseQueryReturnValue);
       },

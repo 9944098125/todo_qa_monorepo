@@ -4,12 +4,13 @@ import {
   selectSubheadState,
   selectTheme,
 } from '@/app/slice/selectors';
-import { ArrowBigDown, MessageCircleQuestion } from 'lucide-react';
+import { ArrowBigDown, BadgeCheck, MessageCircleQuestion } from 'lucide-react';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { SubheadItem } from './subhead-item';
 import { ToolItem } from '@/app/pages/Qa/slice/types';
+import { isArray } from 'lodash';
 
 export default function QaDropdown({
   tools,
@@ -79,10 +80,30 @@ export default function QaDropdown({
       >
         <div className="min-h-0 overflow-hidden">
           {/* Fixed-height scrollable area */}
-          <div className="h-[40rem] overflow-y-auto">
-            {tools?.map(item => (
-              <SubheadItem key={item.slug} item={item} />
-            ))}
+          <div
+            style={{
+              padding: sidebarState === 'closed' ? '15px 5px' : '15px 10px',
+              backgroundColor:
+                themeState === 'dark'
+                  ? 'color-mix(in srgb, lightgrey 20%, transparent)'
+                  : 'color-mix(in srgb, green 20%, transparent)',
+            }}
+            className="h-[30rem] rounded-[.8rem] overflow-y-auto"
+          >
+            {tools?.length ? (
+              tools?.map(item => <SubheadItem key={item.slug} item={item} />)
+            ) : (
+              <React.Fragment>
+                {sidebarState === 'closed' ? null : (
+                  <div
+                    className={`flex flex-col items-center justify-center w-full hidden md:block min-h-[10rem] ${themeState === 'dark' ? 'bg-gray-600 text-white' : 'bg-green-50'}`}
+                  >
+                    <BadgeCheck className="" />
+                    <p className="text-2rem font-800">No Tools</p>
+                  </div>
+                )}
+              </React.Fragment>
+            )}
           </div>
         </div>
       </div>

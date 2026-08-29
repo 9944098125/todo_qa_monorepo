@@ -27,15 +27,15 @@ export const SubheadItem = (props: Props) => {
     <React.Fragment>
       <div
         onClick={handleNavigate}
-        style={{ backgroundColor: props.item.color, color: 'white' }}
-        className={`w-full flex items-center gap-4 cursor-pointer text-[1.6rem] mb-4 font-[600] rounded-[.8rem] py-4 px-6`}
+        style={{
+          backgroundColor: props.item.color,
+          color: 'white',
+          padding: sidebarState === 'closed' ? '5px' : '5px 5px',
+        }}
+        className={`w-full flex items-center ${sidebarState === 'closed' && 'justify-center'} gap-4 cursor-pointer text-[1.6rem] mb-4 font-[600] rounded-[.8rem]`}
       >
-        <div className="p-2 bg-white rounded-full">
-          <img
-            src={props.item.image}
-            className="h-10 w-10 rounded-full"
-            alt=""
-          />
+        <div className="p-1 bg-white rounded-full">
+          <img src={props.item.image} className="h-8 w-8 rounded-full" alt="" />
         </div>
         <p className={`${sidebarState === 'closed' ? 'hidden' : 'block'}`}>
           {props.item.name}

@@ -74,4 +74,23 @@ export const endpoints = {
     url: '/tools/delete-tool',
     method: HTTP_METHODS.DELETE,
   },
+  createQa: {
+    url: '/qa/create',
+    method: HTTP_METHODS.POST,
+  },
+  getQaByToolId: {
+    // userId & toolId in req params
+    url: '/qa',
+    method: HTTP_METHODS.GET,
+  },
+  updateQa: {
+    // qaId & userId in req params
+    url: '/qa',
+    method: HTTP_METHODS.PATCH,
+  },
+  deleteQa: {
+    // qaId & userId in req params
+    url: '/qa',
+    method: HTTP_METHODS.DELETE,
+  },
 };

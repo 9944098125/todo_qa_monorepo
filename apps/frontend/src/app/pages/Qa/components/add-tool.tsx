@@ -260,7 +260,7 @@ export const AddTool = (props: Props) => {
                         className={`h-[10rem] w-[10rem] rounded-full cursor-pointer border-2 border-cyan-700`}
                       >
                         <img
-                          src={watch('image') || '/images/avatar.webp'}
+                          src={watch('image') || '/images/tool-placeholder.jpg'}
                           alt=""
                           className="w-full h-full rounded-full object-cover"
                         />
