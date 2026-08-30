@@ -51,7 +51,9 @@ export const ToolItem = (props: Props) => {
   return (
     <React.Fragment>
       <div
-        style={{ backgroundColor: item?.color }}
+        style={{
+          backgroundColor: item?.color,
+        }}
         className={`col-span-12 lg:col-span-6 xl:col-span-4 relative text-white p-2 flex flex-row lg:flex-col items-center lg:items-stretch justify-between lg:justify-start rounded-[.8rem] shadow-lg`}
       >
         <div className="absolute bg-white rounded-[.8rem] p-4 top-1 right-1 md:top-2 md:right-2 flex items-center gap-4">

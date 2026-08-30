@@ -2,8 +2,12 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
 import {
+  CreateQaRequest,
+  CreateQaResponse,
   DeleteToolRequest,
   DeleteToolResponse,
+  GetQaRequest,
+  GetQaResponse,
   GetToolByIdRequest,
   GetToolByIdResponse,
   GetToolsResponse,
@@ -114,7 +118,7 @@ export const api = createApi({
         return formatErrors(baseQueryReturnValue);
       },
     }),
-    createQa: build.mutation<any, any>({
+    createQa: build.mutation<CreateQaResponse, CreateQaRequest>({
       query: body => {
         return {
           ...endpoints.createQa,
@@ -126,7 +130,7 @@ export const api = createApi({
         return formatErrors(baseQueryReturnValue);
       },
     }),
-    getQaByTool: build.query<any, any>({
+    getQaByTool: build.query<GetQaResponse, GetQaRequest>({
       query: requestParams => {
         return {
           url: `${endpoints.getQaByToolId.url}/${requestParams?.userId}/${requestParams?.toolId}`,

@@ -1,3 +1,35 @@
+export type QaImportance = 'Important' | 'Normal' | 'Low';
+
+export interface Qa {
+  _id: string;
+  question: string;
+  answer: string;
+  importance: QaImportance;
+  userId: string;
+  toolId: string;
+  createdAt: string;
+}
+
+export interface GetQaResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string;
+    pageNumber: number;
+    pageSize: number;
+    totalPages: number;
+    totalDocuments: number;
+    documents: Qa[];
+  };
+  meta: {
+    url: string;
+  };
+}
+export interface GetQaRequest {
+  userId: string;
+  toolId: string;
+}
+
 export interface QaState {
   data: any | null;
   isLoading: boolean;
@@ -125,6 +157,38 @@ export interface GetToolByIdResponse {
         color: string;
         description: string;
         createdAt: string;
+      };
+    };
+  };
+  meta: {
+    url: string;
+  };
+}
+
+export interface CreateQaRequest {
+  toolId: string;
+  userId: string;
+  question: string;
+  answer: string;
+  importance: string;
+}
+
+export interface CreateQaResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string;
+    data: {
+      qa: {
+        question: string;
+        answer: string;
+        importance: string;
+        userId: string;
+        toolId: string;
+        _id: string;
+        createdAt: string;
+        updatedAt: string;
+        __v: number;
       };
     };
   };
