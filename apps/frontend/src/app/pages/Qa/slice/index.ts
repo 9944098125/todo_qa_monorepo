@@ -4,6 +4,8 @@ import { useInjectReducer } from 'utils/redux-injectors';
 import {
   DeleteToolRequest,
   DeleteToolResponse,
+  GetToolByIdRequest,
+  GetToolByIdResponse,
   GetToolsResponse,
   QaState,
   ToolRequest,
@@ -69,7 +71,7 @@ export const api = createApi({
         return formatErrors(baseQueryReturnValue);
       },
     }),
-    getToolById: build.query<any, any>({
+    getToolById: build.query<GetToolByIdResponse, GetToolByIdRequest>({
       query: query => {
         return {
           ...endpoints.getToolById,

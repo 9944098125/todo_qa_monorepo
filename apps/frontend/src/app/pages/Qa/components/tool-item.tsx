@@ -52,9 +52,9 @@ export const ToolItem = (props: Props) => {
     <React.Fragment>
       <div
         style={{ backgroundColor: item?.color }}
-        className={`col-span-3 relative text-white p-4 rounded-[.8rem] shadow-lg`}
+        className={`col-span-12 lg:col-span-6 xl:col-span-4 relative text-white p-2 flex flex-row lg:flex-col items-center lg:items-stretch justify-between lg:justify-start rounded-[.8rem] shadow-lg`}
       >
-        <div className="absolute bg-white rounded-[.8rem] p-4 top-4 right-4 flex items-center gap-4">
+        <div className="absolute bg-white rounded-[.8rem] p-4 top-1 right-1 md:top-2 md:right-2 flex items-center gap-4">
           <Button
             onClick={() => {
               setOpen(true);
@@ -93,12 +93,16 @@ export const ToolItem = (props: Props) => {
             <img
               src={item?.image}
               alt=""
-              className="h-[5rem] w-[5rem] rounded-full"
+              className="h-[3rem] w-[3rem] md:h-[5rem] md:w-[5rem] rounded-full"
             />
           </div>
-          <h4 className="text-[2rem] font-[600]">{item?.name}</h4>
+          <h4 className="text-[2rem] hidden md:block font-[600]">
+            {item?.name}
+          </h4>
         </div>
-        <p className="text-[1.6rem] font-[300]">{item?.description}</p>
+        <p className="text-[1.6rem] hidden lg:block font-[300]">
+          {item?.description}
+        </p>
       </div>
     </React.Fragment>
   );

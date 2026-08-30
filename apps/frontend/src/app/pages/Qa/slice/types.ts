@@ -105,3 +105,30 @@ export interface DeleteToolResponse {
     url: string;
   };
 }
+
+export interface GetToolByIdRequest {
+  userId: string;
+  toolId: string;
+}
+export interface GetToolByIdResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string;
+    data: {
+      tool: {
+        _id: string;
+        userId: string;
+        name: string;
+        slug: string;
+        image: string;
+        color: string;
+        description: string;
+        createdAt: string;
+      };
+    };
+  };
+  meta: {
+    url: string;
+  };
+}

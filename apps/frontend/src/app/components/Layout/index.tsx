@@ -34,7 +34,7 @@ export function Layout(props: Props) {
             <Sidebar tools={props.tools} />
           </aside>
           <main
-            className={`flex-1 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-green-50 text-black'}`}
+            className={`flex-1 p-5 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-green-50 text-black'} h-[calc(100vh-7rem)] overflow-y-auto`}
             id="outlet-container"
           >
             {props.children}

@@ -6,6 +6,7 @@ import { selectTheme, selectUser } from '@/app/slice/selectors';
 import { ToolItem } from './slice/types';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { ToolItem as ToolItemComponent } from './components/tool-item';
+import { ToolContent } from './components/tool-content';
 export interface QaProps {}
 
 export function Qa({}: QaProps) {
@@ -19,26 +20,30 @@ export function Qa({}: QaProps) {
 
   return (
     <React.Fragment>
-      <div className="h-full w-full p-5">
-        <Add
-          tools={tools}
-          toolDialog={openToolDialog}
-          setToolDialog={setOpenToolDialog}
-        />
-        {/* Grid container  */}
-        <div className="p-6 grid grid-cols-12 gap-5 auto-rows-[minmax(5rem, auto)]">
-          {tools?.map((item: ToolItem) => {
-            return (
-              <ToolItemComponent
-                item={item}
-                key={item?._id}
-                open={openToolDialog}
-                setOpen={setOpenToolDialog}
-              />
-            );
-          })}
+      {toolId ? (
+        <ToolContent toolId={toolId} />
+      ) : (
+        <div className="h-full w-full">
+          <Add
+            tools={tools}
+            toolDialog={openToolDialog}
+            setToolDialog={setOpenToolDialog}
+          />
+          {/* Grid container  */}
+          <div className="p-6 grid grid-cols-12 gap-5">
+            {tools?.map((item: ToolItem) => {
+              return (
+                <ToolItemComponent
+                  item={item}
+                  key={item?._id}
+                  open={openToolDialog}
+                  setOpen={setOpenToolDialog}
+                />
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </React.Fragment>
   );
 }

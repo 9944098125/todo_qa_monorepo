@@ -79,7 +79,7 @@ export function Todo({}: TodoProps) {
 
   return (
     <React.Fragment>
-      <div className="p-5">
+      <div className="">
         {/* Heading & Add Todo Button with dialog  */}
         <div className="flex items-center justify-between p-5">
           <Heading size="3rem" weight="700" text="Todo Collection" />

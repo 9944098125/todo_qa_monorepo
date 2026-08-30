@@ -35,7 +35,7 @@ export function Sidebar(props: Props) {
     <React.Fragment>
       <div className="w-full h-full relative">
         <div
-          className={`flex items-center mt-4 mb-4 px-4 ${sidebarState === 'closed' ? 'justify-center' : 'justify-end'} hidden md:block`}
+          className={`flex items-center mt-4 mb-4 px-4 ${sidebarState === 'closed' ? 'justify-center' : 'justify-end'} hidden lg:block`}
         >
           <Button
             variant="ghost"
@@ -66,7 +66,9 @@ export function Sidebar(props: Props) {
           {/* qa dropdown */}
           <QaDropdown tools={props.tools} />
         </div>
-        <div className="absolute w-full bottom-5 px-5 py-2 border-t border-white flex flex-col md:flex-row justify-between items-center">
+        <div
+          className={`absolute w-full bottom-5 px-5 py-2 border-t border-white flex ${sidebarState === 'closed' ? 'flex-col items-center' : 'flex-row justify-between'}`}
+        >
           <div className={`flex items-center flex-1 min-w-0 mr-2`}>
             <div className="h-[5rem] w-[5rem] shrink-0">
               <img

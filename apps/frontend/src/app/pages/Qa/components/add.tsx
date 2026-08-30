@@ -3,6 +3,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { AddTool } from './add-tool';
 import { ToolItem } from '../slice/types';
+import { AddQa } from './add-qa';
 
 type Props = {
   toolDialog: boolean;
@@ -16,11 +17,7 @@ export const Add = (props: Props) => {
     <React.Fragment>
       <div className="flex items-center justify-between">
         <AddTool open={toolDialog} setOpen={setToolDialog} />
-        {tools.length && (
-          <Button variant="special" className="px-4 py-2 rounded-[.8rem]">
-            Add Qa
-          </Button>
-        )}
+        {tools.length && <AddQa tools={tools} />}
       </div>
     </React.Fragment>
   );
