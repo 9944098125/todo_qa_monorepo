@@ -291,8 +291,8 @@ export const AddTool = (props: Props) => {
                   className="w-full h-[4.5rem] rounded-[.8rem]"
                 >
                   {updateLoading && editableTool && 'Editing Tool...'}
-                  {createLoading && !editableTool && 'Creating Todo...'}
-                  {editableTool ? 'Edit Todo' : 'Create Todo'}
+                  {createLoading && !editableTool && 'Creating Tool...'}
+                  {editableTool ? 'Edit Tool' : 'Create Tool'}
                   {updateLoading ||
                     (createLoading && (
                       <Icons.Spinner className="animate-spin h-10 w-10" />

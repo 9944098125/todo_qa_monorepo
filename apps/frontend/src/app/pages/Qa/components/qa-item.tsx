@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pencil, Trash2, Clock3, Tag } from 'lucide-react';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -7,6 +7,8 @@ import { formatDate } from '@/utils/formatDate';
 import { Button } from '@/app/components/ui/button';
 import { useQaSlice } from '../slice';
 import { useDispatch } from 'react-redux';
+import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
+import { toast } from '@/app/components/ui/use-toast';
 
 type Props = {
   item: Qa & { color?: string };
@@ -21,6 +23,22 @@ export function QaItem({ item, tool, openQa, setOpenQa }: Props) {
 
   const [deleteQa, { isLoading, isSuccess, data, isError, error }] =
     useDeleteQaMutation();
+
+  const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isSuccess && data) {
+      toast({
+        description: data?.data?.message,
+        variant: 'success',
+      });
+    } else if (isError || error) {
+      toast({
+        description: String(error) || 'Update Qa Failure',
+        variant: 'destructive',
+      });
+    }
+  }, [isSuccess, isError, error, data]);
 
   return (
     <article
@@ -62,6 +80,7 @@ export function QaItem({ item, tool, openQa, setOpenQa }: Props) {
             </Button>
             <Button
               type="button"
+              onClick={() => setOpenConfirmation(true)}
               variant="outline"
               size="icon"
               className="p-2 h-[3rem] w-[3rem] lg:h-[5rem] lg:w-[5rem] rounded-[.8rem] transition-colors bg-red-600 hover:bg-red-800 text-white hover:text-white"
@@ -70,6 +89,18 @@ export function QaItem({ item, tool, openQa, setOpenQa }: Props) {
             >
               <Trash2 className="h-full w-full" />
             </Button>
+            {openConfirmation && (
+              <ConfirmationDialog
+                module="Qa"
+                operation="delete"
+                buttons={{ cancel: 'No', confirm: 'Yes' }}
+                confirm={() =>
+                  deleteQa({ userId: item?.userId, qaId: item?._id }) as any
+                }
+                open={openConfirmation}
+                setOpen={setOpenConfirmation}
+              />
+            )}
           </div>
         </div>
 

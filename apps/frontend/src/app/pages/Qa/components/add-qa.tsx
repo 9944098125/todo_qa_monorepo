@@ -18,6 +18,9 @@ import { useQaSlice } from '../slice';
 import { Icons } from '@/app/components/ui/icons';
 import { toast } from '@/app/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { selectEditableQa } from '../slice/selectors';
+import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
+import { useDispatch } from 'react-redux';
 
 type Props = {
   tools: ToolItem[];
@@ -27,9 +30,13 @@ type Props = {
 export function AddQa(props: Props) {
   const { tools, open, setOpen } = props;
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const { useCreateQaMutation, useUpdateQaMutation } = useQaSlice();
+  const { useCreateQaMutation, useUpdateQaMutation, actions } = useQaSlice();
   const user = useSelector(selectUser);
+  const editableQa = useSelector(selectEditableQa);
+
+  const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
 
   const [
     createQa,
@@ -62,15 +69,27 @@ export function AddQa(props: Props) {
     control,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = form;
 
   const submitQaForm = data => {
-    if (data) {
+    if (!editableQa && data) {
       createQa({
         ...data,
         userId: user?._id,
         importance: 'Important',
+      });
+    } else {
+      updateQa({
+        body: {
+          ...editableQa,
+          importance: 'Important',
+        },
+        params: {
+          qaId: editableQa?._id,
+          userId: user?._id,
+        },
       });
     }
   };
@@ -91,11 +110,51 @@ export function AddQa(props: Props) {
     }
   }, [createSuccess, createdData, isCreateError, createErrorMessage]);
 
+  useEffect(() => {
+    if (updateSuccess && updatedData) {
+      setOpen(false);
+      navigate(`/qa?toolId=${watch('toolId')}`);
+      toast({
+        description: updatedData?.data?.message,
+        variant: 'success',
+      });
+    } else if (isUpdateError || updateErrorMessage) {
+      toast({
+        description: String(updateErrorMessage) || 'Update Qa Failure',
+        variant: 'destructive',
+      });
+    }
+  }, [updateSuccess, updatedData, isUpdateError, updateErrorMessage]);
+
+  useEffect(() => {
+    if (!editableQa) {
+      reset({
+        toolId: '',
+        userId: '',
+        question: '',
+        answer: '',
+        importance: '',
+      });
+    } else if (editableQa) {
+      reset({
+        ...editableQa,
+      });
+    }
+  }, [editableQa]);
+
+  const confirmEdit = () => {
+    handleSubmit(submitQaForm)();
+  };
+
   return (
     <React.Fragment>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="special" className="px-4 py-2 rounded-[.8rem]">
+          <Button
+            onClick={() => dispatch(actions.resetEditableQa())}
+            variant="special"
+            className="px-4 py-2 rounded-[.8rem]"
+          >
             Add Qa
           </Button>
         </DialogTrigger>
@@ -106,7 +165,11 @@ export function AddQa(props: Props) {
           }}
           className={`p-4 rounded-[.8rem] max-w-[70%] ${themeState === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}
         >
-          <Heading text="Create Qa" size="3rem" weight="700" />
+          {editableQa ? (
+            <Heading text="Edit Qa" size="3rem" weight="700" />
+          ) : (
+            <Heading text="Create Qa" size="3rem" weight="700" />
+          )}
           <form onSubmit={handleSubmit(submitQaForm)}>
             <div className="w-full flex flex-wrap gap-4 p-4 items-center">
               {tools?.map(i => {
@@ -174,16 +237,33 @@ export function AddQa(props: Props) {
               </div>
               <div className="mb-4 py-2">
                 <Button
-                  type="submit"
+                  type={editableQa ? 'button' : 'submit'}
+                  onClick={() =>
+                    editableQa
+                      ? setOpenConfirmation(true)
+                      : console.log('Create form Submitted')
+                  }
                   disabled={createLoading}
                   variant="primary"
                   className="w-full h-[4.5rem] rounded-[.8rem]"
                 >
-                  {createLoading ? 'Creating Qa...' : 'Create Qa'}
+                  {updateLoading && editableQa && 'Editing Qa...'}
+                  {createLoading && !editableQa && 'Creating Qa...'}
+                  {editableQa ? 'Edit Qa' : 'Create Qa'}
                   {createLoading && (
                     <Icons.Spinner className="animate-spin h-8 w-8" />
                   )}
                 </Button>
+                {openConfirmation && (
+                  <ConfirmationDialog
+                    module="Qa"
+                    operation="update"
+                    buttons={{ cancel: 'No', confirm: 'Yes' }}
+                    confirm={confirmEdit}
+                    open={openConfirmation}
+                    setOpen={setOpenConfirmation}
+                  />
+                )}
               </div>
             </div>
           </form>

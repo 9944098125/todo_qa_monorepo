@@ -8,3 +8,8 @@ export const selectEditableTool = createSelector(
   [selectSlice],
   state => state.editableTool,
 );
+
+export const selectEditableQa = createSelector(
+  [selectSlice],
+  state => state.editableQa,
+);

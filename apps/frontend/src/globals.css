@@ -46,6 +46,9 @@ body {
   left: 1.5rem;
   top: 2.5rem;
   position: absolute;
+  background-color: white;
+  padding: 20px;
+  border-radius: 50%;
   content: '';
   background-image: url(/images/check-1.svg);
   height: 2rem;
@@ -56,6 +59,9 @@ body {
   left: 1.5rem;
   top: 2.5rem;
   position: absolute;
+  background-color: white;
+  padding: 20px;
+  border-radius: 50%;
   content: '';
   background-image: url(../public/images/check-2.svg);
   height: 2rem;

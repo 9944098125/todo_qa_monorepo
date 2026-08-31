@@ -1,0 +1,7 @@
+1. /src/app folder without app/components/ui folder
+2. /src/utils/api/endpoints.ts (only this file)
+3. /src/types
+4. /src/store/rtkMiddleware.ts
+5. /src/global.css
+6. /src/index.tsx
+7. 
