@@ -23,7 +23,7 @@ export const Add = (props: Props) => {
         className={`${toolId ? 'hidden' : 'flex items-center justify-between'}`}
       >
         <AddTool open={toolDialog} setOpen={setToolDialog} />
-        {tools.length && (
+        {tools?.length > 0 && (
           <AddQa open={qaDialog} setOpen={setQaDialog} tools={tools} />
         )}
       </div>
