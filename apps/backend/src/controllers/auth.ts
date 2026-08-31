@@ -98,6 +98,7 @@ export const login = async (
         isAdmin: existingUser.isAdmin,
       },
       process.env.SECRET_TOKEN!,
+      { expiresIn: "5h" },
     );
     sendLoginEmail(existingUser.email, existingUser.name);
 
@@ -105,11 +106,13 @@ export const login = async (
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 5 * 60 * 60 * 1000, // 5 hours
     });
+    const expiryTime = 5 * 60 * 60 * 1000;
 
     sendSuccess(req, res, 200, "Login Success ✅", {
       user: userWithoutPassword,
+      expiryTime,
     });
   } catch (err: any) {
     next(err);
