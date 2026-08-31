@@ -21,6 +21,7 @@ export function Qa({}: QaProps) {
   const themeState = useSelector(selectTheme);
 
   const [openToolDialog, setOpenToolDialog] = useState<boolean>(false);
+  const [openQaDialog, setOpenQaDialog] = useState(false);
 
   const toolId = searchParams.get('toolId');
 
@@ -62,13 +63,29 @@ export function Qa({}: QaProps) {
 
   return (
     <React.Fragment>
+      <Add
+        toolId={toolId}
+        tools={tools}
+        toolDialog={openToolDialog}
+        setToolDialog={setOpenToolDialog}
+        qaDialog={openQaDialog}
+        setQaDialog={setOpenQaDialog}
+      />
       {toolId ? (
         <React.Fragment>
           <ToolContent tool={tool as any} />
           {/* show the qa items according to toolId here */}
           {qaItems?.length ? (
             qaItems?.map(i => {
-              return <QaItem item={i} tool={tool as any} key={i?._id} />;
+              return (
+                <QaItem
+                  item={i}
+                  tool={tool as any}
+                  openQa={openQaDialog}
+                  setOpenQa={setOpenQaDialog}
+                  key={i?._id}
+                />
+              );
             })
           ) : (
             <div className="flex w-full h-full items-center justify-center">
@@ -78,11 +95,6 @@ export function Qa({}: QaProps) {
         </React.Fragment>
       ) : (
         <div className="h-full w-full">
-          <Add
-            tools={tools}
-            toolDialog={openToolDialog}
-            setToolDialog={setOpenToolDialog}
-          />
           {/* Grid container  */}
           <div className="p-6 grid grid-cols-12 gap-5">
             {tools?.map((item: ToolItem) => {

@@ -21,9 +21,11 @@ import { useNavigate } from 'react-router-dom';
 
 type Props = {
   tools: ToolItem[];
+  open: boolean;
+  setOpen: (value: boolean) => void;
 };
 export function AddQa(props: Props) {
-  const { tools } = props;
+  const { tools, open, setOpen } = props;
   const navigate = useNavigate();
 
   const { useCreateQaMutation, useUpdateQaMutation } = useQaSlice();
@@ -52,7 +54,6 @@ export function AddQa(props: Props) {
   ] = useUpdateQaMutation();
 
   const themeState = useSelector(selectTheme);
-  const [open, setOpen] = useState<boolean>(false);
 
   const form = useForm();
   const {

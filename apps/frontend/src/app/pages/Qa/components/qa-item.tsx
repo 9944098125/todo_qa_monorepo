@@ -5,13 +5,23 @@ import 'react-quill-new/dist/quill.snow.css';
 import { Qa, ToolItem } from '../slice/types';
 import { formatDate } from '@/utils/formatDate';
 import { Button } from '@/app/components/ui/button';
+import { useQaSlice } from '../slice';
+import { useDispatch } from 'react-redux';
 
 type Props = {
   item: Qa & { color?: string };
   tool: ToolItem;
+  openQa: boolean;
+  setOpenQa: (value: boolean) => void;
 };
 
-export function QaItem({ item, tool }: Props) {
+export function QaItem({ item, tool, openQa, setOpenQa }: Props) {
+  const { useDeleteQaMutation, actions } = useQaSlice();
+  const dispatch = useDispatch();
+
+  const [deleteQa, { isLoading, isSuccess, data, isError, error }] =
+    useDeleteQaMutation();
+
   return (
     <article
       className="group mb-4 relative w-full overflow-hidden rounded-[0.8rem] bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -27,21 +37,24 @@ export function QaItem({ item, tool }: Props) {
       }}
     >
       <div className="p-6">
-        {/* Top Header Row with Badges and Actions */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-md border bg-muted/50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {item.importance || 'Normal'}
-            </span>
+        {/* Question Section */}
+        <div className="mb-6 w-full flex items-center justify-between">
+          <div className="w-[70%] lg:w-[90%]">
+            <h4 className="text-[1.6rem] md:text-[2.4rem] font-medium">
+              {item.question}
+            </h4>
           </div>
-
-          {/* Action Buttons - Top Right */}
-          <div className="flex items-center gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          {/* Action Buttons  */}
+          <div className="md:opacity-0 transition-opacity duration-300 group-hover:opacity-100 w-[30%] lg:w-[10%] flex items-center gap-4">
             <Button
               type="button"
+              onClick={() => {
+                setOpenQa(true);
+                dispatch(actions.editQa(item));
+              }}
               variant="outline"
               size="icon"
-              className="p-2 h-[5rem] w-[5rem] rounded-[.8rem] transition-colors bg-blue-400 hover:bg-blue-800 text-white hover:text-white"
+              className="p-2 h-[3rem] w-[3rem] lg:h-[5rem] lg:w-[5rem] rounded-[.8rem] transition-colors bg-blue-400 hover:bg-blue-800 text-white hover:text-white"
               aria-label="Edit question"
               title="Edit"
             >
@@ -51,18 +64,13 @@ export function QaItem({ item, tool }: Props) {
               type="button"
               variant="outline"
               size="icon"
-              className="p-2 h-[5rem] w-[5rem] rounded-[.8rem] transition-colors bg-red-600 hover:bg-red-800 text-white hover:text-white"
+              className="p-2 h-[3rem] w-[3rem] lg:h-[5rem] lg:w-[5rem] rounded-[.8rem] transition-colors bg-red-600 hover:bg-red-800 text-white hover:text-white"
               aria-label="Delete question"
               title="Delete"
             >
               <Trash2 className="h-full w-full" />
             </Button>
           </div>
-        </div>
-
-        {/* Question Section */}
-        <div className="mb-6">
-          <h4 className="text-[2.4rem] font-medium">{item.question}</h4>
         </div>
 
         {/* Answer Section */}
@@ -82,7 +90,7 @@ export function QaItem({ item, tool }: Props) {
               dark:prose-invert 
               max-w-none 
               text-foreground/90
-              text-[1.6rem]
+              text-[1.2rem] md:text-[1.6rem]
               leading-relaxed
               [&_ul]:list-disc 
               [&_ol]:list-decimal
@@ -98,8 +106,10 @@ export function QaItem({ item, tool }: Props) {
         {/* Footer Metadata */}
         <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-4">
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-            <Clock3 className="h-4 w-4" />
-            <span>Documented on {formatDate(item.createdAt)}</span>
+            <Clock3 className="h-6 w-6 md:h-10 md:w-10" />
+            <span className="text-[.8rem] md:text-[1rem]">
+              Documented on {formatDate(item.createdAt)}
+            </span>
           </div>
         </div>
       </div>

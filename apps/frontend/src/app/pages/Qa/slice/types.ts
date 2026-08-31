@@ -1,5 +1,28 @@
 export type QaImportance = 'Important' | 'Normal' | 'Low';
 
+export interface QaState {
+  data: any | null;
+  isLoading: boolean;
+  error: string | null;
+  editableTool: {
+    _id: string;
+    userId: string;
+    name: string;
+    slug: string;
+    image: string;
+    color: string;
+    description: string;
+  } | null;
+  editableQa: {
+    _id: string;
+    toolId: string;
+    userId: string;
+    question: string;
+    answer: string;
+    importance: string;
+  } | null;
+}
+
 export interface Qa {
   _id: string;
   question: string;

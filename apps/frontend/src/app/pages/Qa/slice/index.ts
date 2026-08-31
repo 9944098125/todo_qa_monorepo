@@ -26,6 +26,7 @@ export const initialState: QaState = {
   error: null,
   isLoading: false,
   editableTool: null,
+  editableQa: null,
 };
 
 const slice = createSlice({
@@ -40,6 +41,14 @@ const slice = createSlice({
     },
     resetEditableTool(state) {
       state.editableTool = null;
+    },
+    editQa(state, action: PayloadAction<any>) {
+      state.editableQa = {
+        ...action.payload,
+      };
+    },
+    resetEditableQa(state) {
+      state.editableQa = null;
     },
   },
 });
