@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTodoSlice } from '../slice';
 import { useSelector } from 'react-redux';
-import { selectUser } from '@/app/slice/selectors';
+import { selectTheme, selectUser } from '@/app/slice/selectors';
 import { toast } from '@/app/components/ui/use-toast';
 import { Icons } from '@/app/components/ui/icons';
 import { selectEditableTodo } from '../slice/selectors';
@@ -54,6 +54,7 @@ export const TodoDialog = ({ closeDialog }: Props) => {
 
   const user = useSelector(selectUser);
   const editableTodo = useSelector(selectEditableTodo);
+  const themeState = useSelector(selectTheme);
 
   const [openEditConfirmation, setOpenEditConfirmation] =
     useState<boolean>(false);
@@ -170,7 +171,7 @@ export const TodoDialog = ({ closeDialog }: Props) => {
             })}
             id="todoTitle"
             placeholder="Todo Title"
-            className="h-[4.5rem] w-full rounded-[.8rem] text-[1.4rem]"
+            className={`h-[4.5rem] w-full rounded-[.8rem] text-[1.4rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
           />
 
           <ErrorMessage error={errors.title} />
@@ -260,9 +261,13 @@ export const TodoDialog = ({ closeDialog }: Props) => {
             disabled={isCreateLoading || isUpdateLoading}
             className="w-full rounded-[.8rem] py-4"
           >
-            {isUpdateLoading && editableTodo && 'Editing Todo...'}
-            {isCreateLoading && !editableTodo && 'Creating Todo...'}
-            {editableTodo ? 'Edit Todo' : 'Create Todo'}
+            {isUpdateLoading && editableTodo
+              ? 'Editing Todo...'
+              : isCreateLoading && !editableTodo
+                ? 'Creating Todo...'
+                : editableTodo
+                  ? 'Edit Todo'
+                  : 'Create Todo'}
             {(isCreateLoading || isUpdateLoading) && (
               <Icons.Spinner className="h-8 w-8 animate-spin" />
             )}

@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { AddTool } from './add-tool';
 import { toast } from '@/app/components/ui/use-toast';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
+import { Icons } from '@/app/components/ui/icons';
 
 type Props = {
   item: {
@@ -75,7 +76,11 @@ export const ToolItem = (props: Props) => {
             variant="destructive"
             className="p-4 rounded-[.8rem]"
           >
-            <TrashIcon className="text-white h-10 w-10" />
+            {isLoading ? (
+              <Icons.Spinner className="text-white h-10 w-10 animate-spin" />
+            ) : (
+              <TrashIcon className="text-white h-10 w-10" />
+            )}
           </Button>
           {openConfirmation && (
             <ConfirmationDialog

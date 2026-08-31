@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../../ui/button';
-import { ClipboardList, LogOut, MenuIcon } from 'lucide-react';
+import { ClipboardList, LogOut, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useGlobalSlice } from '../../../slice';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -14,6 +14,7 @@ import { ToolItem } from '@/app/pages/Qa/slice/types';
 
 type Props = {
   tools: ToolItem[] | undefined;
+  isToolsLoading?: boolean;
 };
 
 export function Sidebar(props: Props) {
@@ -24,25 +25,43 @@ export function Sidebar(props: Props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [sidebarClosed, setSidebarClosed] = useState<boolean>(false);
-
   const toggleSidebar = () => {
-    setSidebarClosed(prev => !prev);
-    dispatch(actions.sidebarToggler(sidebarClosed ? 'closed' : 'opened'));
+    const newState = sidebarState === 'closed' ? 'opened' : 'closed';
+    dispatch(actions.sidebarToggler(newState));
   };
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        if (sidebarState !== 'closed') {
+          dispatch(actions.sidebarToggler('closed'));
+        }
+      }
+    };
+
+    // Check on mount
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [sidebarState, dispatch, actions]);
 
   return (
     <React.Fragment>
       <div className="w-full h-full relative">
         <div
-          className={`flex items-center mt-4 mb-4 px-4 ${sidebarState === 'closed' ? 'justify-center' : 'justify-end'} hidden lg:block`}
+          className={`items-center mt-4 mb-4 px-4 ${sidebarState === 'closed' ? 'justify-center' : 'justify-end'} hidden lg:flex`}
         >
           <Button
             variant="ghost"
             onClick={toggleSidebar}
-            className={`h-[5rem] w-[5rem] border border-cyan-600 rounded-xl text-inherit ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white'}`}
+            className={`h-[5rem] w-[5rem] border border-green-600/70 rounded-xl text-inherit ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white'}`}
           >
-            <MenuIcon className="h-[3rem] w-[3rem]" />
+            {sidebarState === 'closed' ? (
+              <ArrowRight className="h-[3rem] w-[3rem]" />
+            ) : (
+              <ArrowLeft className="h-[3rem] w-[3rem]" />
+            )}
           </Button>
         </div>
         <div className="mb-4 px-4">
@@ -57,14 +76,17 @@ export function Sidebar(props: Props) {
             >
               <ClipboardList />
               {sidebarState === 'closed' ? null : (
-                <p className="hidden md:block">Todo</p>
+                <p className="hidden lg:block">Todo</p>
               )}
             </div>
           </NavLink>
         </div>
         <div className="mb-4 px-4">
           {/* qa dropdown */}
-          <QaDropdown tools={props.tools} />
+          <QaDropdown
+            tools={props.tools}
+            isToolsLoading={props.isToolsLoading}
+          />
         </div>
         <div
           className={`absolute w-full bottom-5 px-5 py-2 border-t border-white flex ${sidebarState === 'closed' ? 'flex-col items-center' : 'flex-row justify-between'}`}

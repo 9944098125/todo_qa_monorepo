@@ -21,6 +21,7 @@ import {
 import { Heading } from '@/app/components/Parts/heading';
 import { TodoDialog } from './todo-dialog';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
+import { Icons } from '@/app/components/ui/icons';
 
 type Props = {
   eachItem: TodoItem;
@@ -34,7 +35,7 @@ export function TodoAccordionItem(props: Props) {
 
   const { useDeleteTodoMutation, actions } = useTodoSlice();
 
-  const [deleteTodo, { isSuccess, data, isError, error }] =
+  const [deleteTodo, { isLoading, isSuccess, data, isError, error }] =
     useDeleteTodoMutation();
 
   const [openDeleteConfirmation, setOpenDeleteConfirmation] =
@@ -107,7 +108,7 @@ export function TodoAccordionItem(props: Props) {
                       e.preventDefault();
                       e.stopPropagation();
                     }}
-                    className={`w-[90%] md:w-1/2 max-w-none border-0 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white text-black'}`}
+                    className={`w-[90%] md:w-1/2 max-w-none border border-green-600/70 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white text-black'}`}
                   >
                     <DialogHeader>
                       <Heading text="Edit Todo" size="2.6rem" weight="600" />
@@ -118,9 +119,13 @@ export function TodoAccordionItem(props: Props) {
 
                 <div
                   onClick={() => setOpenDeleteConfirmation(true)}
-                  className="bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem] cursor-pointer"
+                  className="bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem] cursor-pointer ml-4"
                 >
-                  <Trash2Icon className="h-10 w-10" />
+                  {isLoading ? (
+                    <Icons.Spinner className="h-10 w-10 animate-spin" />
+                  ) : (
+                    <Trash2Icon className="h-10 w-10" />
+                  )}
                 </div>
                 {openDeleteConfirmation && (
                   <ConfirmationDialog

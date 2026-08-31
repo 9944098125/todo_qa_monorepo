@@ -24,13 +24,12 @@ export function ProtectedRoute() {
   const tools = data?.data?.data?.tools;
 
   if (!isAuthenticated) {
-    navigate('/');
-    return;
+    return <Navigate to="/" replace />;
   }
 
   return (
-    <Layout tools={tools}>
-      <Outlet context={{ tools }} />
+    <Layout tools={tools} isToolsLoading={isLoading}>
+      <Outlet context={{ tools, isToolsLoading: isLoading }} />
     </Layout>
   );
 }

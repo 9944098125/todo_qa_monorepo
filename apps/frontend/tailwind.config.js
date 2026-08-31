@@ -93,6 +93,14 @@ module.exports = {
             height: '0',
           },
         },
+        shimmer: {
+          from: {
+            backgroundPosition: '200% 0',
+          },
+          to: {
+            backgroundPosition: '-200% 0',
+          },
+        },
       },
       fontSize: {
         12: [
@@ -202,6 +210,7 @@ module.exports = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        shimmer: 'shimmer 1s linear infinite',
       },
     },
   },

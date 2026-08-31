@@ -12,10 +12,14 @@ import { SubheadItem } from './subhead-item';
 import { ToolItem } from '@/app/pages/Qa/slice/types';
 import { isArray } from 'lodash';
 
+import { SubheadSkeleton } from './subhead-skeleton';
+
 export default function QaDropdown({
   tools,
+  isToolsLoading,
 }: {
   tools: ToolItem[] | undefined;
+  isToolsLoading?: boolean;
 }) {
   const themeState = useSelector(selectTheme);
   const sidebarState = useSelector(selectSidebarToggler);
@@ -57,7 +61,7 @@ export default function QaDropdown({
           >
             <MessageCircleQuestion />
 
-            {sidebarState !== 'closed' && <p className="hidden md:block">Qa</p>}
+            {sidebarState !== 'closed' && <p className="hidden lg:block">Qa</p>}
           </div>
 
           <div
@@ -83,20 +87,23 @@ export default function QaDropdown({
           <div
             style={{
               padding: sidebarState === 'closed' ? '15px 5px' : '15px 10px',
-              backgroundColor:
-                themeState === 'dark'
-                  ? 'color-mix(in srgb, lightgrey 20%, transparent)'
-                  : 'color-mix(in srgb, green 20%, transparent)',
             }}
-            className="h-[30rem] rounded-[.8rem] overflow-y-auto"
+            className="h-[30rem] rounded-[.8rem] overflow-y-auto border border-green-600/70"
           >
-            {tools?.length ? (
+            {isToolsLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <SubheadSkeleton
+                  key={i}
+                  color={['#3b82f6', '#ef4444', '#10b981', '#f59e0b'][i % 4]}
+                />
+              ))
+            ) : tools?.length ? (
               tools?.map(item => <SubheadItem key={item.slug} item={item} />)
             ) : (
               <React.Fragment>
                 {sidebarState === 'closed' ? null : (
                   <div
-                    className={`flex flex-col items-center justify-center w-full hidden md:block min-h-[10rem] ${themeState === 'dark' ? 'bg-gray-600 text-white' : 'bg-green-50'}`}
+                    className={`flex-col items-center justify-center w-full hidden lg:flex min-h-[10rem]`}
                   >
                     <BadgeCheck className="" />
                     <p className="text-2rem font-800">No Tools</p>

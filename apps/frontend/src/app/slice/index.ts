@@ -9,7 +9,12 @@ import {
   User,
 } from './types';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
+import {
+  endpoints,
+  formatErrors,
+  baseQuery,
+  baseQueryWithDelay,
+} from 'utils/api/endpoints';
 import { LoginFormValues, LoginResponse } from '@/types/login';
 
 const getInitialTheme = (): Theme => {
@@ -26,6 +31,7 @@ const getInitialUserState = (): User | undefined => {
 
     return user ? (JSON.parse(user) as User) : undefined;
   } catch {
+    localStorage.removeItem('tq_monorepo_expiry_time');
     localStorage.removeItem('tq_monorepo_user');
     return undefined;
   }
@@ -35,11 +41,16 @@ const getInitialSubheadState = (): SubheadToggled => {
   return localStorage.getItem('subheadToggled') as SubheadToggled;
 };
 
+const getInitialExpiryTime = (): string => {
+  return localStorage.getItem('tq_monorepo_expiry_time') as string;
+};
+
 export const initialState: GlobalState = {
   theme: getInitialTheme(),
   user: getInitialUserState(),
   sidebarToggled: getInitialSidebarState(),
   subheadToggled: getInitialSubheadState(),
+  expiryTime: getInitialExpiryTime() as any,
 };
 
 const slice = createSlice({
@@ -65,13 +76,21 @@ const slice = createSlice({
     logout(state) {
       state.user = undefined;
       localStorage.removeItem('tq_monorepo_user');
+      localStorage.removeItem('tq_monorepo_expiry_time');
+    },
+    setExpiry(state, action: PayloadAction<number>) {
+      state.expiryTime = action.payload;
+      localStorage.setItem(
+        'tq_monorepo_expiry_time',
+        JSON.stringify(action.payload),
+      );
     },
   },
 });
 
 export const api = createApi({
   reducerPath: 'globalApi',
-  baseQuery,
+  baseQuery: baseQueryWithDelay,
   endpoints: build => ({
     login: build.mutation<LoginResponse, LoginFormValues>({
       query: requestBody => {

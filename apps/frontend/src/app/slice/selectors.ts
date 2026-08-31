@@ -22,4 +22,9 @@ export const selectSubheadState = createSelector(
   state => state.subheadToggled,
 );
 
+export const selectExpiryTime = createSelector(
+  [selectSlice],
+  state => state?.expiryTime,
+);
+
 export const selectUser = createSelector([selectSlice], state => state.user);

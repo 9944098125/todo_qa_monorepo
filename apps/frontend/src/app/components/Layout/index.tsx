@@ -9,6 +9,7 @@ import { ToolItem } from '@/app/pages/Qa/slice/types';
 type Props = {
   children: React.ReactNode;
   tools: ToolItem[] | undefined;
+  isToolsLoading?: boolean;
 };
 
 export function Layout(props: Props) {
@@ -28,10 +29,13 @@ export function Layout(props: Props) {
         </div>
         <div className="flex">
           <aside
-            className={`w-[7rem] ${sidebarState === 'closed' ? 'md:w-[7rem]' : 'md:w-1/6'} border-r ${themeState === 'dark' ? 'bg-black border-white' : 'bg-white border-black'} overflow-hidden transition-all duration-500 ease-in-out h-[calc(100vh-7rem)]`}
+            className={`w-[7rem] ${sidebarState === 'closed' ? 'lg:w-[7rem]' : 'lg:w-1/6'} border-r ${themeState === 'dark' ? 'bg-black border-white' : 'bg-white border-black'} overflow-hidden transition-all duration-500 ease-in-out h-[calc(100vh-7rem)]`}
             id="sidebar"
           >
-            <Sidebar tools={props.tools} />
+            <Sidebar
+              tools={props.tools}
+              isToolsLoading={props.isToolsLoading}
+            />
           </aside>
           <main
             className={`flex-1 p-5 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-green-50 text-black'} h-[calc(100vh-7rem)] overflow-y-auto`}

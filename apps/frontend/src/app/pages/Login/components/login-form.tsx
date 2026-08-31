@@ -35,6 +35,7 @@ export function LoginForm() {
   useEffect(() => {
     if (isSuccess) {
       dispatch(actions.setUser(data?.data?.data?.user));
+      dispatch(actions.setExpiry(data?.data?.data?.expiryTime));
       navigate('/todo', { replace: true });
       toast({
         description: data?.data?.message || 'Login Success',

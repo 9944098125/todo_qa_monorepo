@@ -26,9 +26,10 @@ type Props = {
   tools: ToolItem[];
   open: boolean;
   setOpen: (value: boolean) => void;
+  currentToolId?: string;
 };
 export function AddQa(props: Props) {
-  const { tools, open, setOpen } = props;
+  const { tools, open, setOpen, currentToolId } = props;
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -127,20 +128,23 @@ export function AddQa(props: Props) {
   }, [updateSuccess, updatedData, isUpdateError, updateErrorMessage]);
 
   useEffect(() => {
-    if (!editableQa) {
-      reset({
-        toolId: '',
-        userId: '',
-        question: '',
-        answer: '',
-        importance: '',
-      });
-    } else if (editableQa) {
-      reset({
-        ...editableQa,
-      });
+    if (open) {
+      if (!editableQa) {
+        reset({
+          _id: '',
+          toolId: currentToolId || '',
+          userId: '',
+          question: '',
+          answer: '',
+          importance: '',
+        });
+      } else {
+        reset({
+          ...editableQa,
+        });
+      }
     }
-  }, [editableQa]);
+  }, [open, editableQa, reset, currentToolId]);
 
   const confirmEdit = () => {
     handleSubmit(submitQaForm)();
@@ -163,7 +167,7 @@ export function AddQa(props: Props) {
             e.preventDefault();
             e.stopPropagation();
           }}
-          className={`p-4 rounded-[.8rem] max-w-[70%] ${themeState === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}
+          className={`p-4 rounded-[.8rem] max-w-[70%] border border-green-600/70 ${themeState === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}
         >
           {editableQa ? (
             <Heading text="Edit Qa" size="3rem" weight="700" />
@@ -204,7 +208,7 @@ export function AddQa(props: Props) {
                   })}
                   id="question"
                   placeholder="Enter your Question..."
-                  className="w-full h-[4.5rem] rounded-[.8rem]"
+                  className={`w-full h-[4.5rem] rounded-[.8rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
                 />
                 {errors?.question && (
                   <p className="text-[1rem] text-red-600">
@@ -214,7 +218,9 @@ export function AddQa(props: Props) {
               </div>
               <div className="mb-4">
                 <Label htmlFor="answer">Answer</Label>
-                <div className="rounded-[.8rem] focus-within:ring-2 focus-within:ring-green-600 focus-within:border-green-600 [&_.ql-editor]:min-h-[20rem]">
+                <div
+                  className={`rounded-[.8rem] focus-within:ring-2 focus-within:ring-green-600 focus-within:border-green-600 [&_.ql-editor]:min-h-[20rem] ${themeState === 'dark' ? '[&_.ql-stroke]:!stroke-white [&_.ql-stroke-miter]:!stroke-white [&_.ql-fill]:!fill-white [&_.ql-picker]:!text-white [&_.ql-picker-label]:!text-white [&_.ql-picker-options]:!bg-black [&_.ql-picker-options]:!text-white' : ''}`}
+                >
                   <Controller
                     name="answer"
                     control={control}
@@ -247,11 +253,15 @@ export function AddQa(props: Props) {
                   variant="primary"
                   className="w-full h-[4.5rem] rounded-[.8rem]"
                 >
-                  {updateLoading && editableQa && 'Editing Qa...'}
-                  {createLoading && !editableQa && 'Creating Qa...'}
-                  {editableQa ? 'Edit Qa' : 'Create Qa'}
-                  {createLoading && (
-                    <Icons.Spinner className="animate-spin h-8 w-8" />
+                  {updateLoading && editableQa
+                    ? 'Editing Qa...'
+                    : createLoading && !editableQa
+                      ? 'Creating Qa...'
+                      : editableQa
+                        ? 'Edit Qa'
+                        : 'Create Qa'}
+                  {(createLoading || updateLoading) && (
+                    <Icons.Spinner className="animate-spin h-8 w-8 ml-2" />
                   )}
                 </Button>
                 {openConfirmation && (

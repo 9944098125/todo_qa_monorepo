@@ -108,7 +108,7 @@ export const login = async (
       sameSite: "lax",
       maxAge: 5 * 60 * 60 * 1000, // 5 hours
     });
-    const expiryTime = 5 * 60 * 60 * 1000;
+    const expiryTime = Date.now() + 5 * 60 * 60 * 1000;
 
     sendSuccess(req, res, 200, "Login Success ✅", {
       user: userWithoutPassword,

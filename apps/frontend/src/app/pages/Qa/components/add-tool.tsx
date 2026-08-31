@@ -160,24 +160,26 @@ export const AddTool = (props: Props) => {
   }, [updateErrorMessage, isUpdateError]);
 
   useEffect(() => {
-    if (!editableTool) {
-      form.reset({
-        _id: '',
-        name: '',
-        userId: '',
-        slug: '',
-        image: '',
-        color: '',
-        description: '',
-      });
+    if (open) {
+      if (!editableTool) {
+        form.reset({
+          _id: '',
+          name: '',
+          userId: '',
+          slug: '',
+          image: '',
+          color: '',
+          description: '',
+        });
+      }
+      if (editableTool) {
+        // assigning the clicked item's values to dialog form
+        form.reset({
+          ...editableTool,
+        });
+      }
     }
-    if (editableTool) {
-      // assigning the clicked item's values to dialog form
-      form.reset({
-        ...editableTool,
-      });
-    }
-  }, [editableTool, form.reset]);
+  }, [open, editableTool, form.reset]);
 
   function confirmEdit() {
     return handleSubmit(submitToolForm)();
@@ -216,7 +218,7 @@ export const AddTool = (props: Props) => {
                   type="text"
                   {...register('name', { required: 'Name is Required !' })}
                   placeholder="Enter Tool Name"
-                  className="h-[4.5rem] rounded-[.8rem]"
+                  className={`h-[4.5rem] rounded-[.8rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
                 />
                 {errors?.name && (
                   <p className="text-red-600 font-[400] text-[1.2rem]">
@@ -230,7 +232,7 @@ export const AddTool = (props: Props) => {
                   type="text"
                   {...register('slug', { required: 'Slug is Required !' })}
                   placeholder="Enter Tool Slug"
-                  className="h-[4.5rem] rounded-[.8rem]"
+                  className={`h-[4.5rem] rounded-[.8rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
                 />
               </div>
               <div className="flex items-center">
@@ -290,13 +292,16 @@ export const AddTool = (props: Props) => {
                   variant="primary"
                   className="w-full h-[4.5rem] rounded-[.8rem]"
                 >
-                  {updateLoading && editableTool && 'Editing Tool...'}
-                  {createLoading && !editableTool && 'Creating Tool...'}
-                  {editableTool ? 'Edit Tool' : 'Create Tool'}
-                  {updateLoading ||
-                    (createLoading && (
-                      <Icons.Spinner className="animate-spin h-10 w-10" />
-                    ))}
+                  {updateLoading && editableTool
+                    ? 'Editing Tool...'
+                    : createLoading && !editableTool
+                      ? 'Creating Tool...'
+                      : editableTool
+                        ? 'Edit Tool'
+                        : 'Create Tool'}
+                  {(updateLoading || createLoading) && (
+                    <Icons.Spinner className="animate-spin h-10 w-10 ml-2" />
+                  )}
                 </Button>
                 {openConfirmation && (
                   <ConfirmationDialog

@@ -13,7 +13,12 @@ import {
   UpdateTodoResponse,
 } from './types';
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
+import {
+  endpoints,
+  formatErrors,
+  baseQuery,
+  baseQueryWithDelay,
+} from 'utils/api/endpoints';
 
 export const initialState: TodoState = {
   data: null,
@@ -44,7 +49,7 @@ const slice = createSlice({
 
 export const api = createApi({
   reducerPath: 'todoApi',
-  baseQuery,
+  baseQuery: baseQueryWithDelay,
   tagTypes: ['Todo'],
   endpoints: build => ({
     createTodo: build.mutation<TodoResponse, TodoRequest>({

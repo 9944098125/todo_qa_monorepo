@@ -7,7 +7,12 @@ import {
   RegistrationState,
 } from './types';
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { endpoints, formatErrors, baseQuery } from 'utils/api/endpoints';
+import {
+  endpoints,
+  formatErrors,
+  baseQuery,
+  baseQueryWithDelay,
+} from 'utils/api/endpoints';
 
 export const initialState: RegistrationState = {
   data: null,
@@ -25,7 +30,7 @@ const slice = createSlice({
 
 export const api = createApi({
   reducerPath: 'registrationApi',
-  baseQuery,
+  baseQuery: baseQueryWithDelay,
   endpoints: build => ({
     register: build.mutation<RegistrationResponse, RegistrationRequest>({
       query: body => {

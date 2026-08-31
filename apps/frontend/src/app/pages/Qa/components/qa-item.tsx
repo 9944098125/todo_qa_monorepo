@@ -5,10 +5,13 @@ import 'react-quill-new/dist/quill.snow.css';
 import { Qa, ToolItem } from '../slice/types';
 import { formatDate } from '@/utils/formatDate';
 import { Button } from '@/app/components/ui/button';
+import { selectTheme } from '@/app/slice/selectors';
 import { useQaSlice } from '../slice';
 import { useDispatch } from 'react-redux';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 import { toast } from '@/app/components/ui/use-toast';
+import { Icons } from '@/app/components/ui/icons';
+import { useSelector } from 'react-redux';
 
 type Props = {
   item: Qa & { color?: string };
@@ -25,6 +28,7 @@ export function QaItem({ item, tool, openQa, setOpenQa }: Props) {
     useDeleteQaMutation();
 
   const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
+  const themeState = useSelector(selectTheme);
 
   useEffect(() => {
     if (isSuccess && data) {
@@ -87,7 +91,11 @@ export function QaItem({ item, tool, openQa, setOpenQa }: Props) {
               aria-label="Delete question"
               title="Delete"
             >
-              <Trash2 className="h-full w-full" />
+              {isLoading ? (
+                <Icons.Spinner className="h-full w-full animate-spin" />
+              ) : (
+                <Trash2 className="h-full w-full" />
+              )}
             </Button>
             {openConfirmation && (
               <ConfirmationDialog
@@ -116,11 +124,10 @@ export function QaItem({ item, tool, openQa, setOpenQa }: Props) {
             Answer
           </h5>
           <div
-            className="
+            className={`
               prose 
-              dark:prose-invert 
               max-w-none 
-              text-foreground/90
+              ${themeState === 'dark' ? 'text-white' : 'text-black'}
               text-[1.2rem] md:text-[1.6rem]
               leading-relaxed
               [&_ul]:list-disc 
@@ -129,7 +136,7 @@ export function QaItem({ item, tool, openQa, setOpenQa }: Props) {
               [&_ol]:px-5
               [&_p]:mb-4
               [&_p:last-child]:mb-0
-            "
+            `}
             dangerouslySetInnerHTML={{ __html: item.answer }}
           />
         </div>

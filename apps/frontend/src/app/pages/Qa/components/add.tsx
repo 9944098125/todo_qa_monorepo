@@ -24,7 +24,12 @@ export const Add = (props: Props) => {
       >
         <AddTool open={toolDialog} setOpen={setToolDialog} />
         {tools?.length > 0 && (
-          <AddQa open={qaDialog} setOpen={setQaDialog} tools={tools} />
+          <AddQa
+            open={qaDialog}
+            setOpen={setQaDialog}
+            tools={tools}
+            currentToolId={toolId || undefined}
+          />
         )}
       </div>
     </React.Fragment>

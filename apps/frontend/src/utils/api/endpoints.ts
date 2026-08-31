@@ -1,4 +1,9 @@
-import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import {
+  BaseQueryFn,
+  FetchArgs,
+  fetchBaseQuery,
+  FetchBaseQueryError,
+} from '@reduxjs/toolkit/query/react';
 import { RootState } from 'types';
 
 const baseUrl = 'http://localhost:5001/api';
@@ -12,6 +17,16 @@ export const baseQuery = fetchBaseQuery({
   headers: defaultHeaders,
   credentials: 'include',
 });
+
+export const baseQueryWithDelay: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  await new Promise(resolve => setTimeout(resolve, 3000));
+  let result = await baseQuery(args, api, extraOptions);
+  return result;
+};
 
 export const formatErrors = (errors: any) => {
   return (

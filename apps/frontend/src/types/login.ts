@@ -9,7 +9,6 @@ export interface LoginResponse {
   data: {
     message: string;
     data: {
-      token: string;
       user: {
         _id: string;
         name: string;
@@ -21,6 +20,7 @@ export interface LoginResponse {
         createdAt: string;
         updatedAt: string;
       };
+      expiryTime: number;
     };
   };
   meta: {

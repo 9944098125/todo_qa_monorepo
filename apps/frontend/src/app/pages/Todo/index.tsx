@@ -16,6 +16,8 @@ import { Accordion } from '@/app/components/ui/accordion';
 import { TodoAccordionItem } from './components/todo-accordion';
 import { useDispatch } from 'react-redux';
 import { toast } from '@/app/components/ui/use-toast';
+import { TodoSkeleton } from './components/todo-skeleton';
+import { EmptyView } from '@/app/components/Parts/EmptyView';
 
 export interface TodoProps {}
 
@@ -25,7 +27,7 @@ export function Todo({}: TodoProps) {
   const [
     getTodoItems,
     {
-      isLoading: todoLoading,
+      isFetching: todoLoading,
       data: todoData,
       isError: isTodoError,
       error: todoError,
@@ -92,7 +94,7 @@ export function Todo({}: TodoProps) {
                 e.preventDefault();
                 e.stopPropagation();
               }}
-              className={`w-[90%] md:w-1/2 max-w-none border-0 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white text-black'}`}
+              className={`w-[90%] md:w-1/2 max-w-none border border-green-600/70 ${themeState === 'dark' ? 'bg-black text-white' : 'bg-white text-black'}`}
             >
               <DialogHeader>
                 <Heading text="Create Todo" size="2.6rem" weight="600" />
@@ -103,16 +105,29 @@ export function Todo({}: TodoProps) {
         </div>
 
         <Accordion type="multiple" className="w-full">
-          {todoDocuments?.map(eachTodo => {
-            return (
-              <TodoAccordionItem
-                eachItem={eachTodo}
-                key={eachTodo?._id}
-                open={isEditableDialogOpen}
-                setOpen={setIsEditableDialogOpen}
+          {todoLoading ? (
+            Array.from({ length: 5 }).map((_, index) => {
+              return <TodoSkeleton key={index} />;
+            })
+          ) : todoDocuments?.length ? (
+            todoDocuments?.map(eachTodo => {
+              return (
+                <TodoAccordionItem
+                  eachItem={eachTodo}
+                  key={eachTodo?._id}
+                  open={isEditableDialogOpen}
+                  setOpen={setIsEditableDialogOpen}
+                />
+              );
+            })
+          ) : (
+            <div className="mt-8">
+              <EmptyView
+                title="No Todos Yet"
+                description="Your todo list is completely clear. Click the button above to add a task!"
               />
-            );
-          })}
+            </div>
+          )}
         </Accordion>
       </div>
     </React.Fragment>

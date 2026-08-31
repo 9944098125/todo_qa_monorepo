@@ -23,10 +23,34 @@ import { ProtectedRoute } from './components/Parts/protectedRoute';
 import { Registration } from './pages/Registration/Loadable';
 import { Todo } from './pages/Todo/Loadable';
 import { Qa } from './pages/Qa/Loadable';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { selectExpiryTime, selectUser } from './slice/selectors';
 
 export function App() {
   const { i18n } = useTranslation();
-  useGlobalSlice();
+  const { actions } = useGlobalSlice();
+
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const expiryTime = useSelector(selectExpiryTime);
+
+  React.useEffect(() => {
+    if (user) {
+      if (expiryTime) {
+        const timeLeft = expiryTime - Date.now();
+        if (timeLeft <= 0) {
+          dispatch(actions.logout());
+        } else {
+          const timer = setTimeout(() => {
+            dispatch(actions.logout());
+          }, timeLeft);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+  }, [user, expiryTime]);
+
   return (
     <>
       <Toaster />

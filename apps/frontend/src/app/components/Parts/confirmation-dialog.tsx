@@ -20,8 +20,8 @@ export const ConfirmationDialog = (props: Props) => {
   const { module, operation, buttons, open, setOpen, confirm } = props;
   const themeState = useSelector(selectTheme);
 
-  const handleConfirm = async () => {
-    await confirm();
+  const handleConfirm = () => {
+    confirm();
     setOpen(false);
   };
   return (

@@ -9,15 +9,25 @@ import { ToolItem as ToolItemComponent } from './components/tool-item';
 import { ToolContent } from './components/tool-content';
 import { toast } from '@/app/components/ui/use-toast';
 import { QaItem } from './components/qa-item';
+import { ToolSkeleton } from './components/tool-skeleton';
+import { QaSkeleton } from './components/qa-skeleton';
+import { EmptyView } from '@/app/components/Parts/EmptyView';
+import { Heading } from '@/app/components/Parts/heading';
+
 export interface QaProps {}
 
 export function Qa({}: QaProps) {
   const [searchParams] = useSearchParams();
-  const { useLazyGetQaByToolQuery, useLazyGetToolByIdQuery } = useQaSlice();
+  const { useLazyGetQaByToolQuery } = useQaSlice();
   const user = useSelector(selectUser);
-  const [getQaByTool, { isLoading, isSuccess, data, isError, error }] =
-    useLazyGetQaByToolQuery();
-  const { tools } = useOutletContext<{ tools: ToolItem[] }>();
+  const [
+    getQaByTool,
+    { isFetching: isQaLoading, isSuccess, data, isError, error },
+  ] = useLazyGetQaByToolQuery();
+  const { tools, isToolsLoading } = useOutletContext<{
+    tools: ToolItem[];
+    isToolsLoading: boolean;
+  }>();
   const themeState = useSelector(selectTheme);
 
   const [openToolDialog, setOpenToolDialog] = useState<boolean>(false);
@@ -25,24 +35,7 @@ export function Qa({}: QaProps) {
 
   const toolId = searchParams.get('toolId');
 
-  const [
-    getToolById,
-    {
-      isLoading: getToolByIdLoading,
-      isSuccess: getToolByIdSuccess,
-      data: getToolByIdData,
-      isError: isGetToolByIdError,
-      error: getToolByIdErrorMessage,
-    },
-  ] = useLazyGetToolByIdQuery();
-
-  useEffect(() => {
-    if (toolId && user?._id) {
-      getToolById({ toolId: toolId, userId: user?._id });
-    }
-  }, [user?._id, toolId]);
-
-  const tool = getToolByIdData?.data?.data?.tool;
+  const tool = tools?.find(t => t._id === toolId);
 
   useEffect(() => {
     if (toolId && user?._id) {
@@ -65,7 +58,7 @@ export function Qa({}: QaProps) {
     <React.Fragment>
       <Add
         toolId={toolId}
-        tools={tools}
+        tools={tools || []}
         toolDialog={openToolDialog}
         setToolDialog={setOpenToolDialog}
         qaDialog={openQaDialog}
@@ -73,9 +66,20 @@ export function Qa({}: QaProps) {
       />
       {toolId ? (
         <React.Fragment>
-          <ToolContent tool={tool as any} />
+          {tool ? (
+            <ToolContent
+              tool={tool as any}
+              tools={tools || []}
+              open={openQaDialog}
+              setOpen={setOpenQaDialog}
+            />
+          ) : null}
           {/* show the qa items according to toolId here */}
-          {qaItems?.length ? (
+          {isQaLoading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <QaSkeleton key={i} color={tool?.color} />
+            ))
+          ) : qaItems?.length ? (
             qaItems?.map(i => {
               return (
                 <QaItem
@@ -88,25 +92,54 @@ export function Qa({}: QaProps) {
               );
             })
           ) : (
-            <div className="flex w-full h-full items-center justify-center">
-              Empty View
+            <div className="w-full h-[50vh] flex items-center justify-center">
+              <EmptyView
+                title="No QA Items"
+                description="This tool doesn't have any questions and answers yet. Add some!"
+              />
             </div>
           )}
         </React.Fragment>
       ) : (
         <div className="h-full w-full">
+          <div className="px-6 pt-6">
+            <Heading text="Tools" size="3rem" weight="700" />
+          </div>
           {/* Grid container  */}
           <div className="p-6 grid grid-cols-12 gap-5">
-            {tools?.map((item: ToolItem) => {
-              return (
-                <ToolItemComponent
-                  item={item}
-                  key={item?._id}
-                  open={openToolDialog}
-                  setOpen={setOpenToolDialog}
+            {isToolsLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <ToolSkeleton
+                  key={i}
+                  color={
+                    [
+                      '#3b82f6',
+                      '#ef4444',
+                      '#10b981',
+                      '#f59e0b',
+                      '#8b5cf6',
+                      '#ec4899',
+                    ][i % 6]
+                  }
                 />
-              );
-            })}
+              ))
+            ) : tools?.length ? (
+              tools?.map((item: ToolItem) => {
+                return (
+                  <ToolItemComponent
+                    item={item}
+                    key={item?._id}
+                    open={openToolDialog}
+                    setOpen={setOpenToolDialog}
+                  />
+                );
+              })
+            ) : (
+              <EmptyView
+                title="No Tools Found"
+                description="Get started by creating your first tool category!"
+              />
+            )}
           </div>
         </div>
       )}
