@@ -4,4 +4,3 @@
 4. /src/store/rtkMiddleware.ts
 5. /src/global.css
 6. /src/index.tsx
-7. 

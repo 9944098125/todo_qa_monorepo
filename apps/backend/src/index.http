@@ -101,3 +101,41 @@ DELETE https://todo-qa-with-ts-backend-production.up.railway.app/api/todo/685ed0
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
 # with /api/todo/:todoId/:userId
+
+########### CREATE USER BY ADMIN
+POST https://todo-qa-with-ts-backend-production.up.railway.app/api/admin/createUser/:adminId
+Content-Type: application/json
+Authorization: Bearer token
+
+{
+  "name":"",
+  "email":"",
+  "password":"",
+  "phone":"",
+  "profilePicture":"",
+  "bio":"",
+  "isAdmin":false
+}
+
+GET https://todo-qa-with-ts-backend-production.up.railway.app/api/admin/users?page=1&pageSize=10
+Content-Type: application/json
+Authorization: Bearer Token
+
+PATCH https://todo-qa-with-ts-backend-production.up.railway.app/api/admin/updateUser/:userId
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "_id":"",
+  "name":"",
+  "email":"",
+  "password":"",
+  "phone":"",
+  "profilePicture":"",
+  "bio":"",
+  "isAdmin":false
+}
+
+DELETE https://todo-qa-with-ts-backend-production.up.railway.app/api/admin/deleteUser/:userId/:adminId
+Content-Type: application/json
+Authorization: Bearer Token
