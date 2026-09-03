@@ -70,7 +70,6 @@ app.listen(port, () => {
   connect();
   console.log(`Server is running on ${port}`);
 });
-// small change
 
 // command to get secret token
 // require('crypto').randomBytes(64).toString('hex')

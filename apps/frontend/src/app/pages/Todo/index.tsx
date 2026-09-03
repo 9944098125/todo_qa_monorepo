@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { AddTodo } from './components/add-todo';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTrigger,
@@ -19,9 +18,7 @@ import { toast } from '@/app/components/ui/use-toast';
 import { TodoSkeleton } from './components/todo-skeleton';
 import { EmptyView } from '@/app/components/Parts/EmptyView';
 
-export interface TodoProps {}
-
-export function Todo({}: TodoProps) {
+export function Todo() {
   const { useLazyGetTodoItemsQuery, actions } = useTodoSlice();
 
   const [
@@ -41,7 +38,7 @@ export function Todo({}: TodoProps) {
   const [isEditableDialogOpen, setIsEditableDialogOpen] =
     useState<boolean>(false);
 
-  const [page, setPage] = useState({
+  const [page] = useState({
     pageNumber: 1,
     pageSize: 10,
   });
@@ -75,7 +72,7 @@ export function Todo({}: TodoProps) {
         pageSize: page.pageSize,
       },
     });
-  }, [isTodoError, todoError]);
+  }, [isTodoError, todoError, page, user]);
 
   const todoDocuments = todoData?.data?.documents ?? [];
 

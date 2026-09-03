@@ -42,13 +42,13 @@ export function TodoAccordionItem(props: Props) {
     useState<boolean>(false);
 
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && data) {
       toast({
         description: data?.data?.message || 'Deleted Successfully !',
         variant: 'success',
       });
     }
-  }, [isSuccess]);
+  }, [isSuccess, data]);
 
   useEffect(() => {
     if (isError || error) {

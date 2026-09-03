@@ -8,11 +8,10 @@ import {
   Theme,
   User,
 } from './types';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import {
   endpoints,
   formatErrors,
-  baseQuery,
   baseQueryWithDelay,
 } from 'utils/api/endpoints';
 import { LoginFormValues, LoginResponse } from '@/types/login';
