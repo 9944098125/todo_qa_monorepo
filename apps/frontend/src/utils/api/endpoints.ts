@@ -4,9 +4,10 @@ import {
   fetchBaseQuery,
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
-import { RootState } from 'types';
 
-const baseUrl = 'http://localhost:5001/api';
+const baseUrl =
+  process.env.REACT_APP_API_URL ||
+  'https://todo-qa-monorepo-backend.vercel.app/api';
 
 const defaultHeaders = {
   'Content-Type': 'application/json',
