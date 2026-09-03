@@ -7,7 +7,7 @@ import {
 
 const baseUrl =
   process.env.REACT_APP_API_URL ||
-  'https://todo-qa-monorepo-backend-11iob9o03-srinivas-projects-4bf83ebd.vercel.app/api';
+  'https://todo-qa-monorepo-backend.vercel.app/api';
 
 const defaultHeaders = {
   'Content-Type': 'application/json',
