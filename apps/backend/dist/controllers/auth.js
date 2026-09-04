@@ -146,7 +146,7 @@ const login = (req, res, next) =>
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 5 * 60 * 60 * 1000, // 5 hours
       });
       const expiryTime = Date.now() + 5 * 60 * 60 * 1000;
