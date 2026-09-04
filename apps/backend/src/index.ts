@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://todo-qa-monorepo-frontend-one.vercel.app/",
+      "https://todo-qa-monorepo-frontend-one.vercel.app",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
