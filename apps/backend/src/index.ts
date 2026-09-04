@@ -28,7 +28,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-// added frontend url in cors config
+// change the NODE_ENV in env file to production in railway
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());
