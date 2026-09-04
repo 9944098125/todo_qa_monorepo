@@ -101,7 +101,7 @@ export const RegistrationForm = () => {
         variant: 'success',
       });
     }
-  }, [isSuccess, data]);
+  }, [isSuccess, data, navigate]);
 
   useEffect(() => {
     if (isError || error) {
@@ -341,6 +341,7 @@ export const RegistrationForm = () => {
           {/* Button  */}
           <div className="px-4 py-2 mb-4">
             <Button
+              disabled={isUploading || isLoading}
               type="submit"
               variant="primary"
               className="w-full h-[5.5rem] rounded-[.8rem] text-[1.8rem] text-white"
