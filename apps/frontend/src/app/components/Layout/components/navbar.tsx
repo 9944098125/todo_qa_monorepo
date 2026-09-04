@@ -4,7 +4,7 @@ import { Moon, Sun } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { selectTheme } from '@/app/slice/selectors';
 import { useGlobalSlice } from '@/app/slice';
-import { Theme } from '@/app/slice/types';
+
 import { useDispatch } from 'react-redux';
 
 export function Navbar() {

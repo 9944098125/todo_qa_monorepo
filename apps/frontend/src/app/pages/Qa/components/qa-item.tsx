@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pencil, Trash2, Clock3, Tag } from 'lucide-react';
+import { Pencil, Trash2, Clock3 } from 'lucide-react';
 import 'react-quill-new/dist/quill.snow.css';
 
 import { Qa, ToolItem } from '../slice/types';

@@ -10,7 +10,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { SubheadItem } from './subhead-item';
 import { ToolItem } from '@/app/pages/Qa/slice/types';
-import { isArray } from 'lodash';
 
 import { SubheadSkeleton } from './subhead-skeleton';
 

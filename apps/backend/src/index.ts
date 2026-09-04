@@ -26,6 +26,7 @@ app.use(
     credentials: true,
   }),
 );
+// added frontend url in cors config
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());

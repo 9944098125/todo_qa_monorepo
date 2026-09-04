@@ -13,7 +13,7 @@ import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
-import { qaActions, useQaSlice } from '../slice';
+import { useQaSlice } from '../slice';
 import { toast } from '@/app/components/ui/use-toast';
 import { selectEditableTool } from '../slice/selectors';
 import { useDispatch } from 'react-redux';
@@ -125,7 +125,7 @@ export const AddTool = (props: Props) => {
         variant: 'success',
       });
     }
-  }, [createSuccess, createdData]);
+  }, [createSuccess, createdData, form, setOpen]);
 
   useEffect(() => {
     if (isCreateError || createErrorMessage) {
@@ -147,7 +147,7 @@ export const AddTool = (props: Props) => {
         variant: 'success',
       });
     }
-  }, [updateSuccess, updatedData]);
+  }, [updateSuccess, updatedData, form, setOpen]);
 
   useEffect(() => {
     if (isUpdateError || updateErrorMessage) {
@@ -179,7 +179,7 @@ export const AddTool = (props: Props) => {
         });
       }
     }
-  }, [open, editableTool, form.reset]);
+  }, [open, editableTool, form]);
 
   function confirmEdit() {
     return handleSubmit(submitToolForm)();

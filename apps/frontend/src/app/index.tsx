@@ -17,7 +17,6 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalSlice } from './slice';
 
 import { Toaster } from './components/ui/toaster';
-import { Layout } from './components/Layout/index';
 import { Login } from './pages/Login/Loadable';
 import { ProtectedRoute } from './components/Parts/protectedRoute';
 import { Registration } from './pages/Registration/Loadable';
@@ -49,7 +48,7 @@ export function App() {
         }
       }
     }
-  }, [user, expiryTime]);
+  }, [user, expiryTime, actions, dispatch]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '../../ui/button';
 import { ClipboardList, LogOut, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useGlobalSlice } from '../../../slice';

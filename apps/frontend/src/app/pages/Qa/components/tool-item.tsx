@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useQaSlice } from '../slice';
 import { useDispatch } from 'react-redux';
-import { AddTool } from './add-tool';
 import { toast } from '@/app/components/ui/use-toast';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 import { Icons } from '@/app/components/ui/icons';
@@ -25,10 +24,9 @@ type Props = {
 };
 
 export const ToolItem = (props: Props) => {
-  const { item, open, setOpen } = props;
+  const { item, setOpen } = props;
   const { actions } = useQaSlice();
   const dispatch = useDispatch();
-  const themeState = useSelector(selectTheme);
 
   const { useDeleteToolMutation } = useQaSlice();
   const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
@@ -47,7 +45,7 @@ export const ToolItem = (props: Props) => {
         variant: 'destructive',
       });
     }
-  }, [isSuccess, isError, error]);
+  }, [isSuccess, isError, error, data]);
 
   return (
     <React.Fragment>

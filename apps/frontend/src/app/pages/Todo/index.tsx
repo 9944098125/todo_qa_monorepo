@@ -72,7 +72,7 @@ export function Todo() {
         pageSize: page.pageSize,
       },
     });
-  }, [isTodoError, todoError, page, user]);
+  }, [isTodoError, todoError, page, user, getTodoItems]);
 
   const todoDocuments = todoData?.data?.documents ?? [];
 

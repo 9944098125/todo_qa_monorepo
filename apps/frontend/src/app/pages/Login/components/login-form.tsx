@@ -8,7 +8,7 @@ import { Icons } from '@/app/components/ui/icons';
 import { useDispatch } from 'react-redux';
 import { toast } from '@/app/components/ui/use-toast';
 import { Link, useNavigate } from 'react-router-dom';
-import { LoginFormValues, LoginResponse } from '@/types/login';
+import { LoginFormValues } from '@/types/login';
 import { EyeClosedIcon, EyeIcon } from 'lucide-react';
 
 export function LoginForm() {
@@ -42,7 +42,7 @@ export function LoginForm() {
         variant: 'success',
       });
     }
-  }, [isSuccess, data]);
+  }, [isSuccess, data, actions, dispatch, navigate]);
 
   useEffect(() => {
     if (isError || error) {

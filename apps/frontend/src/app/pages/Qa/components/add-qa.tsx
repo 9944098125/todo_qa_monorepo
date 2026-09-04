@@ -109,7 +109,15 @@ export function AddQa(props: Props) {
         variant: 'destructive',
       });
     }
-  }, [createSuccess, createdData, isCreateError, createErrorMessage]);
+  }, [
+    createSuccess,
+    createdData,
+    isCreateError,
+    createErrorMessage,
+    navigate,
+    setOpen,
+    watch,
+  ]);
 
   useEffect(() => {
     if (updateSuccess && updatedData) {
@@ -125,7 +133,15 @@ export function AddQa(props: Props) {
         variant: 'destructive',
       });
     }
-  }, [updateSuccess, updatedData, isUpdateError, updateErrorMessage]);
+  }, [
+    updateSuccess,
+    updatedData,
+    isUpdateError,
+    updateErrorMessage,
+    navigate,
+    setOpen,
+    watch,
+  ]);
 
   useEffect(() => {
     if (open) {

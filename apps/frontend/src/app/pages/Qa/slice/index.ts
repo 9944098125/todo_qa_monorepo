@@ -21,10 +21,8 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import {
   endpoints,
   formatErrors,
-  baseQuery,
   baseQueryWithDelay,
 } from 'utils/api/endpoints';
-import { UpdateTodoRequest, UpdateTodoResponse } from '../../Todo/slice/types';
 
 export const initialState: QaState = {
   data: null,

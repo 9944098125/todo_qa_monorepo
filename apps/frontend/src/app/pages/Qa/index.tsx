@@ -16,7 +16,7 @@ import { Heading } from '@/app/components/Parts/heading';
 
 export interface QaProps {}
 
-export function Qa({}: QaProps) {
+export function Qa(props: QaProps) {
   const [searchParams] = useSearchParams();
   const { useLazyGetQaByToolQuery } = useQaSlice();
   const user = useSelector(selectUser);
@@ -28,7 +28,6 @@ export function Qa({}: QaProps) {
     tools: ToolItem[];
     isToolsLoading: boolean;
   }>();
-  const themeState = useSelector(selectTheme);
 
   const [openToolDialog, setOpenToolDialog] = useState<boolean>(false);
   const [openQaDialog, setOpenQaDialog] = useState(false);
@@ -41,7 +40,7 @@ export function Qa({}: QaProps) {
     if (toolId && user?._id) {
       getQaByTool({ toolId: toolId, userId: user?._id });
     }
-  }, [toolId, user?._id]);
+  }, [toolId, user?._id, getQaByTool]);
 
   useEffect(() => {
     if (isError || error) {

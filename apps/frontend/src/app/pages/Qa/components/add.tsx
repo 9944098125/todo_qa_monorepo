@@ -1,6 +1,4 @@
-import { Button } from '@/app/components/ui/button';
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { AddTool } from './add-tool';
 import { ToolItem } from '../slice/types';
 import { AddQa } from './add-qa';
