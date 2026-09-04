@@ -56,6 +56,13 @@ app.use("/api/todo", todoRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/tools", toolsRoute);
 
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend is running",
+  });
+});
+
 app.use((error: any, req: Request, res: Response, next: Function): void => {
   const errStatus = error.status || 500;
   const errMessage = error.message || "Something went wrong";
