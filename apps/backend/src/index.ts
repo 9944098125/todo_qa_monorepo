@@ -22,6 +22,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://todo-qa-monorepo-frontend.vercel.app/",
+      "https://todo-qa-monorepo-frontend-one.vercel.app/",
       "https://todo-qa-monorepo-frontend-91cj6r9w9-srinivas-projects-4bf83ebd.vercel.app/",
     ],
     credentials: true,
