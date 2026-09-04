@@ -50,7 +50,7 @@ body {
   font-size: 1.4rem;
   background-color: rgb(238, 254, 252);
 }
-
+/* style added */
 .react-tel-input .form-control {
   background-color: transparent !important;
   color: rgb(0, 0, 0) !important;

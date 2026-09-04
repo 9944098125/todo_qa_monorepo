@@ -9,6 +9,7 @@ const baseUrl =
   process.env.REACT_APP_API_URL ||
   'https://todoqamonorepo-production.up.railway.app/api';
 
+// this frontend deployed url added cors config
 const defaultHeaders = {
   'Content-Type': 'application/json',
 };
