@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { LoginForm } from './components/login-form';
 import { useSelector } from 'react-redux';
 import { selectUser } from '@/app/slice/selectors';
@@ -12,7 +12,7 @@ export function Login() {
     if (userState) {
       navigate('/todo');
     }
-  }, []);
+  }, [navigate, userState]);
 
   return (
     <React.Fragment>

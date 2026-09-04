@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Add } from './components/add';
 import { useQaSlice } from './slice';
 import { useSelector } from 'react-redux';
-import { selectTheme, selectUser } from '@/app/slice/selectors';
+import { selectUser } from '@/app/slice/selectors';
 import { ToolItem } from './slice/types';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { ToolItem as ToolItemComponent } from './components/tool-item';
@@ -20,10 +20,8 @@ export function Qa(props: QaProps) {
   const [searchParams] = useSearchParams();
   const { useLazyGetQaByToolQuery } = useQaSlice();
   const user = useSelector(selectUser);
-  const [
-    getQaByTool,
-    { isFetching: isQaLoading, isSuccess, data, isError, error },
-  ] = useLazyGetQaByToolQuery();
+  const [getQaByTool, { isFetching: isQaLoading, data, isError, error }] =
+    useLazyGetQaByToolQuery();
   const { tools, isToolsLoading } = useOutletContext<{
     tools: ToolItem[];
     isToolsLoading: boolean;

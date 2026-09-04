@@ -1,8 +1,6 @@
 import { Button } from '@/app/components/ui/button';
-import { selectTheme } from '@/app/slice/selectors';
 import { EditIcon, TrashIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useQaSlice } from '../slice';
 import { useDispatch } from 'react-redux';
 import { toast } from '@/app/components/ui/use-toast';
