@@ -14,6 +14,7 @@ import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 import PhoneInput from 'react-phone-input-2';
 import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
 import './../../../../styles/common.css';
+import 'react-phone-input-2/lib/style.css';
 
 type Props = {
   closeDialog: () => void;
@@ -168,7 +169,8 @@ export const UserDialog = ({ closeDialog }: Props) => {
         variant: 'success',
       });
     }
-    if (isUpdateSuccess && updatedData) {
+    if (isUpdateSuccess || updatedData) {
+      console.log('updatedData', updatedData);
       closeDialog();
 
       toast({

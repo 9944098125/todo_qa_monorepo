@@ -94,7 +94,7 @@ export interface UpdateUserResponse {
   data: {
     message: string;
     data: {
-      User: {
+      user: {
         userId: string | undefined;
         name: string | undefined;
         email: string | undefined;

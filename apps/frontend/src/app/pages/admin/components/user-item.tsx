@@ -151,7 +151,12 @@ export const UserItem = (props: Props) => {
               <DialogHeader>
                 <Heading text="Edit User" size="2.6rem" weight="600" />
               </DialogHeader>
-              <UserDialog closeDialog={() => setOpen(false)} />
+              <UserDialog
+                closeDialog={() => {
+                  setOpen(false);
+                  console.log('Edit Dialog closed');
+                }}
+              />
             </DialogContent>
           </Dialog>
           <Button
