@@ -1,4 +1,4 @@
-import { AdminState } from '@/app/pages/admin/slice/types';
+import { AdminState } from '@/app/pages/Users/slice/types';
 import { QaState } from '@/app/pages/Qa/slice/types';
 import { RegistrationState } from '@/app/pages/Registration/slice/types';
 import { TodoState } from '@/app/pages/Todo/slice/types';

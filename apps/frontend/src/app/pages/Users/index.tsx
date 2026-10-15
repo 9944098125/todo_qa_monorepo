@@ -7,12 +7,12 @@ import { useOutletContext, useSearchParams } from 'react-router-dom';
 import {
   UserItem,
   UserItem as UserItemComponent,
-} from '../admin/components/user-item';
+} from './components/user-item';
 import { toast } from '@/app/components/ui/use-toast';
 import { AddUser } from './components/add-user';
 import { EmptyView } from '@/app/components/Parts/EmptyView';
 import { Heading } from '@/app/components/Parts/heading';
-import { useAdminSlice } from './slice';
+import { useUsersSlice } from './slice';
 import { User } from '@/app/slice/types';
 import { UserSkeleton } from './components/user-skeleton';
 import {
@@ -26,9 +26,9 @@ import { selectEditableUser } from './slice/selectors';
 
 export interface AdminProps {}
 
-export function Admin(props: AdminProps) {
+export function Users(props: AdminProps) {
   const [searchParams] = useSearchParams();
-  const { useLazyGetUsersQuery, actions } = useAdminSlice();
+  const { useLazyGetUsersQuery, actions } = useUsersSlice();
   const thisUser = useSelector(selectUser);
   const [getUsers, { isFetching: isUserLoading, data, isError, error }] =
     useLazyGetUsersQuery();
@@ -36,8 +36,7 @@ export function Admin(props: AdminProps) {
   const dispatch = useDispatch();
   const themeState = useSelector(selectTheme);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState<boolean>(false);
-  const [isEditableDialogOpen, setIsEditableDialogOpen] =
-    useState<boolean>(false);
+
   const editableUser = useSelector(selectEditableUser);
 
   const users: User[] = data?.data?.documents || [];
@@ -57,7 +56,7 @@ export function Admin(props: AdminProps) {
   };
 
   useEffect(() => {
-    getUsers();
+    getUsers({});
   }, [getUsers]);
 
   useEffect(() => {
@@ -101,13 +100,7 @@ export function Admin(props: AdminProps) {
           ) : users?.length ? (
             users?.map((user: User) => {
               return (
-                <UserItemComponent
-                  key={user._id}
-                  users={users}
-                  user={user}
-                  open={isEditableDialogOpen}
-                  setOpen={setIsEditableDialogOpen}
-                />
+                <UserItemComponent key={user._id} users={users} user={user} />
               );
             })
           ) : (

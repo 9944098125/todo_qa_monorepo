@@ -73,11 +73,9 @@ export interface GetUserResponse {
 }
 
 export interface UpdateUserRequest {
-  query: {
-    userId: string | undefined;
-  };
+  userId: string | undefined;
   body: {
-    userId: string | undefined;
+    _id: string | undefined;
     name: string | undefined;
     email: string | undefined;
     password: string | undefined;
@@ -95,7 +93,7 @@ export interface UpdateUserResponse {
     message: string;
     data: {
       user: {
-        userId: string | undefined;
+        _id: string | undefined;
         name: string | undefined;
         email: string | undefined;
         password: string | undefined;

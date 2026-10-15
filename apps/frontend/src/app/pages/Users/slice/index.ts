@@ -9,7 +9,9 @@ import {
   GetUserByIdResponse,
   GetUserResponse,
   AdminState,
-} from '../../admin/slice/types';
+  UpdateUserResponse,
+  UpdateUserRequest,
+} from './types';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import {
@@ -71,7 +73,7 @@ export const api = createApi({
       },
     }),
 
-    getUsers: build.query<GetUserResponse, void>({
+    getUsers: build.query<GetUserResponse, any>({
       query: () => {
         return {
           ...endpoints.getUsers,
@@ -101,7 +103,7 @@ export const api = createApi({
       },
     }),
 
-    updateUser: build.mutation<any, any>({
+    updateUser: build.mutation<UpdateUserResponse, UpdateUserRequest>({
       query: ({ userId, body }) => {
         return {
           url: `${endpoints.updateUser.url}/${userId}`,
@@ -129,9 +131,9 @@ export const api = createApi({
   }),
 });
 
-export const { actions: qaActions } = slice;
+export const { actions: usersActions } = slice;
 
-export const useAdminSlice = () => {
+export const useUsersSlice = () => {
   useInjectReducer({ key: slice.name, reducer: slice.reducer });
   useInjectReducer({ key: api.reducerPath, reducer: api.reducer });
   return {

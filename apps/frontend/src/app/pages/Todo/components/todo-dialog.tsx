@@ -17,7 +17,11 @@ import { isValid, parseISO } from 'date-fns';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 
 type Props = {
-  closeDialog: () => void;
+  closeDialog?: any;
+  updateTodo?: any;
+  createTodo?: any;
+  isCreateLoading?: boolean;
+  isUpdateLoading?: boolean;
 };
 
 type TodoForm = {
@@ -27,34 +31,35 @@ type TodoForm = {
   deadline: Date;
 };
 
-export const TodoDialog = ({ closeDialog }: Props) => {
-  const {
-    useCreateTodoMutation,
-    useUpdateTodoMutation,
-    useGenerateTodoDescriptionMutation,
-  } = useTodoSlice();
+export const TodoDialog = ({
+  updateTodo,
+  createTodo,
+  isUpdateLoading,
+  isCreateLoading,
+}: Props) => {
+  const { useGenerateTodoDescriptionMutation } = useTodoSlice();
 
-  const [
-    createTodo,
-    {
-      isLoading: isCreateLoading,
-      isSuccess: isCreateSuccess,
-      isError: isCreateError,
-      error: createErrorMessage,
-      data: createdData,
-    },
-  ] = useCreateTodoMutation();
+  // const [
+  //   createTodo,
+  //   {
+  //     isLoading: isCreateLoading,
+  //     isSuccess: isCreateSuccess,
+  //     isError: isCreateError,
+  //     error: createErrorMessage,
+  //     data: createdData,
+  //   },
+  // ] = useCreateTodoMutation();
 
-  const [
-    updateTodo,
-    {
-      isLoading: isUpdateLoading,
-      isSuccess: isUpdateSuccess,
-      isError: isUpdateError,
-      error: updateErrorMessage,
-      data: updatedData,
-    },
-  ] = useUpdateTodoMutation();
+  // const [
+  //   updateTodo,
+  //   {
+  //     isLoading: isUpdateLoading,
+  //     isSuccess: isUpdateSuccess,
+  //     isError: isUpdateError,
+  //     error: updateErrorMessage,
+  //     data: updatedData,
+  //   },
+  // ] = useUpdateTodoMutation();
 
   const [
     generateDescription,
@@ -134,40 +139,6 @@ export const TodoDialog = ({ closeDialog }: Props) => {
       ? updateTodo({ body, todoId: editableTodo?._id })
       : createTodo(body);
   };
-
-  useEffect(() => {
-    if (isCreateSuccess && createdData) {
-      closeDialog();
-
-      toast({
-        description: createdData?.data?.message || 'Todo Created',
-        variant: 'success',
-      });
-    }
-    if (isUpdateSuccess && updatedData) {
-      closeDialog();
-
-      toast({
-        description: updatedData?.data?.message || 'Todo updated',
-        variant: 'success',
-      });
-    }
-  }, [isCreateSuccess, createdData, isUpdateSuccess, updatedData, closeDialog]);
-
-  useEffect(() => {
-    if (createErrorMessage || isCreateError) {
-      toast({
-        description: String(createErrorMessage),
-        variant: 'destructive',
-      });
-    }
-    if (updateErrorMessage || isUpdateError) {
-      toast({
-        description: String(updateErrorMessage),
-        variant: 'destructive',
-      });
-    }
-  }, [isCreateError, createErrorMessage, isUpdateError, updateErrorMessage]);
 
   const confirmEdit = () => {
     handleSubmit(submitTodoForm)();

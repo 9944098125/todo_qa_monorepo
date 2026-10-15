@@ -22,42 +22,26 @@ import { Heading } from '@/app/components/Parts/heading';
 import { TodoDialog } from './todo-dialog';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 import { Icons } from '@/app/components/ui/icons';
+import { update } from 'lodash';
 
 type Props = {
   eachItem: TodoItem;
-  open: boolean;
-  setOpen: (value: boolean) => void;
+  updateTodo?: any;
+  isUpdateLoading?: any;
+  deleteLoading: boolean;
+  deleteTodo: any;
 };
 export function TodoAccordionItem(props: Props) {
   const themeState = useSelector(selectTheme);
   const dispatch = useDispatch();
   const { _id, title, description, urgency, deadline, userId } = props.eachItem;
+  const { actions } = useTodoSlice();
 
-  const { useDeleteTodoMutation, actions } = useTodoSlice();
-
-  const [deleteTodo, { isLoading, isSuccess, data, isError, error }] =
-    useDeleteTodoMutation();
+  const [isEditableDialogOpen, setIsEditableDialogOpen] =
+    useState<boolean>(false);
 
   const [openDeleteConfirmation, setOpenDeleteConfirmation] =
     useState<boolean>(false);
-
-  useEffect(() => {
-    if (isSuccess && data) {
-      toast({
-        description: data?.data?.message || 'Deleted Successfully !',
-        variant: 'success',
-      });
-    }
-  }, [isSuccess, data]);
-
-  useEffect(() => {
-    if (isError || error) {
-      toast({
-        description: String(error) || 'Delete Todo Failed !',
-        variant: 'destructive',
-      });
-    }
-  }, [isError, error]);
 
   return (
     <React.Fragment>
@@ -89,14 +73,17 @@ export function TodoAccordionItem(props: Props) {
             </div>
             <div className="">
               <div className="flex items-center justify-between mb-4">
-                <Dialog open={props.open} onOpenChange={props.setOpen}>
+                <Dialog
+                  open={isEditableDialogOpen}
+                  onOpenChange={setIsEditableDialogOpen}
+                >
                   <DialogTrigger>
                     <div
                       onClick={(e: any) => {
                         e.preventDefault();
                         e.stopPropagation();
                         dispatch(actions.editTodo(props.eachItem));
-                        props.setOpen(true);
+                        setIsEditableDialogOpen(true);
                       }}
                       className="bg-blue-600 hover:bg-blue-800 text-white p-4 rounded-[.8rem]"
                     >
@@ -113,7 +100,11 @@ export function TodoAccordionItem(props: Props) {
                     <DialogHeader>
                       <Heading text="Edit Todo" size="2.6rem" weight="600" />
                     </DialogHeader>
-                    <TodoDialog closeDialog={() => props.setOpen(false)} />
+                    <TodoDialog
+                      closeDialog={() => setIsEditableDialogOpen(false)}
+                      updateTodo={props.updateTodo}
+                      isUpdateLoading={props.isUpdateLoading}
+                    />
                   </DialogContent>
                 </Dialog>
 
@@ -121,7 +112,7 @@ export function TodoAccordionItem(props: Props) {
                   onClick={() => setOpenDeleteConfirmation(true)}
                   className="bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem] cursor-pointer ml-4"
                 >
-                  {isLoading ? (
+                  {props.deleteLoading ? (
                     <Icons.Spinner className="h-10 w-10 animate-spin" />
                   ) : (
                     <Trash2Icon className="h-10 w-10" />
@@ -135,7 +126,7 @@ export function TodoAccordionItem(props: Props) {
                     open={openDeleteConfirmation}
                     setOpen={setOpenDeleteConfirmation}
                     confirm={() => {
-                      deleteTodo({ todoId: _id, userId: userId });
+                      props.deleteTodo({ todoId: _id, userId: userId });
                     }}
                   />
                 )}

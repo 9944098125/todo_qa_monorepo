@@ -4,7 +4,7 @@ import { Input } from '@/app/components/ui/input';
 import Label from '@/app/components/ui/label';
 import React, { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useAdminSlice } from '../slice';
+import { useUsersSlice } from '../slice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectTheme, selectUser } from '@/app/slice/selectors';
 import { toast } from '@/app/components/ui/use-toast';
@@ -32,7 +32,8 @@ type UserForm = {
 };
 
 export const UserDialog = ({ closeDialog }: Props) => {
-  const { useCreateUserMutation, useUpdateUserMutation } = useAdminSlice();
+  const { useCreateUserMutation, useUpdateUserMutation, actions } =
+    useUsersSlice();
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const [
@@ -88,7 +89,6 @@ export const UserDialog = ({ closeDialog }: Props) => {
   const editableUser = useSelector(selectEditableUser);
   const themeState = useSelector(selectTheme);
   const dispatch = useDispatch();
-  const { actions } = useAdminSlice();
 
   const [openEditConfirmation, setOpenEditConfirmation] =
     useState<boolean>(false);
@@ -152,7 +152,6 @@ export const UserDialog = ({ closeDialog }: Props) => {
   const submitUserForm = (formData: UserForm) => {
     const body = {
       ...formData,
-      userId: user?._id,
       isAdmin: formData.isAdmin === 'Yes' ? true : false,
     };
     editableUser
@@ -169,6 +168,9 @@ export const UserDialog = ({ closeDialog }: Props) => {
         variant: 'success',
       });
     }
+  }, [isCreateSuccess, createdData]);
+
+  useEffect(() => {
     if (isUpdateSuccess || updatedData) {
       console.log('updatedData', updatedData);
       closeDialog();
@@ -178,7 +180,7 @@ export const UserDialog = ({ closeDialog }: Props) => {
         variant: 'success',
       });
     }
-  }, [isCreateSuccess, createdData, isUpdateSuccess, updatedData, closeDialog]);
+  }, [isUpdateSuccess, updatedData]);
 
   useEffect(() => {
     if (createErrorMessage || isCreateError) {
@@ -198,6 +200,15 @@ export const UserDialog = ({ closeDialog }: Props) => {
   const confirmEdit = () => {
     handleSubmit(submitUserForm)();
   };
+
+  useEffect(() => {
+    console.log('Update state:', {
+      isUpdateSuccess,
+      updatedData,
+      isUpdateError,
+      updateErrorMessage,
+    });
+  }, [isUpdateSuccess, updatedData, isUpdateError, updateErrorMessage]);
 
   return (
     <div className="w-full p-5">

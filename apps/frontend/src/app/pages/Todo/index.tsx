@@ -19,7 +19,13 @@ import { TodoSkeleton } from './components/todo-skeleton';
 import { EmptyView } from '@/app/components/Parts/EmptyView';
 
 export function Todo() {
-  const { useLazyGetTodoItemsQuery, actions } = useTodoSlice();
+  const {
+    useLazyGetTodoItemsQuery,
+    useCreateTodoMutation,
+    useUpdateTodoMutation,
+    useDeleteTodoMutation,
+    actions,
+  } = useTodoSlice();
 
   const [
     getTodoItems,
@@ -31,12 +37,43 @@ export function Todo() {
     },
   ] = useLazyGetTodoItemsQuery();
 
+  const [
+    createTodo,
+    {
+      isLoading: isCreateLoading,
+      isSuccess: isCreateSuccess,
+      isError: isCreateError,
+      error: createErrorMessage,
+      data: createdData,
+    },
+  ] = useCreateTodoMutation();
+
+  const [
+    updateTodo,
+    {
+      isLoading: isUpdateLoading,
+      isSuccess: isUpdateSuccess,
+      isError: isUpdateError,
+      error: updateErrorMessage,
+      data: updatedData,
+    },
+  ] = useUpdateTodoMutation();
+
+  const [
+    deleteTodo,
+    {
+      isLoading: deleteLoading,
+      isSuccess: deleteSuccess,
+      data: deleteData,
+      isError: deleteError,
+      error: deleteErrorMessage,
+    },
+  ] = useDeleteTodoMutation();
+
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const themeState = useSelector(selectTheme);
   const [isTodoDialogOpen, setIsTodoDialogOpen] = useState<boolean>(false);
-  const [isEditableDialogOpen, setIsEditableDialogOpen] =
-    useState<boolean>(false);
 
   const [page] = useState({
     pageNumber: 1,
@@ -76,6 +113,58 @@ export function Todo() {
 
   const todoDocuments = todoData?.data?.documents ?? [];
 
+  useEffect(() => {
+    if (isCreateSuccess && createdData) {
+      closeTodoDialog();
+
+      toast({
+        description: createdData?.data?.message || 'Todo Created',
+        variant: 'success',
+      });
+    }
+    if (isUpdateSuccess && updatedData) {
+      closeTodoDialog();
+
+      toast({
+        description: updatedData?.data?.message || 'Todo updated',
+        variant: 'success',
+      });
+    }
+  }, [isCreateSuccess, createdData, isUpdateSuccess, updatedData]);
+
+  useEffect(() => {
+    if (createErrorMessage || isCreateError) {
+      toast({
+        description: String(createErrorMessage),
+        variant: 'destructive',
+      });
+    }
+    if (updateErrorMessage || isUpdateError) {
+      toast({
+        description: String(updateErrorMessage),
+        variant: 'destructive',
+      });
+    }
+  }, [isCreateError, createErrorMessage, isUpdateError, updateErrorMessage]);
+
+  useEffect(() => {
+    if (deleteSuccess && deleteData) {
+      toast({
+        description: deleteData?.data?.message || 'Deleted Successfully !',
+        variant: 'success',
+      });
+    }
+  }, [deleteSuccess, deleteData]);
+
+  useEffect(() => {
+    if (deleteError || deleteErrorMessage) {
+      toast({
+        description: String(deleteErrorMessage) || 'Delete Todo Failed !',
+        variant: 'destructive',
+      });
+    }
+  }, [deleteError, deleteErrorMessage]);
+
   return (
     <React.Fragment>
       <div className="">
@@ -96,7 +185,10 @@ export function Todo() {
               <DialogHeader>
                 <Heading text="Create Todo" size="2.6rem" weight="600" />
               </DialogHeader>
-              <TodoDialog closeDialog={closeTodoDialog} />
+              <TodoDialog
+                createTodo={createTodo}
+                isCreateLoading={isCreateLoading}
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -112,8 +204,10 @@ export function Todo() {
                 <TodoAccordionItem
                   eachItem={eachTodo}
                   key={eachTodo?._id}
-                  open={isEditableDialogOpen}
-                  setOpen={setIsEditableDialogOpen}
+                  updateTodo={updateTodo}
+                  isUpdateLoading={isUpdateLoading}
+                  deleteTodo={deleteTodo}
+                  deleteLoading={deleteLoading}
                 />
               );
             })

@@ -1,7 +1,7 @@
 import { Button } from '@/app/components/ui/button';
 import { EditIcon, TrashIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { useAdminSlice } from '../slice';
+import { useUsersSlice } from '../slice';
 import { useDispatch } from 'react-redux';
 import { toast } from '@/app/components/ui/use-toast';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
@@ -25,22 +25,21 @@ import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
 type Props = {
   users: User[];
   user: User;
-  open: boolean;
-  setOpen: (value: boolean) => void;
 };
 
 export const UserItem = (props: Props) => {
-  const { user, open, setOpen } = props;
-  const { actions } = useAdminSlice();
+  const { user } = props;
+  const { actions, useDeleteUserMutation } = useUsersSlice();
   const dispatch = useDispatch();
   const admin = useSelector(selectUser);
 
-  const { useDeleteUserMutation } = useAdminSlice();
   const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
   const [deleteUser, { isLoading, isSuccess, data, isError, error }] =
     useDeleteUserMutation();
   const themeState = useSelector(selectTheme);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isEditableDialogOpen, setIsEditableDialogOpen] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (isSuccess && data) {
@@ -81,42 +80,8 @@ export const UserItem = (props: Props) => {
   });
 
   const {
-    register,
-    handleSubmit,
     formState: { errors },
-    control,
-    reset,
-    watch,
-    setError,
-    setValue,
   } = form;
-
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError('profilePicture', {
-        type: 'manual',
-        message: 'File Size cannot exceed 5MB',
-      });
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-
-      const imageUrl = await uploadToCloudinary(file);
-      setValue('profilePicture', imageUrl);
-    } catch (err) {
-      throw new Error(String(err));
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   return (
     <React.Fragment>
@@ -132,7 +97,7 @@ export const UserItem = (props: Props) => {
         <div className="absolute bg-white rounded-[.8rem] p-4 top-1 right-1 md:top-2 md:right-2 flex items-center gap-4">
           <Button
             onClick={() => {
-              setOpen(true);
+              setIsEditableDialogOpen(true);
               dispatch(actions.editUser(user));
             }}
             variant="blueBtn"
@@ -140,7 +105,10 @@ export const UserItem = (props: Props) => {
           >
             <EditIcon className="text-white h-10 w-10" />
           </Button>
-          <Dialog open={open} onOpenChange={setOpen}>
+          <Dialog
+            open={isEditableDialogOpen}
+            onOpenChange={setIsEditableDialogOpen}
+          >
             <DialogContent
               onInteractOutside={e => {
                 e.preventDefault();
@@ -153,7 +121,7 @@ export const UserItem = (props: Props) => {
               </DialogHeader>
               <UserDialog
                 closeDialog={() => {
-                  setOpen(false);
+                  setIsEditableDialogOpen(false);
                   console.log('Edit Dialog closed');
                 }}
               />
