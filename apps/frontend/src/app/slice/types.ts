@@ -9,7 +9,7 @@ export type User = {
   profilePicture: string;
   phone: string;
   bio: string;
-  isAdmin: boolean;
+  isAdmin?: boolean;
 };
 
 /* --- STATE --- */

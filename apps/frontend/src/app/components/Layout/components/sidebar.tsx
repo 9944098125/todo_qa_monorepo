@@ -1,6 +1,12 @@
 import React from 'react';
 import { Button } from '../../ui/button';
-import { ClipboardList, LogOut, ArrowRight, ArrowLeft } from 'lucide-react';
+import {
+  ClipboardList,
+  LogOut,
+  ArrowRight,
+  ArrowLeft,
+  Users2Icon,
+} from 'lucide-react';
 import { useGlobalSlice } from '../../../slice';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -63,6 +69,23 @@ export function Sidebar(props: Props) {
               <ArrowLeft className="h-[3rem] w-[3rem]" />
             )}
           </Button>
+        </div>
+        <div className="mb-4 px-4">
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              `${isActive ? (themeState === 'dark' ? 'bg-green-700' : 'bg-green-700/70 text-white') : ''} rounded-[.8rem] text-xl font-bold p-4 flex items-center`
+            }
+          >
+            <div
+              className={`${sidebarState === 'closed' ? 'flex justify-center items-center' : 'flex items-center gap-4'}`}
+            >
+              <Users2Icon />
+              {sidebarState === 'closed' ? null : (
+                <p className="hidden lg:block">Users</p>
+              )}
+            </div>
+          </NavLink>
         </div>
         <div className="mb-4 px-4">
           <NavLink

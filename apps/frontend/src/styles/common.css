@@ -1,0 +1,57 @@
+.user-card {
+  position: relative;
+  grid-column: span 12 / span 12;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0.8rem;
+  border: 1px solid #e5e7eb;
+  border-Top-Width: '1px';
+  border-Right-Width: '1px';
+  border-Bottom-Width: '1px';
+  border-Left-Width: '4px';
+  border-left: 5px solid #3b3d41; /* Thick blue left border */
+  border-radius: 0.8rem;
+
+  box-shadow:
+    0 -4px 8px rgba(0, 0, 0, 0.12),  /* Top shadow    */
+    4px 0 8px rgba(0, 0, 0, 0.12),   /* Right shadow  */
+    0 4px 8px rgba(0, 0, 0, 0.18);   /* Bottom shadow */
+}
+
+/* Large screens: 1024px and above */
+@media (min-width: 1024px) {
+  .user-card {
+    grid-column: span 6 / span 6;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+}
+
+/* Extra-large screens: 1280px and above */
+@media (min-width: 1280px) {
+  .user-card {
+    grid-column: span 4 / span 4;
+  }
+}
+
+/* dialog border */
+.Textbox-design {
+  margin-bottom: 1rem;  /* mb-4 */
+  padding-left: 1rem;   /* px-4 */
+  padding-right: 1rem;  /* px-4 */
+  padding-top: 0.5rem;  /* py-2 */
+  padding-bottom: 0.5rem; /* py-2 */
+  border-radius: 6px;
+}
+.common-shadow
+{
+  /* common shadow */
+  box-shadow: 0 -4px 8px rgba(128, 128, 128, 0.25), /* Top shadow */ 
+              4px 0 8px rgba(128, 128, 128, 0.25), /* Right shadow */ 
+              0 4px 8px rgba(128, 128, 128, 0.25); /* Bottom shadow */
+}
+

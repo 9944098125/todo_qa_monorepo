@@ -184,7 +184,7 @@ export const RegistrationForm = () => {
                     message: 'Please enter a valid email address',
                   },
                 })}
-                placeholder="Enter your First Name"
+                placeholder="Enter your Email"
                 className={`h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] ${errors?.email ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
               />
               {errors.email && (

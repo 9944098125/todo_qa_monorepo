@@ -12,6 +12,10 @@ overrides:
 
 importers:
   .:
+    dependencies:
+      react-phone-input-2:
+        specifier: 2.15.1
+        version: 2.15.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
       chalk:
         specifier: 6.0.0

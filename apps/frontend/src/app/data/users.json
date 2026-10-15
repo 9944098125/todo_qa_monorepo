@@ -1,0 +1,110 @@
+[
+  {
+    "_id": "user001",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "color": "#3498db",
+    "profilePicture": "",
+    "phone": "9876543210",
+    "bio": "Software Developer",
+    "isAdmin": true,
+    "createdAt": "2026-09-01T10:00:00Z",
+    "updatedAt": "2026-09-01T10:00:00Z"
+  },
+  {
+    "_id": "user002",
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "color": "#e74c3c",
+    "profilePicture": "",
+    "phone": "9876543211",
+    "bio": "UI Developer",
+    "isAdmin": false,
+    "createdAt": "2026-09-02T10:00:00Z",
+    "updatedAt": "2026-09-02T10:00:00Z"
+  },
+  {
+    "_id": "user003",
+    "name": "David Wilson",
+    "email": "david@example.com",
+    "color": "#2ecc71",
+    "profilePicture": "",
+    "phone": "9876543212",
+    "bio": "Backend Developer",
+    "isAdmin": false,
+    "createdAt": "2026-09-03T10:00:00Z",
+    "updatedAt": "2026-09-03T10:00:00Z"
+  },
+  {
+    "_id": "user004",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "color": "#3498db",
+    "profilePicture": "",
+    "phone": "9876543210",
+    "bio": "Software Developer",
+    "isAdmin": true,
+    "createdAt": "2026-09-01T10:00:00Z",
+    "updatedAt": "2026-09-01T10:00:00Z"
+  },
+  {
+    "_id": "user005",
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "color": "#e74c3c",
+    "profilePicture": "",
+    "phone": "9876543211",
+    "bio": "UI Developer",
+    "isAdmin": false,
+    "createdAt": "2026-09-02T10:00:00Z",
+    "updatedAt": "2026-09-02T10:00:00Z"
+  },
+  {
+    "_id": "user006",
+    "name": "David Wilson",
+    "email": "david@example.com",
+    "color": "#2ecc71",
+    "profilePicture": "",
+    "phone": "9876543212",
+    "bio": "Backend Developer",
+    "isAdmin": false,
+    "createdAt": "2026-09-03T10:00:00Z",
+    "updatedAt": "2026-09-03T10:00:00Z"
+  },
+  {
+    "_id": "user007",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "color": "#3498db",
+    "profilePicture": "",
+    "phone": "9876543210",
+    "bio": "Software Developer",
+    "isAdmin": true,
+    "createdAt": "2026-09-01T10:00:00Z",
+    "updatedAt": "2026-09-01T10:00:00Z"
+  },
+  {
+    "_id": "user008",
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "color": "#e74c3c",
+    "profilePicture": "",
+    "phone": "9876543211",
+    "bio": "UI Developer",
+    "isAdmin": false,
+    "createdAt": "2026-09-02T10:00:00Z",
+    "updatedAt": "2026-09-02T10:00:00Z"
+  },
+  {
+    "_id": "user009",
+    "name": "David Wilson",
+    "email": "david@example.com",
+    "color": "#2ecc71",
+    "profilePicture": "",
+    "phone": "9876543212",
+    "bio": "Backend Developer",
+    "isAdmin": false,
+    "createdAt": "2026-09-03T10:00:00Z",
+    "updatedAt": "2026-09-03T10:00:00Z"
+  }
+]

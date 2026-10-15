@@ -110,4 +110,24 @@ export const endpoints = {
     url: '/qa',
     method: HTTP_METHODS.DELETE,
   },
+  getUsers: {
+    url: '/admin/users',
+    method: HTTP_METHODS.GET,
+  },
+  getUserById: {
+    url: '/admin/user',
+    method: HTTP_METHODS.GET,
+  },
+  createUser: {
+    url: '/admin/createUser',
+    method: HTTP_METHODS.POST,
+  },
+  deleteUser: {
+    url: '/admin/deleteUser',
+    method: HTTP_METHODS.DELETE,
+  },
+  updateUser: {
+    url: '/admin/updateUser',
+    method: HTTP_METHODS.PATCH,
+  },
 };

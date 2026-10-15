@@ -7,9 +7,9 @@ import { useGlobalSlice } from '@/app/slice';
 import { Icons } from '@/app/components/ui/icons';
 import { useDispatch } from 'react-redux';
 import { toast } from '@/app/components/ui/use-toast';
-import { Link, useNavigate } from 'react-router-dom';
+import { data, Link, useNavigate } from 'react-router-dom';
 import { LoginFormValues } from '@/types/login';
-import { EyeClosedIcon, EyeIcon } from 'lucide-react';
+import { EyeClosedIcon, EyeIcon, User } from 'lucide-react';
 
 export function LoginForm() {
   const form = useForm<LoginFormValues>();

@@ -22,6 +22,8 @@ import { ProtectedRoute } from './components/Parts/protectedRoute';
 import { Registration } from './pages/Registration/Loadable';
 import { Todo } from './pages/Todo/Loadable';
 import { Qa } from './pages/Qa/Loadable';
+import { Admin } from './pages/admin/Loadable';
+
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { selectExpiryTime, selectUser } from './slice/selectors';
@@ -68,6 +70,7 @@ export function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/todo" element={<Todo />} />
             <Route path="/qa" element={<Qa />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
