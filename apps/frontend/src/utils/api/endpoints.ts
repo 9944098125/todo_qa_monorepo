@@ -110,4 +110,14 @@ export const endpoints = {
     url: '/qa',
     method: HTTP_METHODS.DELETE,
   },
+  generateTodoDescription: {
+    // req.body = todoTitle
+    url: '/todo/generate-todo-description',
+    method: HTTP_METHODS.POST,
+  },
+  generateAnswer: {
+    // req.body = question
+    url: '/qa/generate-answer',
+    method: HTTP_METHODS.POST,
+  },
 };

@@ -219,3 +219,21 @@ export interface CreateQaResponse {
     url: string;
   };
 }
+
+export interface GenerateAnswerResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string;
+    data: {
+      generatedAnswer: string;
+    };
+  };
+  meta: {
+    url: string;
+  };
+}
+
+export interface GenerateAnswerRequest {
+  question: string;
+}

@@ -33,7 +33,12 @@ export function AddQa(props: Props) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { useCreateQaMutation, useUpdateQaMutation, actions } = useQaSlice();
+  const {
+    useCreateQaMutation,
+    useUpdateQaMutation,
+    useGenerateAnswerMutation,
+    actions,
+  } = useQaSlice();
   const user = useSelector(selectUser);
   const editableQa = useSelector(selectEditableQa);
 
@@ -60,6 +65,17 @@ export function AddQa(props: Props) {
       error: updateErrorMessage,
     },
   ] = useUpdateQaMutation();
+
+  const [
+    generateAnswer,
+    {
+      isLoading: gaLoading,
+      isSuccess: gaSuccess,
+      data: gaData,
+      isError: gaError,
+      error: gaErrorMessage,
+    },
+  ] = useGenerateAnswerMutation();
 
   const themeState = useSelector(selectTheme);
 
@@ -166,6 +182,28 @@ export function AddQa(props: Props) {
     handleSubmit(submitQaForm)();
   };
 
+  const ga = (question: string) => {
+    const body = {
+      question: question,
+    };
+    generateAnswer(body);
+  };
+
+  useEffect(() => {
+    if (gaSuccess && gaData) {
+      setValue('answer', gaData?.data?.data?.generatedAnswer);
+    }
+  }, [gaSuccess, gaData]);
+
+  useEffect(() => {
+    if (gaError || gaErrorMessage) {
+      toast({
+        description: String(gaErrorMessage) || 'Something went wrong !',
+        variant: 'destructive',
+      });
+    }
+  }, [gaError, GamepadEvent]);
+
   return (
     <React.Fragment>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -224,7 +262,7 @@ export function AddQa(props: Props) {
                   })}
                   id="question"
                   placeholder="Enter your Question..."
-                  className={`w-full h-[4.5rem] rounded-[.8rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
+                  className={`w-full h-[4.5rem] mt-4 rounded-[.8rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
                 />
                 {errors?.question && (
                   <p className="text-[1rem] text-red-600">
@@ -232,8 +270,24 @@ export function AddQa(props: Props) {
                   </p>
                 )}
               </div>
-              <div className="mb-4">
-                <Label htmlFor="answer">Answer</Label>
+              <div className="my-4">
+                <div className="flex items-end justify-between gap-4 mb-4">
+                  <Label htmlFor="answer">Answer</Label>
+                  {watch('question') && (
+                    <Button
+                      variant="special"
+                      type="button"
+                      disabled={gaLoading}
+                      className="py-2 px-5 rounded-[.8rem]"
+                      onClick={() => ga(watch('question'))}
+                    >
+                      {gaLoading ? 'Generating...' : 'Generate with AI'}
+                      {gaLoading && (
+                        <Icons.Spinner className="animate-spin h-8 w-8" />
+                      )}
+                    </Button>
+                  )}
+                </div>
                 <div
                   className={`rounded-[.8rem] focus-within:ring-2 focus-within:ring-green-600 focus-within:border-green-600 [&_.ql-editor]:min-h-[20rem] ${themeState === 'dark' ? '[&_.ql-stroke]:!stroke-white [&_.ql-stroke-miter]:!stroke-white [&_.ql-fill]:!fill-white [&_.ql-picker]:!text-white [&_.ql-picker-label]:!text-white [&_.ql-picker-options]:!bg-black [&_.ql-picker-options]:!text-white' : ''}`}
                 >

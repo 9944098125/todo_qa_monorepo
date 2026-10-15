@@ -6,6 +6,8 @@ import {
   CreateQaResponse,
   DeleteToolRequest,
   DeleteToolResponse,
+  GenerateAnswerRequest,
+  GenerateAnswerResponse,
   GetQaRequest,
   GetQaResponse,
   GetToolByIdRequest,
@@ -175,6 +177,20 @@ export const api = createApi({
         };
       },
       invalidatesTags: ['Qa'],
+      transformErrorResponse(baseQueryReturnValue, meta, arg) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    generateAnswer: build.mutation<
+      GenerateAnswerResponse,
+      GenerateAnswerRequest
+    >({
+      query: body => {
+        return {
+          ...endpoints.generateAnswer,
+          body,
+        };
+      },
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         return formatErrors(baseQueryReturnValue);
       },
