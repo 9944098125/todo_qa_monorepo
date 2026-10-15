@@ -129,3 +129,21 @@ export interface DeleteTodoResponse {
     url: string;
   };
 }
+
+export interface GenerateTodoDescriptionRequest {
+  todoTitle: string;
+}
+
+export interface GenerateTodoDescriptionResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string;
+    data: {
+      generatedTodoDescription: string;
+    };
+  };
+  meta: {
+    url: string;
+  };
+}

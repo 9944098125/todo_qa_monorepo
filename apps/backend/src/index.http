@@ -138,5 +138,22 @@ Authorization: Bearer Token
 
 DELETE https://todo-qa-with-ts-backend-production.up.railway.app/api/admin/deleteUser/:userId/:adminId
 Content-Type: application/json
-Authorization: Bearer Token
+Authorization: Bearer
 
+###### generate todo description
+POST https://todoqamonorepo-production.up.railway.app/api/todo/generate-todo-description
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzRiMzY2Mzc3YmI3ZjU4ZmY0MzgyYTAiLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3OTIwNjgyMjksImV4cCI6MTc5MjA4NjIyOX0.vOQWcknkh46_baq213AkopHvn03uQohUf8MdIpUy7Y4
+
+{
+  "todoTitle":"Buy an Iron Box"
+}
+
+##### GENERATE ANSWER
+POST https://todoqamonorepo-production.up.railway.app/api/qa/generate-answer
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzRiMzY2Mzc3YmI3ZjU4ZmY0MzgyYTAiLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3OTIwNjgyMjksImV4cCI6MTc5MjA4NjIyOX0.vOQWcknkh46_baq213AkopHvn03uQohUf8MdIpUy7Y4
+
+{
+  "question":"what is SAP ?"
+}

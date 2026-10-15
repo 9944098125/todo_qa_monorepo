@@ -4,6 +4,8 @@ import { useInjectReducer } from 'utils/redux-injectors';
 import {
   DeleteTodoRequest,
   DeleteTodoResponse,
+  GenerateTodoDescriptionRequest,
+  GenerateTodoDescriptionResponse,
   GetTodoRequest,
   GetTodoResponse,
   TodoRequest,
@@ -97,6 +99,20 @@ export const api = createApi({
         };
       },
       invalidatesTags: ['Todo'],
+      transformErrorResponse(baseQueryReturnValue, meta, arg) {
+        formatErrors(baseQueryReturnValue);
+      },
+    }),
+    generateTodoDescription: build.mutation<
+      GenerateTodoDescriptionResponse,
+      GenerateTodoDescriptionRequest
+    >({
+      query: body => {
+        return {
+          ...endpoints.generateTodoDescription,
+          body,
+        };
+      },
       transformErrorResponse(baseQueryReturnValue, meta, arg) {
         formatErrors(baseQueryReturnValue);
       },

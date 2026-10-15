@@ -28,7 +28,11 @@ type TodoForm = {
 };
 
 export const TodoDialog = ({ closeDialog }: Props) => {
-  const { useCreateTodoMutation, useUpdateTodoMutation } = useTodoSlice();
+  const {
+    useCreateTodoMutation,
+    useUpdateTodoMutation,
+    useGenerateTodoDescriptionMutation,
+  } = useTodoSlice();
 
   const [
     createTodo,
@@ -51,6 +55,17 @@ export const TodoDialog = ({ closeDialog }: Props) => {
       data: updatedData,
     },
   ] = useUpdateTodoMutation();
+
+  const [
+    generateDescription,
+    {
+      isLoading: isGdLoading,
+      isSuccess: isGdSuccess,
+      data: gdData,
+      isError: isGdError,
+      error: gdErrorMessage,
+    },
+  ] = useGenerateTodoDescriptionMutation();
 
   const user = useSelector(selectUser);
   const editableTodo = useSelector(selectEditableTodo);
@@ -158,6 +173,31 @@ export const TodoDialog = ({ closeDialog }: Props) => {
     handleSubmit(submitTodoForm)();
   };
 
+  const gtd = (title: string) => {
+    const body = {
+      todoTitle: title,
+    };
+    generateDescription(body);
+  };
+
+  useEffect(() => {
+    if (isGdSuccess && gdData) {
+      form.setValue(
+        'description',
+        gdData?.data?.data?.generatedTodoDescription,
+      );
+    }
+  }, [isGdSuccess, gdData]);
+
+  useEffect(() => {
+    if (isGdError || gdErrorMessage) {
+      toast({
+        description: String(gdErrorMessage) || 'Something went wrong !',
+        variant: 'destructive',
+      });
+    }
+  }, [gdErrorMessage, isGdError]);
+
   return (
     <div className="w-full p-5">
       <form onSubmit={handleSubmit(submitTodoForm)}>
@@ -171,7 +211,7 @@ export const TodoDialog = ({ closeDialog }: Props) => {
             })}
             id="todoTitle"
             placeholder="Todo Title"
-            className={`h-[4.5rem] w-full rounded-[.8rem] text-[1.4rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
+            className={`h-[4.5rem] w-full mt-4 rounded-[.8rem] text-[1.4rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
           />
 
           <ErrorMessage error={errors.title} />
@@ -179,7 +219,23 @@ export const TodoDialog = ({ closeDialog }: Props) => {
 
         {/* Description */}
         <div className="mb-4 px-4 py-2">
-          <Label htmlFor="todoDesc">Todo Description</Label>
+          <div className="flex items-end justify-between mb-4">
+            <Label htmlFor="todoDesc">Todo Description</Label>
+            {form.watch('title') && (
+              <Button
+                variant="special"
+                type="button"
+                disabled={isGdLoading}
+                className="py-2 px-5 rounded-[.8rem]"
+                onClick={() => gtd(form.watch('title'))}
+              >
+                {isGdLoading ? 'Generating...' : 'Generate with AI'}
+                {isGdLoading && (
+                  <Icons.Spinner className="animate-spin h-8 w-8" />
+                )}
+              </Button>
+            )}
+          </div>
 
           <Textarea
             {...register('description', {
