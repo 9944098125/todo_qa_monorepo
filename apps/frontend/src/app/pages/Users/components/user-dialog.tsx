@@ -15,9 +15,16 @@ import PhoneInput from 'react-phone-input-2';
 import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
 import './../../../../styles/common.css';
 import 'react-phone-input-2/lib/style.css';
+import { Textarea } from '@/app/components/ui/textarea';
 
 type Props = {
-  closeDialog: () => void;
+  createUser?: any;
+  isCreateLoading?: any;
+  updateUser?: any;
+  isUpdateLoading?: any;
+  closeDialog?: any;
+  isUpdateSuccess?: any;
+  updatedData?: any;
 };
 
 type UserForm = {
@@ -31,32 +38,17 @@ type UserForm = {
   isAdmin: 'Yes' | 'No' | '';
 };
 
-export const UserDialog = ({ closeDialog }: Props) => {
-  const { useCreateUserMutation, useUpdateUserMutation, actions } =
-    useUsersSlice();
+export const UserDialog = ({
+  createUser,
+  updateUser,
+  isCreateLoading,
+  isUpdateLoading,
+  closeDialog,
+  isUpdateSuccess,
+  updatedData,
+}: Props) => {
+  const { actions } = useUsersSlice();
   const [isUploading, setIsUploading] = useState<boolean>(false);
-
-  const [
-    createUser,
-    {
-      isLoading: isCreateLoading,
-      isSuccess: isCreateSuccess,
-      isError: isCreateError,
-      error: createErrorMessage,
-      data: createdData,
-    },
-  ] = useCreateUserMutation();
-
-  const [
-    updateUser,
-    {
-      isLoading: isUpdateLoading,
-      isSuccess: isUpdateSuccess,
-      isError: isUpdateError,
-      error: updateErrorMessage,
-      data: updatedData,
-    },
-  ] = useUpdateUserMutation();
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -157,58 +149,15 @@ export const UserDialog = ({ closeDialog }: Props) => {
     editableUser
       ? updateUser({ userId: editableUser._id, body })
       : createUser({ adminId: user?._id, body });
+
+    setTimeout(() => {
+      closeDialog?.();
+    }, 4000);
   };
-
-  useEffect(() => {
-    if (isCreateSuccess && createdData) {
-      closeDialog();
-
-      toast({
-        description: createdData?.data?.message || 'User Created',
-        variant: 'success',
-      });
-    }
-  }, [isCreateSuccess, createdData]);
-
-  useEffect(() => {
-    if (isUpdateSuccess || updatedData) {
-      console.log('updatedData', updatedData);
-      closeDialog();
-
-      toast({
-        description: updatedData?.data?.message || 'User updated',
-        variant: 'success',
-      });
-    }
-  }, [isUpdateSuccess, updatedData]);
-
-  useEffect(() => {
-    if (createErrorMessage || isCreateError) {
-      toast({
-        description: String(createErrorMessage),
-        variant: 'destructive',
-      });
-    }
-    if (updateErrorMessage || isUpdateError) {
-      toast({
-        description: String(updateErrorMessage),
-        variant: 'destructive',
-      });
-    }
-  }, [isCreateError, createErrorMessage, isUpdateError, updateErrorMessage]);
 
   const confirmEdit = () => {
     handleSubmit(submitUserForm)();
   };
-
-  useEffect(() => {
-    console.log('Update state:', {
-      isUpdateSuccess,
-      updatedData,
-      isUpdateError,
-      updateErrorMessage,
-    });
-  }, [isUpdateSuccess, updatedData, isUpdateError, updateErrorMessage]);
 
   return (
     <div className="w-full p-5">
@@ -306,13 +255,14 @@ export const UserDialog = ({ closeDialog }: Props) => {
         <div className="Textbox-design common-shadow">
           <Label htmlFor="userBio">Bio</Label>
 
-          <Input
+          <Textarea
             {...register('bio', {
               required: 'Bio is Required !',
             })}
+            rows={2}
             id="userBio"
             placeholder="User Bio"
-            className={`h-[4.5rem] w-full rounded-[.8rem] text-[1.4rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
+            className={`w-full rounded-[.8rem] text-[1.4rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
           />
 
           <ErrorMessage error={errors.bio} />

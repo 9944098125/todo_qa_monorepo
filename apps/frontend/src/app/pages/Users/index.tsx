@@ -28,10 +28,49 @@ export interface AdminProps {}
 
 export function Users(props: AdminProps) {
   const [searchParams] = useSearchParams();
-  const { useLazyGetUsersQuery, actions } = useUsersSlice();
+  const {
+    useLazyGetUsersQuery,
+    useCreateUserMutation,
+    useUpdateUserMutation,
+    useDeleteUserMutation,
+    actions,
+  } = useUsersSlice();
   const thisUser = useSelector(selectUser);
   const [getUsers, { isFetching: isUserLoading, data, isError, error }] =
     useLazyGetUsersQuery();
+
+  const [
+    createUser,
+    {
+      isLoading: isCreateLoading,
+      isSuccess: isCreateSuccess,
+      isError: isCreateError,
+      error: createErrorMessage,
+      data: createdData,
+    },
+  ] = useCreateUserMutation();
+
+  const [
+    updateUser,
+    {
+      isLoading: isUpdateLoading,
+      isSuccess: isUpdateSuccess,
+      isError: isUpdateError,
+      error: updateErrorMessage,
+      data: updatedData,
+    },
+  ] = useUpdateUserMutation();
+
+  const [
+    deleteUser,
+    {
+      isLoading: deleteLoading,
+      isSuccess: deleteSuccess,
+      data: deleteData,
+      isError: deleteError,
+      error: deleteErrorMessage,
+    },
+  ] = useDeleteUserMutation();
 
   const dispatch = useDispatch();
   const themeState = useSelector(selectTheme);
@@ -68,6 +107,55 @@ export function Users(props: AdminProps) {
     }
   }, [isError, error]);
 
+  useEffect(() => {
+    if (isCreateSuccess && createdData) {
+      closeUserDialog();
+
+      toast({
+        description: createdData?.data?.message || 'User Created',
+        variant: 'success',
+      });
+    }
+  }, [isCreateSuccess, createdData]);
+
+  useEffect(() => {
+    if (createErrorMessage || isCreateError) {
+      toast({
+        description: String(createErrorMessage),
+        variant: 'destructive',
+      });
+    }
+    if (updateErrorMessage || isUpdateError) {
+      toast({
+        description: String(updateErrorMessage),
+        variant: 'destructive',
+      });
+    }
+  }, [isCreateError, createErrorMessage, isUpdateError, updateErrorMessage]);
+
+  useEffect(() => {
+    if (isUpdateSuccess || updatedData) {
+      toast({
+        description: updatedData?.data?.message || 'User updated',
+        variant: 'success',
+      });
+    }
+  }, [isUpdateSuccess, updatedData]);
+
+  useEffect(() => {
+    if (deleteSuccess && deleteData) {
+      toast({
+        description: deleteData?.data?.message,
+        variant: 'success',
+      });
+    } else if (deleteError || deleteErrorMessage) {
+      toast({
+        description: String(deleteErrorMessage),
+        variant: 'destructive',
+      });
+    }
+  }, [deleteSuccess, deleteError, deleteErrorMessage, deleteData]);
+
   return (
     <React.Fragment>
       <div className="h-full w-full">
@@ -88,7 +176,10 @@ export function Users(props: AdminProps) {
               <DialogHeader>
                 <Heading text="Create User" size="2.6rem" weight="600" />
               </DialogHeader>
-              <UserDialog closeDialog={closeUserDialog} />
+              <UserDialog
+                isCreateLoading={isCreateLoading}
+                createUser={createUser}
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -100,7 +191,17 @@ export function Users(props: AdminProps) {
           ) : users?.length ? (
             users?.map((user: User) => {
               return (
-                <UserItemComponent key={user._id} users={users} user={user} />
+                <UserItemComponent
+                  key={user._id}
+                  users={users}
+                  user={user}
+                  updateUser={updateUser}
+                  isUpdateLoading={isUpdateLoading}
+                  isUpdateSuccess={isUpdateSuccess}
+                  updatedData={updatedData}
+                  deleteUser={deleteUser}
+                  deleteLoading={deleteLoading}
+                />
               );
             })
           ) : (

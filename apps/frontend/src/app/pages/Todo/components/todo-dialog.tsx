@@ -5,7 +5,7 @@ import { Input } from '@/app/components/ui/input';
 import Label from '@/app/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/app/components/ui/radio-group';
 import { Textarea } from '@/app/components/ui/textarea';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useTodoSlice } from '../slice';
 import { useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ import { Icons } from '@/app/components/ui/icons';
 import { selectEditableTodo } from '../slice/selectors';
 import { isValid, parseISO } from 'date-fns';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
+import { streamText } from '@/utils/streamText';
 
 type Props = {
   closeDialog?: any;
@@ -56,7 +57,10 @@ export const TodoDialog = ({
 
   const [openEditConfirmation, setOpenEditConfirmation] =
     useState<boolean>(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamError, setStreamError] = useState<string | null>(null);
 
+  const streamAbortRef = useRef<AbortController | null>(null);
   const form = useForm<TodoForm>({
     defaultValues: {
       title: '',
@@ -72,6 +76,7 @@ export const TodoDialog = ({
     formState: { errors },
     control,
     reset,
+    setValue,
   } = form;
 
   /**
@@ -123,10 +128,42 @@ export const TodoDialog = ({
   };
 
   const gtd = (title: string) => {
-    const body = {
-      todoTitle: title,
-    };
-    generateDescription(body);
+    if (!title.trim() || isStreaming) return;
+
+    const controller = new AbortController();
+    streamAbortRef.current = controller;
+
+    setIsStreaming(true);
+    setStreamError(null);
+
+    setValue('description', '', {
+      shouldDirty: true,
+      shouldValidate: false,
+    });
+
+    streamText({
+      url: 'https://todoqamonorepo-production.up.railway.app/api/todo/generate-todo-description',
+      body: { todoTitle: title },
+      signal: controller.signal,
+      delayMs: 50,
+      onText: fullText => {
+        setValue('description', fullText, {
+          shouldDirty: true,
+          shouldValidate: false,
+        });
+      },
+    })
+      .catch((error: any) => {
+        if (error instanceof Error && error.name !== 'AbortError') {
+          setStreamError(error.message);
+        }
+      })
+      .finally(() => {
+        if (streamAbortRef.current === controller) {
+          streamAbortRef.current = null;
+          setIsStreaming(false);
+        }
+      });
   };
 
   useEffect(() => {

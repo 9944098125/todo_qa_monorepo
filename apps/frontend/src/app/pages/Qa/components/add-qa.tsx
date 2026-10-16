@@ -5,7 +5,7 @@ import {
   DialogTrigger,
 } from '@/app/components/ui/dialog';
 import { selectTheme, selectUser } from '@/app/slice/selectors';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { useSelector } from 'react-redux';
@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { selectEditableQa } from '../slice/selectors';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 import { useDispatch } from 'react-redux';
+import { streamText } from '@/utils/streamText';
 
 type Props = {
   tools: ToolItem[];
@@ -89,6 +90,11 @@ export function AddQa(props: Props) {
     reset,
     formState: { errors },
   } = form;
+
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamError, setStreamError] = useState<string | null>(null);
+
+  const streamAbortRef = useRef<AbortController | null>(null);
 
   const submitQaForm = data => {
     if (!editableQa && data) {
@@ -183,10 +189,42 @@ export function AddQa(props: Props) {
   };
 
   const ga = (question: string) => {
-    const body = {
-      question: question,
-    };
-    generateAnswer(body);
+    if (!question.trim() || isStreaming) return;
+
+    const controller = new AbortController();
+    streamAbortRef.current = controller;
+
+    setIsStreaming(true);
+    setStreamError(null);
+
+    setValue('answer', '', {
+      shouldDirty: true,
+      shouldValidate: false,
+    });
+
+    streamText({
+      url: 'https://todoqamonorepo-production.up.railway.app/api/qa/generate-answer',
+      body: { question },
+      signal: controller.signal,
+      delayMs: 50,
+      onText: fullText => {
+        setValue('answer', fullText, {
+          shouldDirty: true,
+          shouldValidate: false,
+        });
+      },
+    })
+      .catch((error: any) => {
+        if (error instanceof Error && error.name !== 'AbortError') {
+          setStreamError(error.message);
+        }
+      })
+      .finally(() => {
+        if (streamAbortRef.current === controller) {
+          streamAbortRef.current = null;
+          setIsStreaming(false);
+        }
+      });
   };
 
   useEffect(() => {
@@ -281,11 +319,14 @@ export function AddQa(props: Props) {
                       className="py-2 px-5 rounded-[.8rem]"
                       onClick={() => ga(watch('question'))}
                     >
-                      {gaLoading ? 'Generating...' : 'Generate with AI'}
-                      {gaLoading && (
+                      {isStreaming ? 'Generating...' : 'Generate with AI'}
+                      {isStreaming && (
                         <Icons.Spinner className="animate-spin h-8 w-8" />
                       )}
                     </Button>
+                  )}
+                  {streamError && (
+                    <p className="text-red-600 text-sm">{streamError}</p>
                   )}
                 </div>
                 <div

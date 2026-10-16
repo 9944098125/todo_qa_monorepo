@@ -25,35 +25,34 @@ import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
 type Props = {
   users: User[];
   user: User;
+  updateUser: any;
+  isUpdateLoading: any;
+  isUpdateSuccess: any;
+  updatedData: any;
+  deleteUser: any;
+  deleteLoading: any;
 };
 
 export const UserItem = (props: Props) => {
-  const { user } = props;
+  const {
+    user,
+    updateUser,
+    isUpdateLoading,
+    deleteUser,
+    deleteLoading,
+    isUpdateSuccess,
+    updatedData,
+  } = props;
   const { actions, useDeleteUserMutation } = useUsersSlice();
   const dispatch = useDispatch();
   const admin = useSelector(selectUser);
 
   const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
-  const [deleteUser, { isLoading, isSuccess, data, isError, error }] =
-    useDeleteUserMutation();
+
   const themeState = useSelector(selectTheme);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isEditableDialogOpen, setIsEditableDialogOpen] =
     useState<boolean>(false);
-
-  useEffect(() => {
-    if (isSuccess && data) {
-      toast({
-        description: data?.data?.message,
-        variant: 'success',
-      });
-    } else if (isError || error) {
-      toast({
-        description: String(error),
-        variant: 'destructive',
-      });
-    }
-  }, [isSuccess, isError, error, data]);
 
   type UserForm = {
     _id: string;
@@ -124,6 +123,10 @@ export const UserItem = (props: Props) => {
                   setIsEditableDialogOpen(false);
                   console.log('Edit Dialog closed');
                 }}
+                updateUser={updateUser}
+                isUpdateLoading={isUpdateLoading}
+                isUpdateSuccess={isUpdateSuccess}
+                updatedData={updatedData}
               />
             </DialogContent>
           </Dialog>
@@ -134,7 +137,7 @@ export const UserItem = (props: Props) => {
             variant="destructive"
             className="p-4 rounded-[.8rem]"
           >
-            {isLoading ? (
+            {deleteLoading ? (
               <Icons.Spinner className="text-white h-10 w-10 animate-spin" />
             ) : (
               <TrashIcon className="text-white h-10 w-10" />
