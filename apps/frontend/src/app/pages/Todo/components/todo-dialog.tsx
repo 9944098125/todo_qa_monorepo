@@ -39,28 +39,6 @@ export const TodoDialog = ({
 }: Props) => {
   const { useGenerateTodoDescriptionMutation } = useTodoSlice();
 
-  // const [
-  //   createTodo,
-  //   {
-  //     isLoading: isCreateLoading,
-  //     isSuccess: isCreateSuccess,
-  //     isError: isCreateError,
-  //     error: createErrorMessage,
-  //     data: createdData,
-  //   },
-  // ] = useCreateTodoMutation();
-
-  // const [
-  //   updateTodo,
-  //   {
-  //     isLoading: isUpdateLoading,
-  //     isSuccess: isUpdateSuccess,
-  //     isError: isUpdateError,
-  //     error: updateErrorMessage,
-  //     data: updatedData,
-  //   },
-  // ] = useUpdateTodoMutation();
-
   const [
     generateDescription,
     {

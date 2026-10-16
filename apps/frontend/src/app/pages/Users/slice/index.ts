@@ -8,7 +8,7 @@ import {
   GetUserByIdRequest,
   GetUserByIdResponse,
   GetUserResponse,
-  AdminState,
+  UsersState,
   UpdateUserResponse,
   UpdateUserRequest,
 } from './types';
@@ -20,7 +20,7 @@ import {
   baseQueryWithDelay,
 } from '../../../../utils/api/endpoints';
 
-export const initialState: AdminState = {
+export const initialState: UsersState = {
   data: null,
   error: null,
   isLoading: false,
@@ -38,7 +38,7 @@ export const initialState: AdminState = {
 };
 
 const slice = createSlice({
-  name: 'admin',
+  name: 'users',
   initialState,
   reducers: {
     // required functions
@@ -54,7 +54,7 @@ const slice = createSlice({
 });
 
 export const api = createApi({
-  reducerPath: 'adminApi',
+  reducerPath: 'usersApi',
   baseQuery: baseQueryWithDelay,
   tagTypes: ['Users'],
   endpoints: build => ({

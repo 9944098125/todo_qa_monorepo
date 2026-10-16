@@ -1,4 +1,4 @@
-import { AdminState } from '@/app/pages/Users/slice/types';
+import { UsersState } from '@/app/pages/Users/slice/types';
 import { QaState } from '@/app/pages/Qa/slice/types';
 import { RegistrationState } from '@/app/pages/Registration/slice/types';
 import { TodoState } from '@/app/pages/Todo/slice/types';
@@ -18,7 +18,7 @@ export interface RootState {
   todoApi: any;
   qa?: QaState;
   qaApi: any;
-  admin?: AdminState;
-  adminApi: any;
+  users?: UsersState;
+  usersApi: any;
   // [INSERT NEW REDUCER KEY ABOVE] < Needed for generating containers seamlessly
 }

@@ -1,6 +1,6 @@
 import { User } from '@/app/slice/types';
 
-export interface AdminState {
+export interface UsersState {
   data: any | null;
   isLoading: boolean;
   error: string | null;
