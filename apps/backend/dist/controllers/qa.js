@@ -46,19 +46,10 @@ exports.generateAnswerWithAI =
     void 0;
 const Qa_1 = __importDefault(require("../models/Qa"));
 const User_1 = __importDefault(require("../models/User"));
-const openai_1 = __importDefault(require("openai"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const response_1 = require("../helpers/response");
+const streamOpenRouterCompletion_1 = require("../helpers/streamOpenRouterCompletion");
 dotenv_1.default.config();
-// Create a configuration with your OpenAI API key
-const openai = new openai_1.default({
-  apiKey: process.env.OPEN_AI_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1",
-  defaultHeaders: {
-    "HTTP-Referer": "http://localhost", // REQUIRED
-    "X-Title": "My MERN App", // REQUIRED
-  },
-});
 const createQa = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -130,7 +121,9 @@ const updateQa = (req, res, next) =>
         res,
         200,
         `Hola ${user === null || user === void 0 ? void 0 : user.name}, you have updated this QA`,
-        { qa: updatedQa },
+        {
+          qa: updatedQa,
+        },
       );
     } catch (err) {
       next(err);
@@ -156,62 +149,35 @@ const deleteQa = (req, res, next) =>
 exports.deleteQa = deleteQa;
 const generateAnswerWithAI = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d;
     try {
       const { question } = req.body;
-      if (!question) {
+      if (typeof question !== "string" || !question.trim()) {
         (0, response_1.sendError)(req, res, 400, "Question is required");
         return;
       }
-      const completion = yield openai.chat.completions.create({
-        model: "meta-llama/llama-3.1-8b-instruct", // safe OpenRouter model
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert software engineer specializing in web development. Answer clearly and concisely. Return ONLY the answer text.",
-          },
-          {
-            role: "user",
-            content: question,
-          },
-        ],
-        max_tokens: 300,
-        temperature: 0.4,
-      });
-      const generatedAnswer =
-        (_d =
-          (_c =
-            (_b =
-              (_a = completion.choices) === null || _a === void 0
-                ? void 0
-                : _a[0]) === null || _b === void 0
-              ? void 0
-              : _b.message) === null || _c === void 0
-            ? void 0
-            : _c.content) === null || _d === void 0
-          ? void 0
-          : _d.trim();
-      if (!generatedAnswer) {
-        (0, response_1.sendError)(
-          req,
-          res,
-          500,
-          "AI failed to generate an answer",
-        );
-        return;
-      }
-      (0, response_1.sendSuccess)(
+      yield (0, streamOpenRouterCompletion_1.streamOpenRouterCompletion)(
         req,
         res,
-        200,
-        "Answer generated successfully",
         {
-          generatedAnswer,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are an expert software engineer specializing in web development. Answer clearly and concisely. Return ONLY the answer text.",
+            },
+            {
+              role: "user",
+              content: question.trim(),
+            },
+          ],
+          maxTokens: 300,
+          temperature: 0.4,
         },
       );
     } catch (error) {
-      next(error);
+      if (!res.headersSent) {
+        next(error);
+      }
     }
   });
 exports.generateAnswerWithAI = generateAnswerWithAI;

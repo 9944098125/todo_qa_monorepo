@@ -141,18 +141,18 @@ Content-Type: application/json
 Authorization: Bearer
 
 ###### generate todo description
-POST https://todoqamonorepo-production.up.railway.app/api/todo/generate-todo-description
+POST http://localhost:5001/api/todo/generate-todo-description
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzRiMzY2Mzc3YmI3ZjU4ZmY0MzgyYTAiLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3OTIwNjgyMjksImV4cCI6MTc5MjA4NjIyOX0.vOQWcknkh46_baq213AkopHvn03uQohUf8MdIpUy7Y4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzRiMzY2Mzc3YmI3ZjU4ZmY0MzgyYTAiLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3OTIxNTU5NzQsImV4cCI6MTc5MjE3Mzk3NH0.ENqvJdtK4qP2AGW1nAqROslN5HLdzgHxQtdnxwwxqDg
 
 {
   "todoTitle":"Buy an Iron Box"
 }
 
 ##### GENERATE ANSWER
-POST https://todoqamonorepo-production.up.railway.app/api/qa/generate-answer
+POST http://localhost:5001/api/qa/generate-answer
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzRiMzY2Mzc3YmI3ZjU4ZmY0MzgyYTAiLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3OTIwNjgyMjksImV4cCI6MTc5MjA4NjIyOX0.vOQWcknkh46_baq213AkopHvn03uQohUf8MdIpUy7Y4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzRiMzY2Mzc3YmI3ZjU4ZmY0MzgyYTAiLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3OTIxNTU5NzQsImV4cCI6MTc5MjE3Mzk3NH0.ENqvJdtK4qP2AGW1nAqROslN5HLdzgHxQtdnxwwxqDg
 
 {
   "question":"what is SAP ?"

@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import Todo from "../models/Todo";
 import User from "../models/User";
-import OpenAI from "openai";
 import dotenv from "dotenv";
 import {
   getPagination,
@@ -10,16 +9,9 @@ import {
   sendSuccess,
   totalPages,
 } from "../helpers/response";
+import { streamOpenRouterCompletion } from "../helpers/streamOpenRouterCompletion";
 
 dotenv.config();
-const openai = new OpenAI({
-  apiKey: process.env.OPEN_AI_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1",
-  defaultHeaders: {
-    "HTTP-Referer": "http://localhost", // REQUIRED
-    "X-Title": "My MERN App", // REQUIRED
-  },
-});
 // open ai api key
 
 export const createTodo = async (
@@ -137,13 +129,12 @@ export const generateTodoDescription = async (
   try {
     const { todoTitle } = req.body;
 
-    if (!todoTitle) {
+    if (typeof todoTitle !== "string" || !todoTitle.trim()) {
       sendError(req, res, 400, "Todo title is required");
       return;
     }
 
-    const completion = await openai.chat.completions.create({
-      model: "meta-llama/llama-3.1-8b-instruct", // safe + fast
+    await streamOpenRouterCompletion(req, res, {
       messages: [
         {
           role: "system",
@@ -152,25 +143,15 @@ export const generateTodoDescription = async (
         },
         {
           role: "user",
-          content: todoTitle,
+          content: todoTitle.trim(),
         },
       ],
-      max_tokens: 60,
+      maxTokens: 60,
       temperature: 0.3,
     });
-
-    const generatedTodoDescription =
-      completion.choices?.[0]?.message?.content?.trim();
-
-    if (!generatedTodoDescription) {
-      sendError(req, res, 500, "AI failed to generate todo description");
-      return;
-    }
-
-    sendSuccess(req, res, 200, "Todo description generated successfully", {
-      generatedTodoDescription,
-    });
   } catch (error) {
-    next(error);
+    if (!res.headersSent) {
+      next(error);
+    }
   }
 };

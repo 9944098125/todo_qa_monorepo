@@ -46,18 +46,10 @@ exports.generateTodoDescription =
     void 0;
 const Todo_1 = __importDefault(require("../models/Todo"));
 const User_1 = __importDefault(require("../models/User"));
-const openai_1 = __importDefault(require("openai"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const response_1 = require("../helpers/response");
+const streamOpenRouterCompletion_1 = require("../helpers/streamOpenRouterCompletion");
 dotenv_1.default.config();
-const openai = new openai_1.default({
-  apiKey: process.env.OPEN_AI_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1",
-  defaultHeaders: {
-    "HTTP-Referer": "http://localhost", // REQUIRED
-    "X-Title": "My MERN App", // REQUIRED
-  },
-});
 // open ai api key
 const createTodo = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
@@ -157,62 +149,35 @@ const deleteTodo = (req, res, next) =>
 exports.deleteTodo = deleteTodo;
 const generateTodoDescription = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d;
     try {
       const { todoTitle } = req.body;
-      if (!todoTitle) {
+      if (typeof todoTitle !== "string" || !todoTitle.trim()) {
         (0, response_1.sendError)(req, res, 400, "Todo title is required");
         return;
       }
-      const completion = yield openai.chat.completions.create({
-        model: "meta-llama/llama-3.1-8b-instruct", // safe + fast
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a productivity assistant. Generate a short, clear task description based on the given title. Return ONLY the description text. No headings, no quotes.",
-          },
-          {
-            role: "user",
-            content: todoTitle,
-          },
-        ],
-        max_tokens: 60,
-        temperature: 0.3,
-      });
-      const generatedTodoDescription =
-        (_d =
-          (_c =
-            (_b =
-              (_a = completion.choices) === null || _a === void 0
-                ? void 0
-                : _a[0]) === null || _b === void 0
-              ? void 0
-              : _b.message) === null || _c === void 0
-            ? void 0
-            : _c.content) === null || _d === void 0
-          ? void 0
-          : _d.trim();
-      if (!generatedTodoDescription) {
-        (0, response_1.sendError)(
-          req,
-          res,
-          500,
-          "AI failed to generate todo description",
-        );
-        return;
-      }
-      (0, response_1.sendSuccess)(
+      yield (0, streamOpenRouterCompletion_1.streamOpenRouterCompletion)(
         req,
         res,
-        200,
-        "Todo description generated successfully",
         {
-          generatedTodoDescription,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a productivity assistant. Generate a short, clear task description based on the given title. Return ONLY the description text. No headings, no quotes.",
+            },
+            {
+              role: "user",
+              content: todoTitle.trim(),
+            },
+          ],
+          maxTokens: 60,
+          temperature: 0.3,
         },
       );
     } catch (error) {
-      next(error);
+      if (!res.headersSent) {
+        next(error);
+      }
     }
   });
 exports.generateTodoDescription = generateTodoDescription;
