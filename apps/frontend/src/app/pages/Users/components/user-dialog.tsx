@@ -16,6 +16,7 @@ import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
 import './../../../../styles/common.css';
 import 'react-phone-input-2/lib/style.css';
 import { Textarea } from '@/app/components/ui/textarea';
+import { EyeClosedIcon, EyeIcon } from 'lucide-react';
 
 type Props = {
   createUser?: any;
@@ -49,6 +50,11 @@ export const UserDialog = ({
 }: Props) => {
   const { actions } = useUsersSlice();
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const toggleShowPassword = () => {
+    setShowPassword(prev => !prev);
+  };
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -192,6 +198,41 @@ export const UserDialog = ({
           />
 
           <ErrorMessage error={errors.email} />
+        </div>
+
+        <div className="w-1/2 px-2">
+          <Label htmlFor="password">Password</Label>
+          <div className="flex items-center">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your Password"
+              className={`h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] ${errors?.password ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
+              {...register('password', {
+                required: 'Password is required',
+                pattern: {
+                  value:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#()[\]{}\-_=+|;:'",.<>/~`\\])[A-Za-z\d@$!%*?&^#()[\]{}\-_=+|;:'",.<>/~`\\]{8,}$/,
+                  message:
+                    'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character.',
+                },
+              })}
+            />
+            {showPassword ? (
+              <div onClick={toggleShowPassword} className="pointer">
+                <EyeIcon className="text-blue-800 font-800 text-xl -ml-[4rem]" />
+              </div>
+            ) : (
+              <div onClick={toggleShowPassword} className="pointer">
+                <EyeClosedIcon className="text-blue-800 font-800 text-xl -ml-[4rem]" />
+              </div>
+            )}
+          </div>
+
+          {errors.password && (
+            <div className="text-red-600 text-[1rem] mt-1">
+              {String(errors?.password?.message)}
+            </div>
+          )}
         </div>
 
         {/* Phone */}
