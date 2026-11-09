@@ -135,7 +135,9 @@ const getAUser = (req, res, next) =>
         res,
         200,
         `Fetched ${user.name} details successfully !`,
-        { user },
+        {
+          user,
+        },
       );
     } catch (err) {
       next(err);
