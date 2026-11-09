@@ -3,6 +3,7 @@ import { QaState } from '@/app/pages/Qa/slice/types';
 import { RegistrationState } from '@/app/pages/Registration/slice/types';
 import { TodoState } from '@/app/pages/Todo/slice/types';
 import { GlobalState } from 'app/slice/types';
+import { AiState } from '@/app/components/AiAssistant/slice/types';
 // [IMPORT NEW CONTAINERSTATE ABOVE] < Needed for generating containers seamlessly
 
 /* 
@@ -20,5 +21,7 @@ export interface RootState {
   qaApi: any;
   users?: UsersState;
   usersApi: any;
+  aiSlice: AiState;
+  aiApi: any;
   // [INSERT NEW REDUCER KEY ABOVE] < Needed for generating containers seamlessly
 }

@@ -1,22 +1,26 @@
 import React, { useState } from 'react';
 import { Button } from '../../ui/button';
-import { Moon, Sun } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { Moon, Sun, Sparkles } from 'lucide-react';
+import { useSelector, useDispatch } from 'react-redux';
 import { selectTheme } from '@/app/slice/selectors';
 import { useGlobalSlice } from '@/app/slice';
-
-import { useDispatch } from 'react-redux';
+import { useAiSlice } from '../../AiAssistant/slice';
 
 export function Navbar() {
   const themeState = useSelector(selectTheme);
-  const { actions } = useGlobalSlice();
+  const { actions: globalActions } = useGlobalSlice();
+  const { actions: aiActions } = useAiSlice();
   const dispatch = useDispatch();
 
   const [isDark, setIsDark] = useState<boolean>(true);
 
   const toggleTheme = () => {
     setIsDark(prev => !prev);
-    dispatch(actions.setTheme(isDark ? 'dark' : 'light'));
+    dispatch(globalActions.setTheme(isDark ? 'dark' : 'light'));
+  };
+
+  const openAiAssistant = () => {
+    dispatch(aiActions.toggleDrawer(true));
   };
 
   return (
@@ -31,11 +35,30 @@ export function Navbar() {
             ToDoQa Souvenir
           </h3>
         </div>
-        <div>
+        <div className="flex items-center gap-4">
+          {/* AI Assistant Button */}
+          <Button
+            onClick={openAiAssistant}
+            variant="ghost"
+            title="Open AI Assistant"
+            className={`h-[4rem] px-4 gap-2 border border-green-600/70 rounded-[1rem] flex items-center font-bold text-sm transition-all hover:scale-105 ${
+              themeState === 'dark'
+                ? 'bg-black text-white hover:bg-green-950/40 hover:border-green-500'
+                : 'bg-white text-green-800 hover:bg-green-50 hover:border-green-700'
+            }`}
+          >
+            <Sparkles size={20} className="text-green-600 animate-pulse" />
+            <span className="hidden sm:inline">AI Assistant</span>
+          </Button>
+
+          {/* Theme Toggle Button */}
           <Button
             onClick={toggleTheme}
             variant="ghost"
-            className={`w-[4rem] h-[4rem] border border-cyan-600 rounded-[1rem] ${themeState === 'dark' ? 'text-white' : 'text-black'}`}
+            title="Toggle theme"
+            className={`w-[4rem] h-[4rem] border border-cyan-600 rounded-[1rem] ${
+              themeState === 'dark' ? 'text-white' : 'text-black'
+            }`}
           >
             {themeState === 'dark' ? <Sun size={25} /> : <Moon size={25} />}
           </Button>

@@ -5,6 +5,7 @@ import { Sidebar } from './components/sidebar';
 import { useSelector } from 'react-redux';
 import { selectSidebarToggler, selectTheme } from '../../slice/selectors';
 import { ToolItem } from '@/app/pages/Qa/slice/types';
+import { AiAssistant } from '../AiAssistant';
 
 type Props = {
   children: React.ReactNode;
@@ -44,6 +45,9 @@ export function Layout(props: Props) {
             {props.children}
           </main>
         </div>
+
+        {/* Global AI Assistant Drawer */}
+        <AiAssistant />
       </div>
     </React.Fragment>
   );

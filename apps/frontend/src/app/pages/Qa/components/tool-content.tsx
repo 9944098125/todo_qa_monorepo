@@ -20,7 +20,7 @@ export function ToolContent({
 
   return (
     <React.Fragment>
-      <div className="w-full flex items-center justify-between mb-4">
+      <div className="w-full mb-4">
         <div>
           <h4
             style={{ color: tool?.color }}
