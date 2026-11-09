@@ -2,14 +2,10 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "ignoreDeprecations": "6.0",
-    "allowImportingTsExtensions": true,
     "paths": {
-      "@/*": ["./*"],
-      "@ui/*": ["../../packages/ui/src/*"],
-      "@utils/*": ["../../packages/utils/src/*"],
-      "@types/*": ["../../packages/types/src/*"],
-      "@config/*": ["../../packages/config/src/*"]
+      "@/*": ["*"]
     },
+    "types": ["node", "jest"],
     "noImplicitAny": false,
     "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -25,9 +21,11 @@
     "isolatedModules": true,
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "typeRoots": ["node_modules/@types", "../../node_modules/@types"]
   },
-  "include": ["src", "internals/startingTemplate/**/*", "**/*.ts", "**/*.tsx"],
+  "include": ["src"],
+  "exclude": ["node_modules", "build"],
   "ts-node": {
     "compilerOptions": {
       "esModuleInterop": true,

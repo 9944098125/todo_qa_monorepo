@@ -8,7 +8,7 @@
 
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // import { GlobalStyle } from 'styles/global-styles';
 
@@ -23,6 +23,7 @@ import { Registration } from './pages/Registration/Loadable';
 import { Todo } from './pages/Todo/Loadable';
 import { Qa } from './pages/Qa/Loadable';
 import { Users } from './pages/Users/Loadable';
+import { Profile } from './pages/Profile/Loadable';
 
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
@@ -70,7 +71,9 @@ export function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/todo" element={<Todo />} />
             <Route path="/qa" element={<Qa />} />
-            <Route path="/admin" element={<Users />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/admin" element={<Navigate to="/users" replace />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

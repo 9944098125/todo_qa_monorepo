@@ -16,8 +16,15 @@ const defaultHeaders = {
 
 export const baseQuery = fetchBaseQuery({
   baseUrl,
-  headers: defaultHeaders,
   credentials: 'include',
+  prepareHeaders: headers => {
+    headers.set('Content-Type', 'application/json');
+    const token = localStorage.getItem('tq_monorepo_token');
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
 });
 
 export const baseQueryWithDelay: BaseQueryFn<
@@ -54,6 +61,22 @@ export const endpoints = {
   register: {
     url: '/auth/register',
     method: HTTP_METHODS.POST,
+  },
+  getUserWithId: {
+    url: '/auth',
+    method: HTTP_METHODS.GET,
+  },
+  updatePassword: {
+    url: '/auth',
+    method: HTTP_METHODS.PATCH,
+  },
+  updateAuthUser: {
+    url: '/auth',
+    method: HTTP_METHODS.PATCH,
+  },
+  updateUserProfile: {
+    url: '/auth',
+    method: HTTP_METHODS.PATCH,
   },
   createTodo: {
     url: '/todo/create',

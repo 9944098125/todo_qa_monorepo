@@ -153,6 +153,7 @@ const login = (req, res, next) =>
       (0, response_1.sendSuccess)(req, res, 200, "Login Success ✅", {
         user: userWithoutPassword,
         expiryTime,
+        token,
       });
     } catch (err) {
       next(err);

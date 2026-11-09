@@ -145,7 +145,7 @@ export const RegistrationForm = () => {
                 })}
                 type="text"
                 placeholder="Enter your First Name"
-                className={`h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] ${errors?.firstName ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
+                className={`h-[5rem] focus:h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${errors?.firstName ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
               />
               {errors.firstName && (
                 <div className="text-red-600 text-[1rem] mt-1">
@@ -161,7 +161,7 @@ export const RegistrationForm = () => {
                   required: 'Last Name is Required !',
                 })}
                 placeholder="Enter your LastName Name"
-                className={`h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] ${errors?.lastName ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
+                className={`h-[5rem] focus:h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${errors?.lastName ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
               />
               {errors.lastName && (
                 <div className="text-red-600 text-[1rem] mt-1">
@@ -185,7 +185,7 @@ export const RegistrationForm = () => {
                   },
                 })}
                 placeholder="Enter your Email"
-                className={`h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] ${errors?.email ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
+                className={`h-[5rem] focus:h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${errors?.email ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
               />
               {errors.email && (
                 <div className="text-red-600 text-[1rem] mt-1">
@@ -226,7 +226,7 @@ export const RegistrationForm = () => {
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your Password"
-                  className={`h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] ${errors?.password ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
+                  className={`h-[5rem] focus:h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${errors?.password ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
                   {...register('password', {
                     required: 'Password is required',
                     pattern: {
@@ -261,7 +261,7 @@ export const RegistrationForm = () => {
                 <Input
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Enter your Password"
-                  className={`h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] ${errors?.confirmPassword ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
+                  className={`h-[5rem] focus:h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${errors?.confirmPassword ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
                   {...register('confirmPassword', {
                     required: 'Password is required',
                     validate: value =>

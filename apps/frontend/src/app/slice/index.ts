@@ -76,6 +76,7 @@ const slice = createSlice({
       state.user = undefined;
       localStorage.removeItem('tq_monorepo_user');
       localStorage.removeItem('tq_monorepo_expiry_time');
+      localStorage.removeItem('tq_monorepo_token');
     },
     setExpiry(state, action: PayloadAction<number>) {
       state.expiryTime = action.payload;

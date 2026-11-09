@@ -56,11 +56,14 @@ export function Navbar() {
             onClick={toggleTheme}
             variant="ghost"
             title="Toggle theme"
-            className={`w-[4rem] h-[4rem] border border-cyan-600 rounded-[1rem] ${
-              themeState === 'dark' ? 'text-white' : 'text-black'
+            className={`h-[4rem] px-4 gap-2 border border-green-600/70 rounded-[1rem] flex items-center font-bold text-sm transition-all hover:scale-105 ${
+              themeState === 'dark'
+                ? 'bg-black text-white hover:bg-green-950/40 hover:border-green-500'
+                : 'bg-white text-green-800 hover:bg-green-50 hover:border-green-700'
             }`}
           >
             {themeState === 'dark' ? <Sun size={25} /> : <Moon size={25} />}
+            <span className="hidden sm:inline">Toggle Theme</span>
           </Button>
         </div>
       </div>

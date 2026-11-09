@@ -36,7 +36,14 @@ export function LoginForm() {
     if (isSuccess) {
       dispatch(actions.setUser(data?.data?.data?.user));
       dispatch(actions.setExpiry(data?.data?.data?.expiryTime));
-      navigate('/todo', { replace: true });
+      if (data?.data?.data?.token) {
+        localStorage.setItem('tq_monorepo_token', data?.data?.data?.token);
+      }
+      if (data?.data?.data?.user?.isAdmin) {
+        navigate('/users', { replace: true });
+      } else {
+        navigate('/todo', { replace: true });
+      }
       toast({
         description: data?.data?.message || 'Login Success',
         variant: 'success',
@@ -94,7 +101,7 @@ export function LoginForm() {
                 },
               })}
               placeholder="Enter your Email/Phone Number"
-              className="h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem]"
+              className="h-[5rem] focus:h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200"
             />
             {errors.emailOrPhone && (
               <div className="text-red-600 text-[1rem] mt-1">
@@ -109,7 +116,7 @@ export function LoginForm() {
               <Input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Enter your Password"
-                className="h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem]"
+                className="h-[5rem] focus:h-[5.5rem] w-full rounded-[.8rem] text-[1.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200"
                 {...register('password', {
                   required: 'Password is required',
                   pattern: {

@@ -131,6 +131,7 @@ export const UserItem = (props: Props) => {
             </DialogContent>
           </Dialog>
           <Button
+            disabled={deleteLoading}
             onClick={() => {
               setOpenConfirmation(true);
             }}

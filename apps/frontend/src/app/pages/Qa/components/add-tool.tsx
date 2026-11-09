@@ -218,7 +218,7 @@ export const AddTool = (props: Props) => {
                   type="text"
                   {...register('name', { required: 'Name is Required !' })}
                   placeholder="Enter Tool Name"
-                  className={`h-[4.5rem] rounded-[.8rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
+                  className={`h-[5rem] focus:h-[5.5rem] rounded-[.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
                 />
                 {errors?.name && (
                   <p className="text-red-600 font-[400] text-[1.2rem]">
@@ -232,7 +232,7 @@ export const AddTool = (props: Props) => {
                   type="text"
                   {...register('slug', { required: 'Slug is Required !' })}
                   placeholder="Enter Tool Slug"
-                  className={`h-[4.5rem] rounded-[.8rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
+                  className={`h-[5rem] focus:h-[5.5rem] rounded-[.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
                 />
               </div>
               <div className="flex items-center">

@@ -3,7 +3,7 @@ import { Add } from '../Qa/components/add';
 import { useQaSlice } from '../Qa/slice';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectTheme, selectUser } from '@/app/slice/selectors';
-import { useOutletContext, useSearchParams } from 'react-router-dom';
+import { Navigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import {
   UserItem,
   UserItem as UserItemComponent,
@@ -72,6 +72,19 @@ export function Users(props: AdminProps) {
     },
   ] = useDeleteUserMutation();
 
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
+  const handleDeleteUser = (params: { userId: string; adminId: string }) => {
+    setDeletingUserId(params.userId);
+    return deleteUser(params);
+  };
+
+  useEffect(() => {
+    if (!deleteLoading) {
+      setDeletingUserId(null);
+    }
+  }, [deleteLoading]);
+
   const dispatch = useDispatch();
   const themeState = useSelector(selectTheme);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState<boolean>(false);
@@ -95,8 +108,10 @@ export function Users(props: AdminProps) {
   };
 
   useEffect(() => {
-    getUsers({});
-  }, [getUsers]);
+    if (thisUser?.isAdmin) {
+      getUsers({});
+    }
+  }, [getUsers, thisUser?.isAdmin]);
 
   useEffect(() => {
     if (isError || error) {
@@ -156,6 +171,10 @@ export function Users(props: AdminProps) {
     }
   }, [deleteSuccess, deleteError, deleteErrorMessage, deleteData]);
 
+  if (thisUser && !thisUser.isAdmin) {
+    return <Navigate to="/todo" replace />;
+  }
+
   return (
     <React.Fragment>
       <div className="h-full w-full">
@@ -199,8 +218,8 @@ export function Users(props: AdminProps) {
                   isUpdateLoading={isUpdateLoading}
                   isUpdateSuccess={isUpdateSuccess}
                   updatedData={updatedData}
-                  deleteUser={deleteUser}
-                  deleteLoading={deleteLoading}
+                  deleteUser={handleDeleteUser}
+                  deleteLoading={deleteLoading && deletingUserId === user?._id}
                 />
               );
             })

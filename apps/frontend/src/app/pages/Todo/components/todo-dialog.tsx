@@ -16,6 +16,7 @@ import { selectEditableTodo } from '../slice/selectors';
 import { isValid, parseISO } from 'date-fns';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 import { streamText } from '@/utils/streamText';
+import { endpoints } from '@/utils/api/endpoints';
 
 type Props = {
   closeDialog?: any;
@@ -142,7 +143,7 @@ export const TodoDialog = ({
     });
 
     streamText({
-      url: 'https://todoqamonorepo-production.up.railway.app/api/todo/generate-todo-description',
+      url: `${endpoints.baseUrl.replace(/\/+$/, '')}${endpoints.generateTodoDescription.url}`,
       body: { todoTitle: title },
       signal: controller.signal,
       delayMs: 50,
@@ -197,7 +198,7 @@ export const TodoDialog = ({
             })}
             id="todoTitle"
             placeholder="Todo Title"
-            className={`h-[4.5rem] w-full mt-4 rounded-[.8rem] text-[1.4rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
+            className={`h-[5rem] focus:h-[5.5rem] w-full mt-4 rounded-[.8rem] text-[1.4rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
           />
 
           <ErrorMessage error={errors.title} />
@@ -238,7 +239,9 @@ export const TodoDialog = ({
 
         {/* Urgency */}
         <div className="mb-4 px-4 py-2">
-          <Label htmlFor="urgency">Urgency</Label>
+          <Label htmlFor="urgency" dark={themeState === 'dark'}>
+            Urgency
+          </Label>
 
           <Controller
             name="urgency"
@@ -248,18 +251,34 @@ export const TodoDialog = ({
             }}
             render={({ field, fieldState }) => (
               <>
-                <RadioGroup value={field.value} onValueChange={field.onChange}>
+                <RadioGroup
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  className="mt-3"
+                >
                   <div className="flex items-center gap-10">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       <RadioGroupItem value="Yes" id="yes" />
 
-                      <Label htmlFor="yes">Yes</Label>
+                      <Label
+                        htmlFor="yes"
+                        dark={themeState === 'dark'}
+                        className="cursor-pointer text-[1.6rem] font-medium select-none"
+                      >
+                        Yes
+                      </Label>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
                       <RadioGroupItem value="No" id="no" />
 
-                      <Label htmlFor="no">No</Label>
+                      <Label
+                        htmlFor="no"
+                        dark={themeState === 'dark'}
+                        className="cursor-pointer text-[1.6rem] font-medium select-none"
+                      >
+                        No
+                      </Label>
                     </div>
                   </div>
                 </RadioGroup>

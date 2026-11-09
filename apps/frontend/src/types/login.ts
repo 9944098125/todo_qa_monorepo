@@ -21,6 +21,7 @@ export interface LoginResponse {
         updatedAt: string;
       };
       expiryTime: number;
+      token?: string;
     };
   };
   meta: {

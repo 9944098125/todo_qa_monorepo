@@ -1,0 +1,7 @@
+import { RootState } from '@/types';
+import { initialState } from '.';
+import { createSelector } from '@reduxjs/toolkit';
+
+const selectSlice = (state: RootState) => state.profile || initialState;
+
+export const selectProfile = createSelector([selectSlice], state => state);

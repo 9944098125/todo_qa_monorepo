@@ -109,8 +109,12 @@ export function TodoAccordionItem(props: Props) {
                 </Dialog>
 
                 <div
-                  onClick={() => setOpenDeleteConfirmation(true)}
-                  className="bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem] cursor-pointer ml-4"
+                  onClick={() => {
+                    if (!props.deleteLoading) {
+                      setOpenDeleteConfirmation(true);
+                    }
+                  }}
+                  className={`bg-red-600 hover:bg-red-800 text-white p-4 rounded-[.8rem] ml-4 ${props.deleteLoading ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
                 >
                   {props.deleteLoading ? (
                     <Icons.Spinner className="h-10 w-10 animate-spin" />

@@ -55,13 +55,21 @@ body {
   background-color: transparent !important;
   color: rgb(0, 0, 0) !important;
   width: 100% !important;
-  height: 5.5rem !important;
+  height: 5rem !important;
   border-radius: 1.2rem !important;
-  border: 1px solid rgb(0, 136, 136) !important;
+  border: 1px solid #d1d5db !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.react-tel-input .form-control:focus {
+  height: 5.5rem !important;
+  outline: none !important;
+  border-color: #16a34a !important;
+  box-shadow: 0 0 0 2px #16a34a !important;
 }
 
 .react-tel-input .flag-dropdown {
-  border: 1px solid rgb(0, 136, 136) !important;
+  border: 1px solid #d1d5db !important;
   background-color: transparent !important;
   border-top-left-radius: 1.2rem !important;
   border-bottom-left-radius: 1.2rem !important;
@@ -69,6 +77,27 @@ body {
 
 .react-tel-input .flag-dropdown:hover {
   background-color: transparent !important;
+}
+
+.dark-phone-input .form-control {
+  color: #ffffff !important;
+  background-color: #000000 !important;
+  border-color: #374151 !important;
+}
+
+.dark-phone-input .flag-dropdown {
+  background-color: #000000 !important;
+  border-color: #374151 !important;
+}
+
+.dark-phone-input .country-list {
+  background-color: #181818 !important;
+  color: #ffffff !important;
+}
+
+.dark-phone-input .country-list .country:hover,
+.dark-phone-input .country-list .country.highlight {
+  background-color: #27272a !important;
 }
 
 .check-n1 {

@@ -14,7 +14,7 @@ import {
   selectTheme,
   selectUser,
 } from '../../../slice/selectors';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import QaDropdown from './qa-dropdown';
 import { ToolItem } from '@/app/pages/Qa/slice/types';
 
@@ -30,6 +30,15 @@ export function Sidebar(props: Props) {
   const userState = useSelector(selectUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  React.useEffect(() => {
+    if (userState && !userState.isAdmin) {
+      if (location.pathname === '/users' || location.pathname === '/admin') {
+        navigate('/todo', { replace: true });
+      }
+    }
+  }, [userState, location.pathname, navigate]);
 
   const toggleSidebar = () => {
     const newState = sidebarState === 'closed' ? 'opened' : 'closed';
@@ -70,23 +79,25 @@ export function Sidebar(props: Props) {
             )}
           </Button>
         </div>
-        <div className="mb-4 px-4">
-          <NavLink
-            to="/admin"
-            className={({ isActive }) =>
-              `${isActive ? (themeState === 'dark' ? 'bg-green-700' : 'bg-green-700/70 text-white') : ''} rounded-[.8rem] text-xl font-bold p-4 flex items-center`
-            }
-          >
-            <div
-              className={`${sidebarState === 'closed' ? 'flex justify-center items-center' : 'flex items-center gap-4'}`}
+        {userState?.isAdmin && (
+          <div className="mb-4 px-4">
+            <NavLink
+              to="/users"
+              className={({ isActive }) =>
+                `${isActive ? (themeState === 'dark' ? 'bg-green-700' : 'bg-green-700/70 text-white') : ''} rounded-[.8rem] text-xl font-bold p-4 flex items-center`
+              }
             >
-              <Users2Icon />
-              {sidebarState === 'closed' ? null : (
-                <p className="hidden lg:block">Users</p>
-              )}
-            </div>
-          </NavLink>
-        </div>
+              <div
+                className={`${sidebarState === 'closed' ? 'flex justify-center items-center' : 'flex items-center gap-4'}`}
+              >
+                <Users2Icon />
+                {sidebarState === 'closed' ? null : (
+                  <p className="hidden lg:block">Users</p>
+                )}
+              </div>
+            </NavLink>
+          </div>
+        )}
         <div className="mb-4 px-4">
           <NavLink
             to="/todo"
@@ -114,11 +125,15 @@ export function Sidebar(props: Props) {
         <div
           className={`absolute w-full bottom-5 px-5 py-2 border-t border-white flex ${sidebarState === 'closed' ? 'flex-col items-center' : 'flex-row justify-between'}`}
         >
-          <div className={`flex items-center flex-1 min-w-0 mr-2`}>
+          <div
+            onClick={() => navigate('/profile')}
+            title="View Profile"
+            className={`flex items-center flex-1 min-w-0 mr-2 cursor-pointer p-1 rounded-[.8rem] transition-colors hover:bg-white/10`}
+          >
             <div className="h-[5rem] w-[5rem] shrink-0">
               <img
                 src={userState?.profilePicture}
-                alt=""
+                alt={userState?.name || 'Profile'}
                 className={`rounded-full h-full w-full object-cover`}
               />
             </div>

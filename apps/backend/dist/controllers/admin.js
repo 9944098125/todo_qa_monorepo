@@ -156,26 +156,22 @@ const updatedUserByAdmin = (req, res, next) =>
         );
         return;
       }
-      if (user.isAdmin) {
-        (0, response_1.sendError)(
-          req,
-          res,
-          403,
-          `This user ${user.name} is also an admin, so you can't make changes to this user 🚫`,
-        );
-        return;
+      const updateData = Object.assign({}, req.body);
+      delete updateData.password;
+      if (updateData.isAdmin !== undefined) {
+        updateData.isAdmin =
+          updateData.isAdmin === true || updateData.isAdmin === "Yes";
       }
       const updatedUser = yield User_1.default.findByIdAndUpdate(
         userId,
-        { $set: req.body },
+        { $set: updateData },
         { new: true, runValidators: true },
       );
-      yield updatedUser.save();
       (0, response_1.sendSuccess)(
         req,
         res,
         200,
-        `Hola, ${user.name}, you have updated your profile successfully 🤩`,
+        `Hola, ${user.name}, you have updated profile successfully 🤩`,
         { user: updatedUser },
       );
     } catch (err) {

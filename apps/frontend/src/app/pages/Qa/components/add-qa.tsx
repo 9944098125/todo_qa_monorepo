@@ -22,6 +22,7 @@ import { selectEditableQa } from '../slice/selectors';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 import { useDispatch } from 'react-redux';
 import { streamText } from '@/utils/streamText';
+import { endpoints } from '@/utils/api/endpoints';
 
 type Props = {
   tools: ToolItem[];
@@ -203,7 +204,7 @@ export function AddQa(props: Props) {
     });
 
     streamText({
-      url: 'https://todoqamonorepo-production.up.railway.app/api/qa/generate-answer',
+      url: `${endpoints.baseUrl.replace(/\/+$/, '')}${endpoints.generateAnswer.url}`,
       body: { question },
       signal: controller.signal,
       delayMs: 50,
@@ -300,7 +301,7 @@ export function AddQa(props: Props) {
                   })}
                   id="question"
                   placeholder="Enter your Question..."
-                  className={`w-full h-[4.5rem] mt-4 rounded-[.8rem] ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
+                  className={`w-full h-[5rem] focus:h-[5.5rem] mt-4 rounded-[.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
                 />
                 {errors?.question && (
                   <p className="text-[1rem] text-red-600">

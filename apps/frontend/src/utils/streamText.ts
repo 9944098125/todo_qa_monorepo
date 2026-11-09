@@ -4,6 +4,7 @@ type StreamTextOptions = {
   onText: (fullText: string) => void;
   signal?: AbortSignal;
   delayMs?: number;
+  headers?: Record<string, string>;
 };
 
 export const streamText = ({
@@ -12,13 +13,19 @@ export const streamText = ({
   onText,
   signal,
   delayMs = 40,
+  headers = {},
 }: StreamTextOptions): Promise<string> => {
+  const token = localStorage.getItem('tq_monorepo_token');
+  const requestHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'text/event-stream',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...headers,
+  };
+
   return fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'text/event-stream',
-    },
+    headers: requestHeaders,
     credentials: 'include',
     body: JSON.stringify(body),
     signal,

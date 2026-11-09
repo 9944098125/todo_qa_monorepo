@@ -113,6 +113,7 @@ export const login = async (
     sendSuccess(req, res, 200, "Login Success ✅", {
       user: userWithoutPassword,
       expiryTime,
+      token,
     });
   } catch (err: any) {
     next(err);

@@ -66,10 +66,8 @@ export function AiAssistant() {
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetContent
         side="right"
-        className={`w-full sm:max-w-[70rem] p-0 flex flex-col h-full border-l transition-colors duration-200 ${
-          isDark
-            ? 'bg-black border-gray-800 text-white'
-            : 'bg-white border-gray-200 text-black'
+        className={`w-full md:max-w-[80rem] p-0 flex flex-col h-full border-solid border-l-2 border-green-600 transition-colors duration-200 ${
+          isDark ? 'bg-black text-white' : 'bg-white text-black'
         }`}
       >
         {/* Drawer Header */}
@@ -94,7 +92,7 @@ export function AiAssistant() {
               <p
                 className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
               >
-                Natural language task & QA management
+                Natural language Todo & QA modules management
               </p>
             </div>
           </div>

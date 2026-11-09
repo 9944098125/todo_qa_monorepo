@@ -70,6 +70,19 @@ export function Todo() {
     },
   ] = useDeleteTodoMutation();
 
+  const [deletingTodoId, setDeletingTodoId] = useState<string | null>(null);
+
+  const handleDeleteTodo = (params: { todoId: string; userId: string }) => {
+    setDeletingTodoId(params.todoId);
+    return deleteTodo(params);
+  };
+
+  useEffect(() => {
+    if (!deleteLoading) {
+      setDeletingTodoId(null);
+    }
+  }, [deleteLoading]);
+
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
   const themeState = useSelector(selectTheme);
@@ -206,8 +219,10 @@ export function Todo() {
                   key={eachTodo?._id}
                   updateTodo={updateTodo}
                   isUpdateLoading={isUpdateLoading}
-                  deleteTodo={deleteTodo}
-                  deleteLoading={deleteLoading}
+                  deleteTodo={handleDeleteTodo}
+                  deleteLoading={
+                    deleteLoading && deletingTodoId === eachTodo?._id
+                  }
                 />
               );
             })
