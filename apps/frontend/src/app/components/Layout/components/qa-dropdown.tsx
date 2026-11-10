@@ -87,7 +87,7 @@ export default function QaDropdown({
             style={{
               padding: sidebarState === 'closed' ? '15px 5px' : '15px 10px',
             }}
-            className="h-[30rem] rounded-[.8rem] overflow-y-auto border border-green-600/70"
+            className="min-h-[1rem] rounded-[.8rem] overflow-y-auto border border-green-600/70"
           >
             {isToolsLoading ? (
               Array.from({ length: 4 }).map((_, i) => (

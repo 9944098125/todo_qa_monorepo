@@ -51,6 +51,11 @@ export interface GetQaResponse {
 export interface GetQaRequest {
   userId: string;
   toolId: string;
+  query?: {
+    page?: number;
+    pageSize?: number;
+    limit?: number;
+  };
 }
 
 export interface QaState {

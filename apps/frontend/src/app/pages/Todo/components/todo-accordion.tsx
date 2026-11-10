@@ -1,16 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { TodoItem } from '../slice/types';
 import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/app/components/ui/accordion';
-import { Edit2Icon, Trash2Icon } from 'lucide-react';
+import { Check, Edit2Icon, Loader2, Trash2Icon } from 'lucide-react';
 import { formatDate } from '@/utils/formatDate';
 import { useSelector } from 'react-redux';
 import { selectTheme } from '@/app/slice/selectors';
 import { useTodoSlice } from '../slice';
-import { toast } from '@/app/components/ui/use-toast';
 import { useDispatch } from 'react-redux';
 import {
   Dialog,
@@ -22,7 +21,6 @@ import { Heading } from '@/app/components/Parts/heading';
 import { TodoDialog } from './todo-dialog';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 import { Icons } from '@/app/components/ui/icons';
-import { update } from 'lodash';
 
 type Props = {
   eachItem: TodoItem;
@@ -34,7 +32,8 @@ type Props = {
 export function TodoAccordionItem(props: Props) {
   const themeState = useSelector(selectTheme);
   const dispatch = useDispatch();
-  const { _id, title, description, urgency, deadline, userId } = props.eachItem;
+  const { _id, title, description, urgency, deadline, userId, isCompleted } =
+    props.eachItem;
   const { actions } = useTodoSlice();
 
   const [isEditableDialogOpen, setIsEditableDialogOpen] =
@@ -42,6 +41,34 @@ export function TodoAccordionItem(props: Props) {
 
   const [openDeleteConfirmation, setOpenDeleteConfirmation] =
     useState<boolean>(false);
+
+  const [isToggling, setIsToggling] = useState<boolean>(false);
+
+  const handleToggleComplete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isToggling) return;
+    setIsToggling(true);
+    try {
+      await props
+        .updateTodo?.({
+          todoId: _id,
+          body: {
+            title,
+            description,
+            urgency,
+            deadline,
+            userId,
+            isCompleted: !isCompleted,
+          },
+        })
+        .unwrap();
+    } catch (err) {
+      // Error is caught and surfaced via parent toast
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   return (
     <React.Fragment>
@@ -51,8 +78,50 @@ export function TodoAccordionItem(props: Props) {
       >
         <AccordionTrigger className="hover:no-underline">
           <div className="flex items-center justify-between px-4 py-2 w-full">
-            <div>
-              <h4 className="text-xl font-[600]">{title}</h4>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                disabled={isToggling}
+                title={
+                  isToggling
+                    ? 'Updating status...'
+                    : isCompleted
+                      ? 'Mark as Incomplete'
+                      : 'Mark as Completed'
+                }
+                onClick={handleToggleComplete}
+                className={`w-9 h-9 rounded-full flex items-center justify-center border-2 border-green-600 p-1.5 transition-all duration-200 cursor-pointer disabled:cursor-wait select-none ${
+                  isCompleted
+                    ? 'bg-green-600 text-white shadow-sm hover:bg-green-700 hover:border-green-700'
+                    : themeState === 'dark'
+                      ? 'bg-black text-transparent hover:bg-green-600/15'
+                      : 'bg-white text-transparent hover:bg-green-50'
+                }`}
+              >
+                {isToggling ? (
+                  <Loader2
+                    className={`w-4 h-4 animate-spin ${
+                      isCompleted ? 'text-white' : 'text-green-600'
+                    }`}
+                  />
+                ) : isCompleted ? (
+                  <Check className="w-4 h-4 stroke-[3] text-white" />
+                ) : null}
+              </button>
+              <div className="flex items-center gap-3">
+                <h4
+                  className={`text-xl font-[600] text-left ${
+                    isCompleted ? 'line-through text-gray-500' : ''
+                  }`}
+                >
+                  {title}
+                </h4>
+                {isCompleted && (
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-green-600/20 text-green-600 border border-green-600/30 font-semibold">
+                    Completed
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </AccordionTrigger>
@@ -70,6 +139,26 @@ export function TodoAccordionItem(props: Props) {
               >
                 {urgency ? "It's urgent !!!" : 'I can take time !'}
               </p>
+              <span className="text-gray-400">|</span>
+              <button
+                type="button"
+                disabled={isToggling}
+                onClick={handleToggleComplete}
+                className={`text-xs px-3 py-1 rounded-full font-bold transition-all cursor-pointer border flex items-center gap-1.5 disabled:opacity-75 disabled:cursor-wait ${
+                  isCompleted
+                    ? 'bg-green-600 text-white border-green-600 hover:bg-green-700'
+                    : 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/30'
+                }`}
+              >
+                {isToggling ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>Updating...</span>
+                  </>
+                ) : (
+                  <span>{isCompleted ? 'Completed' : 'Pending'}</span>
+                )}
+              </button>
             </div>
             <div className="">
               <div className="flex items-center justify-between mb-4">

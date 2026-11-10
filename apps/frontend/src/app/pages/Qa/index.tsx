@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Add } from './components/add';
 import { useQaSlice } from './slice';
 import { useSelector } from 'react-redux';
@@ -13,6 +13,7 @@ import { ToolSkeleton } from './components/tool-skeleton';
 import { QaSkeleton } from './components/qa-skeleton';
 import { EmptyView } from '@/app/components/Parts/EmptyView';
 import { Heading } from '@/app/components/Parts/heading';
+import { Pagination } from '@/app/components/Parts/pagination';
 
 export interface QaProps {}
 
@@ -29,16 +30,25 @@ export function Qa(props: QaProps) {
 
   const [openToolDialog, setOpenToolDialog] = useState<boolean>(false);
   const [openQaDialog, setOpenQaDialog] = useState(false);
+  const [page, setPage] = useState<number>(1);
 
   const toolId = searchParams.get('toolId');
 
   const tool = tools?.find(t => t._id === toolId);
 
   useEffect(() => {
+    setPage(1);
+  }, [toolId]);
+
+  useEffect(() => {
     if (toolId && user?._id) {
-      getQaByTool({ toolId: toolId, userId: user?._id });
+      getQaByTool({
+        toolId: toolId,
+        userId: user?._id,
+        query: { page, limit: 10 },
+      });
     }
-  }, [toolId, user?._id, getQaByTool]);
+  }, [toolId, user?._id, page, getQaByTool]);
 
   useEffect(() => {
     if (isError || error) {
@@ -49,7 +59,22 @@ export function Qa(props: QaProps) {
     }
   }, [isError, error]);
 
-  const qaItems = data?.data?.documents || [];
+  // Sort QA sets: first created stay first, last created stay last
+  const qaItems = useMemo(() => {
+    const docs = data?.data?.documents || [];
+    return [...docs].sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return aTime - bTime;
+    });
+  }, [data?.data?.documents]);
+  const totalPages = data?.data?.totalPages || 1;
+
+  useEffect(() => {
+    if (page > 1 && totalPages < page && !isQaLoading) {
+      setPage(totalPages);
+    }
+  }, [totalPages, page, isQaLoading]);
 
   return (
     <React.Fragment>
@@ -77,17 +102,27 @@ export function Qa(props: QaProps) {
               <QaSkeleton key={i} color={tool?.color} />
             ))
           ) : qaItems?.length ? (
-            qaItems?.map(i => {
-              return (
-                <QaItem
-                  item={i}
-                  tool={tool as any}
-                  openQa={openQaDialog}
-                  setOpenQa={setOpenQaDialog}
-                  key={i?._id}
-                />
-              );
-            })
+            <React.Fragment>
+              {qaItems?.map(i => {
+                return (
+                  <QaItem
+                    item={i}
+                    tool={tool as any}
+                    openQa={openQaDialog}
+                    setOpenQa={setOpenQaDialog}
+                    key={i?._id}
+                  />
+                );
+              })}
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalDocuments={data?.data?.totalDocuments}
+                pageSize={10}
+                onPageChange={setPage}
+                isLoading={isQaLoading}
+              />
+            </React.Fragment>
           ) : (
             <div className="w-full h-[50vh] flex items-center justify-center">
               <EmptyView

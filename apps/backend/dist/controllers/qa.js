@@ -88,7 +88,7 @@ const getQa = (req, res, next) =>
       const totalDocuments = yield Qa_1.default.countDocuments(filter);
       const qaSet = yield Qa_1.default
         .find(filter)
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: 1 })
         .skip(skip)
         .limit(limit);
       (0, response_1.sendPaginated)(req, res, {

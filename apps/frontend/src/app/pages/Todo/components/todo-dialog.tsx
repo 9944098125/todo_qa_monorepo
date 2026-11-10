@@ -31,6 +31,7 @@ type TodoForm = {
   description: string;
   urgency: 'Yes' | 'No' | '';
   deadline: Date;
+  isCompleted?: boolean;
 };
 
 export const TodoDialog = ({
@@ -68,6 +69,7 @@ export const TodoDialog = ({
       description: '',
       urgency: '',
       deadline: new Date(),
+      isCompleted: false,
     },
   });
 
@@ -93,6 +95,7 @@ export const TodoDialog = ({
         description: '',
         urgency: '',
         deadline: new Date(),
+        isCompleted: false,
       });
 
       return;
@@ -105,6 +108,7 @@ export const TodoDialog = ({
       description: editableTodo.description,
       urgency: editableTodo.urgency ? 'Yes' : 'No',
       deadline: isValid(deadline) ? deadline : new Date(),
+      isCompleted: editableTodo.isCompleted ?? false,
     });
   }, [editableTodo, reset]);
 
@@ -116,6 +120,8 @@ export const TodoDialog = ({
 
       // Convert Date to API string
       deadline: formData.deadline.toISOString(),
+
+      isCompleted: Boolean(formData.isCompleted),
 
       userId: user?._id,
     };
@@ -307,6 +313,35 @@ export const TodoDialog = ({
               </>
             )}
           />
+        </div>
+
+        {/* Completion Status */}
+        <div className="mb-4 px-4 py-2">
+          <Label htmlFor="isCompleted">Completion Status</Label>
+          <div className="mt-2 flex items-center gap-3">
+            <Controller
+              name="isCompleted"
+              control={control}
+              render={({ field }) => (
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    id="isCompleted"
+                    checked={Boolean(field.value)}
+                    onChange={e => field.onChange(e.target.checked)}
+                    className="w-6 h-6 rounded text-green-600 focus:ring-green-500 cursor-pointer"
+                  />
+                  <span
+                    className={`text-[1.6rem] font-medium ${
+                      themeState === 'dark' ? 'text-white' : 'text-gray-900'
+                    }`}
+                  >
+                    {field.value ? 'Completed' : 'Pending'}
+                  </span>
+                </label>
+              )}
+            />
+          </div>
         </div>
 
         {/* Submit */}

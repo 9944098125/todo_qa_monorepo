@@ -61,7 +61,7 @@ export const getQa = async (
     const filter = { userId, toolId };
     const totalDocuments = await Qa.countDocuments(filter);
     const qaSet = await Qa.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: 1 })
       .skip(skip)
       .limit(limit);
     sendPaginated(req, res, {

@@ -9,6 +9,7 @@ export interface TodoState {
     urgency: boolean;
     deadline: string;
     userId: string;
+    isCompleted?: boolean;
   } | null;
 }
 
@@ -18,6 +19,7 @@ export interface TodoRequest {
   urgency: boolean;
   deadline: string | undefined;
   userId: string | undefined;
+  isCompleted?: boolean;
 }
 
 export interface TodoResponse {
@@ -32,6 +34,7 @@ export interface TodoResponse {
         urgency: boolean;
         deadline: Date;
         userId: string;
+        isCompleted?: boolean;
         _id: string;
         createdAt: Date;
       };
@@ -58,6 +61,7 @@ export interface GetTodoResponse {
       urgency: boolean;
       deadline: string;
       userId: string;
+      isCompleted?: boolean;
       createdAt: string;
     }[];
   };
@@ -70,9 +74,11 @@ export interface GetTodoRequest {
   requestParams: {
     userId: string;
   };
-  query: {
-    page: number;
-    pageSize: number;
+  query?: {
+    page?: number;
+    pageSize?: number;
+    limit?: number;
+    filter?: string;
   };
 }
 
@@ -83,6 +89,7 @@ export interface TodoItem {
   urgency: boolean;
   deadline: string;
   userId: string;
+  isCompleted?: boolean;
   createdAt: string;
 }
 

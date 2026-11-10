@@ -54,7 +54,8 @@ dotenv_1.default.config();
 const createTodo = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
     try {
-      const { title, description, urgency, deadline, userId } = req.body;
+      const { title, description, urgency, deadline, userId, isCompleted } =
+        req.body;
       const user = yield User_1.default.findOne({ _id: userId });
       const newTodo = new Todo_1.default({
         title,
@@ -62,6 +63,7 @@ const createTodo = (req, res, next) =>
         urgency,
         deadline,
         userId,
+        isCompleted: typeof isCompleted === "boolean" ? isCompleted : false,
       });
       yield newTodo.save();
       (0, response_1.sendSuccess)(
@@ -78,14 +80,107 @@ const createTodo = (req, res, next) =>
 exports.createTodo = createTodo;
 const getTodoWithUserId = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
       const { userId } = req.params;
       const user = yield User_1.default.findOne({ _id: userId });
       const { page, limit, skip } = (0, response_1.getPagination)(req, 10);
-      const totalDocuments = yield Todo_1.default.countDocuments({ userId });
+      const filterParam =
+        ((_a = req.query.filter) === null || _a === void 0
+          ? void 0
+          : _a.toLowerCase()) || "all";
+      const now = new Date();
+      const startOfToday = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        0,
+        0,
+        0,
+        0,
+      );
+      const endOfToday = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        23,
+        59,
+        59,
+        999,
+      );
+      const startOfTomorrow = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        0,
+        0,
+        0,
+        0,
+      );
+      const endOfTomorrow = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        23,
+        59,
+        59,
+        999,
+      );
+      const endOfNext3Days = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 3,
+        23,
+        59,
+        59,
+        999,
+      );
+      const query = { userId };
+      switch (filterParam) {
+        case "completed":
+          query.isCompleted = true;
+          break;
+        case "pending":
+          query.isCompleted = { $ne: true };
+          break;
+        case "overdue":
+          query.isCompleted = { $ne: true };
+          query.deadline = { $lt: startOfToday.toISOString() };
+          break;
+        case "today":
+          query.isCompleted = { $ne: true };
+          query.deadline = {
+            $gte: startOfToday.toISOString(),
+            $lte: endOfToday.toISOString(),
+          };
+          break;
+        case "tomorrow":
+          query.isCompleted = { $ne: true };
+          query.deadline = {
+            $gte: startOfTomorrow.toISOString(),
+            $lte: endOfTomorrow.toISOString(),
+          };
+          break;
+        case "next3days":
+          query.isCompleted = { $ne: true };
+          query.deadline = {
+            $gte: startOfToday.toISOString(),
+            $lte: endOfNext3Days.toISOString(),
+          };
+          break;
+        case "upcoming":
+          query.isCompleted = { $ne: true };
+          query.deadline = { $gt: endOfNext3Days.toISOString() };
+          break;
+        case "all":
+        default:
+          // All tasks for this user
+          break;
+      }
+      const totalDocuments = yield Todo_1.default.countDocuments(query);
       const todoList = yield Todo_1.default
-        .find({ userId })
-        .sort({ deadline: 1, createdAt: -1 })
+        .find(query)
+        .sort({ isCompleted: 1, deadline: 1 })
         .skip(skip)
         .limit(limit);
       (0, response_1.sendPaginated)(req, res, {
@@ -105,18 +200,22 @@ const updateTodo = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
     try {
       const { todoId } = req.params;
-      const { title, description, urgency, deadline, userId } = req.body;
+      const { title, description, urgency, deadline, userId, isCompleted } =
+        req.body;
       const user = yield User_1.default.findOne({ _id: userId });
+      const updateData = {};
+      if (title !== undefined) updateData.title = title;
+      if (description !== undefined) updateData.description = description;
+      if (urgency !== undefined) updateData.urgency = urgency;
+      if (deadline !== undefined) updateData.deadline = deadline;
+      if (userId !== undefined) updateData.userId = userId;
+      if (isCompleted !== undefined) updateData.isCompleted = isCompleted;
       const updatedTodo = yield Todo_1.default.findByIdAndUpdate(
         todoId,
+        updateData,
         {
-          title,
-          description,
-          urgency,
-          deadline,
-          userId,
+          new: true,
         },
-        { new: true },
       );
       (0, response_1.sendSuccess)(
         req,

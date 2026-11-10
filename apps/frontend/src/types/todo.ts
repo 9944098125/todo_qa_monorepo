@@ -3,4 +3,5 @@ interface TodoForm {
   description: string;
   urgency: string;
   deadline: string;
+  isCompleted?: boolean;
 }

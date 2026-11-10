@@ -33,8 +33,21 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlY
   "question":"What is React ?",
   "answer":"React is a javascript library that is used for building user interfaces.",
   "userId":"685ec8256a3964581b1c8357",
-  "toolId":"1",
+  "toolId":"",
   "importance":"Important"
+}
+
+########## CREATE A QA SET
+POST http://localhost:5001/api/qa/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWYxZjRmYjczZDkzNTljMzgyOGNiZmMiLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzk0MzA0NDYxLCJleHAiOjE3OTQzMjI0NjF9.RzPBgTJjWMv2-ja_B-_FcYsK1OccnvG9_aeyySYKPbA
+
+{
+  "question": "what is this ?",
+  "answer": "This is a loop",
+  "toolId": "6af2b4623993ba60cee89a8f",
+  "userId": "6af1f4fb73d9359c3828cbfc",
+  "importance": "Important"
 }
 
 ######### GET QA
@@ -64,16 +77,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlY
 # with /api/qa/:qaId/:userId
 
 ################ CREATE TODO
-POST https://todo-qa-with-ts-backend-production.up.railway.app/api/todo/create
+POST http://localhost:5001/api/todo/create
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODVlYzgyNTZhMzk2NDU4MWIxYzgzNTciLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzUxMDQyMjYwfQ.u6hqw4rloXc94ZPTPXKRqFoirnjVKdkHG92jH6wzOcI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YWYxZjRmYjczZDkzNTljMzgyOGNiZmMiLCJpc0FkbWluIjpmYWxzZSwiaWF0IjoxNzk0MzA0NDYxLCJleHAiOjE3OTQzMjI0NjF9.RzPBgTJjWMv2-ja_B-_FcYsK1OccnvG9_aeyySYKPbA
 # with request body
+
 {
-  "title":"Todo 100",
-  "description":"Description 1",
+  "title":"Todo 111",
+  "description":"Description 111",
   "urgency":false,
   "deadline":"12/12/25",
-  "userId":"685ec8256a3964581b1c8357"
+  "userId":"6af1f4fb73d9359c3828cbfc"
 }
 
 ##########3 GET TODO

@@ -20,7 +20,8 @@ export const createTodo = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { title, description, urgency, deadline, userId } = req.body;
+    const { title, description, urgency, deadline, userId, isCompleted } =
+      req.body;
     const user = await User.findOne({ _id: userId });
     const newTodo = new Todo({
       title,
@@ -28,6 +29,7 @@ export const createTodo = async (
       urgency,
       deadline,
       userId,
+      isCompleted: typeof isCompleted === "boolean" ? isCompleted : false,
     });
     await newTodo.save();
     sendSuccess(
@@ -51,11 +53,107 @@ export const getTodoWithUserId = async (
     const { userId } = req.params;
     const user = await User.findOne({ _id: userId });
     const { page, limit, skip } = getPagination(req, 10);
-    const totalDocuments = await Todo.countDocuments({ userId });
-    const todoList = await Todo.find({ userId })
-      .sort({ deadline: 1, createdAt: -1 })
+    const filterParam = (req.query.filter as string)?.toLowerCase() || "all";
+
+    const now = new Date();
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const endOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const startOfTomorrow = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      0,
+      0,
+      0,
+      0,
+    );
+    const endOfTomorrow = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const endOfNext3Days = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 3,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const query: any = { userId };
+
+    switch (filterParam) {
+      case "completed":
+        query.isCompleted = true;
+        break;
+      case "pending":
+        query.isCompleted = { $ne: true };
+        break;
+      case "overdue":
+        query.isCompleted = { $ne: true };
+        query.deadline = { $lt: startOfToday.toISOString() };
+        break;
+      case "today":
+        query.isCompleted = { $ne: true };
+        query.deadline = {
+          $gte: startOfToday.toISOString(),
+          $lte: endOfToday.toISOString(),
+        };
+        break;
+      case "tomorrow":
+        query.isCompleted = { $ne: true };
+        query.deadline = {
+          $gte: startOfTomorrow.toISOString(),
+          $lte: endOfTomorrow.toISOString(),
+        };
+        break;
+      case "next3days":
+        query.isCompleted = { $ne: true };
+        query.deadline = {
+          $gte: startOfToday.toISOString(),
+          $lte: endOfNext3Days.toISOString(),
+        };
+        break;
+      case "upcoming":
+        query.isCompleted = { $ne: true };
+        query.deadline = { $gt: endOfNext3Days.toISOString() };
+        break;
+      case "all":
+      default:
+        // All tasks for this user
+        break;
+    }
+
+    const totalDocuments = await Todo.countDocuments(query);
+    const todoList = await Todo.find(query)
+      .sort({ isCompleted: 1, deadline: 1 })
       .skip(skip)
       .limit(limit);
+
     sendPaginated(req, res, {
       message: `Hola ${user?.name}, here is your todo list 🤩`,
       documents: todoList,
@@ -76,19 +174,21 @@ export const updateTodo = async (
 ): Promise<void> => {
   try {
     const { todoId } = req.params;
-    const { title, description, urgency, deadline, userId } = req.body;
+    const { title, description, urgency, deadline, userId, isCompleted } =
+      req.body;
     const user = await User.findOne({ _id: userId });
-    const updatedTodo = await Todo.findByIdAndUpdate(
-      todoId,
-      {
-        title,
-        description,
-        urgency,
-        deadline,
-        userId,
-      },
-      { new: true },
-    );
+
+    const updateData: any = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (urgency !== undefined) updateData.urgency = urgency;
+    if (deadline !== undefined) updateData.deadline = deadline;
+    if (userId !== undefined) updateData.userId = userId;
+    if (isCompleted !== undefined) updateData.isCompleted = isCompleted;
+
+    const updatedTodo = await Todo.findByIdAndUpdate(todoId, updateData, {
+      new: true,
+    });
     sendSuccess(
       req,
       res,

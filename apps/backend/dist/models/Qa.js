@@ -33,6 +33,14 @@ const qaSchema = new mongoose_1.default.Schema(
   },
   { timestamps: true },
 );
+// Index to optimize sorting by creation time
+qaSchema.index({ createdAt: 1 });
+// Model-level default sorting: first created stays first (ascending order)
+qaSchema.pre(/^find/, function () {
+  if (!this.getOptions().sort) {
+    this.sort({ createdAt: 1 });
+  }
+});
 const Qa =
   mongoose_1.default.models.Qa || mongoose_1.default.model("Qa", qaSchema);
 exports.default = Qa;

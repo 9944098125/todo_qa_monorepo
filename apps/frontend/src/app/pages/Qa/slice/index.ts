@@ -149,6 +149,7 @@ export const api = createApi({
         return {
           url: `${endpoints.getQaByToolId.url}/${requestParams?.userId}/${requestParams?.toolId}`,
           method: endpoints.getQaByToolId.method,
+          params: requestParams?.query,
         };
       },
       providesTags: ['Qa'],
