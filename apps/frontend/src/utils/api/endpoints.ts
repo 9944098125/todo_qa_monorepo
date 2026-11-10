@@ -4,6 +4,7 @@ import {
   fetchBaseQuery,
   FetchBaseQueryError,
 } from '@reduxjs/toolkit/query/react';
+import { method } from 'lodash';
 
 const baseUrl =
   process.env.REACT_APP_API_URL ||
@@ -161,6 +162,10 @@ export const endpoints = {
   generateAnswer: {
     // req.body = question
     url: '/qa/generate-answer',
+    method: HTTP_METHODS.POST,
+  },
+  aiChat: {
+    url: '/ai/chat',
     method: HTTP_METHODS.POST,
   },
 };

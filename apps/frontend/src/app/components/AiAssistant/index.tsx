@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAiSlice } from './slice';
-import { selectIsAiDrawerOpen } from './slice/selectors';
-import { selectTheme } from '../../slice/selectors';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet';
+import { selectAiMessages, selectIsAiDrawerOpen } from './slice/selectors';
+import { selectTheme } from '@/app/slice/selectors';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/app/components/ui/sheet';
 import { Sparkles, Trash2, X } from 'lucide-react';
 import { ChatMessages } from './components/chat-messages';
 import { ChatInput } from './components/chat-input';
 
 export function AiAssistant() {
-  const { actions } = useAiSlice();
+  const { actions, useSendChatMessageMutation } = useAiSlice();
+  const [sendChatMessage, { isLoading: isAiThinking }] =
+    useSendChatMessageMutation();
+
   const dispatch = useDispatch();
   const isOpen = useSelector(selectIsAiDrawerOpen);
+  const messages = useSelector(selectAiMessages);
   const themeState = useSelector(selectTheme);
   const [presetPrompt, setPresetPrompt] = useState<string>('');
 
@@ -21,14 +30,14 @@ export function AiAssistant() {
     dispatch(actions.toggleDrawer(open));
   };
 
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     const userMessageId = `msg-${Date.now()}`;
     const timestamp = new Date().toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     });
 
-    // 1. Add user message to Redux
+    // 1. Immediately append the user message to Redux chat history
     dispatch(
       actions.addMessage({
         id: userMessageId,
@@ -38,24 +47,66 @@ export function AiAssistant() {
       }),
     );
 
-    // 2. Set loading state
+    // Sync slice loading indicator with RTK Query
     dispatch(actions.setLoading(true));
+    dispatch(actions.setError(null));
 
-    // Phase 1 Mock Echo: Simulates AI response to verify UI functionality
-    setTimeout(() => {
+    try {
+      // 2. Prepare conversation history for the backend
+      const history = messages.map(m => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      }));
+
+      // 3. Execute the RTK Query mutation
+      const response = await sendChatMessage({
+        message: text,
+        history,
+      }).unwrap();
+
+      // 4. Extract response text from standard response envelope
+      const assistantText =
+        response?.data?.data?.message ||
+        response?.data?.message ||
+        'I received your request.';
+
+      // 5. Append assistant reply to Redux chat history
       dispatch(
         actions.addMessage({
           id: `assistant-${Date.now()}`,
           role: 'assistant',
-          content: `I received your command: "${text}". In Phase 2 & 3, this will connect to the backend OpenRouter tool engine!`,
+          content: assistantText,
           timestamp: new Date().toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
           }),
         }),
       );
+    } catch (err: any) {
+      console.error('AI Chat Mutation Error:', err);
+      const errorMessage =
+        typeof err === 'string'
+          ? err
+          : err?.data?.message ||
+            err?.message ||
+            'Could not connect to AI service.';
+
+      dispatch(actions.setError(errorMessage));
+      dispatch(
+        actions.addMessage({
+          id: `error-${Date.now()}`,
+          role: 'assistant',
+          content: `⚠️ Error: ${errorMessage}`,
+          timestamp: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          status: 'error',
+        }),
+      );
+    } finally {
       dispatch(actions.setLoading(false));
-    }, 800);
+    }
   };
 
   const handleClearChat = () => {
@@ -66,8 +117,10 @@ export function AiAssistant() {
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetContent
         side="right"
-        className={`w-full md:max-w-[80rem] p-0 flex flex-col h-full border-solid border-l-2 border-green-600 transition-colors duration-200 ${
-          isDark ? 'bg-black text-white' : 'bg-white text-black'
+        className={`w-full sm:max-w-[48rem] p-0 flex flex-col h-full border-l transition-colors duration-200 ${
+          isDark
+            ? 'bg-black border-gray-800 text-white'
+            : 'bg-white border-gray-200 text-black'
         }`}
       >
         {/* Drawer Header */}
@@ -79,20 +132,20 @@ export function AiAssistant() {
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-15 h-15 rounded-xl bg-green-600/10 border border-green-600/30 flex items-center justify-center">
-              <Sparkles className="w-10 h-10 text-green-600" />
+            <div className="w-10 h-10 rounded-xl bg-green-600/10 border border-green-600/30 flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-green-600" />
             </div>
             <div>
               <SheetTitle className="text-base font-bold flex items-center gap-2">
                 TodoQA Assistant
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-green-600/10 text-green-600 border border-green-600/20">
-                  Beta
+                  Live
                 </span>
               </SheetTitle>
               <p
                 className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
               >
-                Natural language Todo & QA modules management
+                Connected via RTK Query & OpenRouter (LLaMA 3.1)
               </p>
             </div>
           </div>
@@ -108,7 +161,7 @@ export function AiAssistant() {
                   : 'border-gray-200 hover:bg-gray-100 text-gray-600 hover:text-black'
               }`}
             >
-              <Trash2 className="w-10 h-10" />
+              <Trash2 className="w-4 h-4" />
             </button>
             <button
               onClick={() => handleOpenChange(false)}
@@ -120,7 +173,7 @@ export function AiAssistant() {
                   : 'border-gray-200 hover:bg-gray-100 text-gray-600 hover:text-black'
               }`}
             >
-              <X className="w-10 h-10" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </SheetHeader>

@@ -1,14 +1,9 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer } from 'utils/redux-injectors';
-
 import { createApi } from '@reduxjs/toolkit/query/react';
-import {
-  endpoints,
-  formatErrors,
-  baseQueryWithDelay,
-} from 'utils/api/endpoints';
-import { AiChatMessage, AiState } from './types';
+import { baseQuery, endpoints, formatErrors } from 'utils/api/endpoints';
+import { AiChatMessage, AiChatRequest, AiChatResponse, AiState } from './types';
 
 export const initialState: AiState = {
   isDrawerOpen: false,
@@ -25,7 +20,7 @@ const slice = createSlice({
       state.isDrawerOpen = action.payload;
     },
     addMessage(state, action: PayloadAction<AiChatMessage>) {
-      state.messages?.push(action.payload);
+      state.messages.push(action.payload);
     },
     clearMessages(state) {
       state.messages = [];
@@ -40,10 +35,24 @@ const slice = createSlice({
   },
 });
 
+/**
+ * RTK Query API for the AI Assistant.
+ * Uses `baseQuery` (without the artificial 3-second delay) for responsive chat interactions.
+ */
 export const api = createApi({
   reducerPath: 'aiApi',
-  baseQuery: baseQueryWithDelay,
-  endpoints: build => ({}),
+  baseQuery,
+  endpoints: build => ({
+    sendChatMessage: build.mutation<AiChatResponse, AiChatRequest>({
+      query: body => ({
+        ...endpoints.aiChat,
+        body,
+      }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+  }),
 });
 
 export const { actions: aiActions } = slice;

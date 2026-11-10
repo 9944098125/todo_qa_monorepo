@@ -149,6 +149,19 @@ export function QaItem({ item, tool, openQa, setOpenQa }: Props) {
               Documented on {formatDate(item.createdAt)}
             </span>
           </div>
+          {item.importance && (
+            <span
+              className={`text-xs px-3 py-1 rounded-full font-semibold border ${
+                item.importance === 'Very Important'
+                  ? 'bg-red-500/10 text-red-600 border-red-500/30'
+                  : item.importance === 'Important'
+                    ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/30'
+                    : 'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/30'
+              }`}
+            >
+              {item.importance}
+            </span>
+          )}
         </div>
       </div>
     </article>

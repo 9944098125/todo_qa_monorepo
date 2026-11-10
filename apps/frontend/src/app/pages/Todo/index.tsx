@@ -288,7 +288,7 @@ export function Todo() {
             currentPage={page}
             totalPages={totalPages}
             totalDocuments={todoData?.data?.totalDocuments}
-            pageSize={10}
+            pageSize={todoData?.data?.pageSize || 10}
             onPageChange={setPage}
             isLoading={todoLoading}
           />

@@ -23,6 +23,13 @@ import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
 import { useDispatch } from 'react-redux';
 import { streamText } from '@/utils/streamText';
 import { endpoints } from '@/utils/api/endpoints';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/app/components/ui/select';
 
 type Props = {
   tools: ToolItem[];
@@ -97,18 +104,21 @@ export function AddQa(props: Props) {
 
   const streamAbortRef = useRef<AbortController | null>(null);
 
-  const submitQaForm = data => {
+  const submitQaForm = (data: any) => {
     if (!editableQa && data) {
       createQa({
         ...data,
         userId: user?._id,
-        importance: 'Important',
+        importance: data.importance || 'Not Important',
       });
     } else {
       updateQa({
         body: {
           ...editableQa,
-          importance: 'Important',
+          ...data,
+          userId: user?._id,
+          importance:
+            data.importance || editableQa?.importance || 'Not Important',
         },
         params: {
           qaId: editableQa?._id,
@@ -175,11 +185,12 @@ export function AddQa(props: Props) {
           userId: '',
           question: '',
           answer: '',
-          importance: '',
+          importance: 'Not Important',
         });
       } else {
         reset({
           ...editableQa,
+          importance: editableQa?.importance || 'Not Important',
         });
       }
     }
@@ -308,6 +319,46 @@ export function AddQa(props: Props) {
                     {errors?.question?.message?.toString()}
                   </p>
                 )}
+              </div>
+              <div className="mb-4">
+                <Label htmlFor="importance">Importance</Label>
+                <Controller
+                  name="importance"
+                  control={control}
+                  defaultValue="Not Important"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value || 'Not Important'}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        id="importance"
+                        className={`mt-4 ${
+                          themeState === 'dark'
+                            ? 'bg-black text-white'
+                            : 'bg-white text-black'
+                        }`}
+                      >
+                        <SelectValue placeholder="Select Importance" />
+                      </SelectTrigger>
+                      <SelectContent
+                        className={
+                          themeState === 'dark'
+                            ? 'bg-black text-white'
+                            : 'bg-white text-gray-900'
+                        }
+                      >
+                        <SelectItem value="Not Important">
+                          Not Important
+                        </SelectItem>
+                        <SelectItem value="Important">Important</SelectItem>
+                        <SelectItem value="Very Important">
+                          Very Important
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
               <div className="my-4">
                 <div className="flex items-end justify-between gap-4 mb-4">

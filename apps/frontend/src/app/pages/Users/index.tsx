@@ -23,6 +23,7 @@ import {
 } from '@/app/components/ui/dialog';
 import { UserDialog } from './components/user-dialog';
 import { selectEditableUser } from './slice/selectors';
+import { Pagination } from '@/app/components/Parts/pagination';
 
 export interface AdminProps {}
 
@@ -91,7 +92,9 @@ export function Users(props: AdminProps) {
 
   const editableUser = useSelector(selectEditableUser);
 
+  const [page, setPage] = useState<number>(1);
   const users: User[] = data?.data?.documents || [];
+  const totalPages = data?.data?.totalPages || 1;
 
   const [openDialog, setOpenUserDialog] = useState<boolean>(false);
 
@@ -109,9 +112,15 @@ export function Users(props: AdminProps) {
 
   useEffect(() => {
     if (thisUser?.isAdmin) {
-      getUsers({});
+      getUsers({ page, pageSize: 10 });
     }
-  }, [getUsers, thisUser?.isAdmin]);
+  }, [getUsers, thisUser?.isAdmin, page]);
+
+  useEffect(() => {
+    if (page > 1 && totalPages < page && !isUserLoading) {
+      setPage(totalPages);
+    }
+  }, [totalPages, page, isUserLoading]);
 
   useEffect(() => {
     if (isError || error) {
@@ -230,6 +239,18 @@ export function Users(props: AdminProps) {
             />
           )}
         </div>
+
+        {/* Pagination */}
+        {users?.length > 0 && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalDocuments={data?.data?.totalDocuments}
+            pageSize={data?.data?.pageSize || 10}
+            onPageChange={setPage}
+            isLoading={isUserLoading}
+          />
+        )}
       </div>
     </React.Fragment>
   );

@@ -118,7 +118,7 @@ export function Qa(props: QaProps) {
                 currentPage={page}
                 totalPages={totalPages}
                 totalDocuments={data?.data?.totalDocuments}
-                pageSize={10}
+                pageSize={data?.data?.pageSize || 10}
                 onPageChange={setPage}
                 isLoading={isQaLoading}
               />

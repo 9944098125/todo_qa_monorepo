@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
 import authRoute from "./routes/auth";
+import aiRoute from "./routes/ai";
 import qaRoute from "./routes/qa";
 import todoRoute from "./routes/todo";
 import adminRoute from "./routes/admin";
@@ -53,6 +54,7 @@ app.use("/api/qa", qaRoute);
 app.use("/api/todo", todoRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/tools", toolsRoute);
+app.use("/api/ai", aiRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.json({

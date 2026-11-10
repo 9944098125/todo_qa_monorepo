@@ -1,4 +1,4 @@
-export type QaImportance = 'Important' | 'Normal' | 'Low';
+export type QaImportance = 'Important' | 'Very Important' | 'Not Important';
 
 export interface QaState {
   data: any | null;

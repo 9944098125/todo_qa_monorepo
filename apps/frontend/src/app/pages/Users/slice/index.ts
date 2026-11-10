@@ -73,13 +73,16 @@ export const api = createApi({
       },
     }),
 
-    getUsers: build.query<GetUserResponse, any>({
-      query: () => {
+    getUsers: build.query<
+      GetUserResponse,
+      { page?: number; pageSize?: number } | void
+    >({
+      query: params => {
         return {
           ...endpoints.getUsers,
           params: {
-            page: 1,
-            pageSize: 10,
+            page: params?.page || 1,
+            pageSize: params?.pageSize || 10,
           },
         };
       },

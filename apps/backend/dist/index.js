@@ -10,6 +10,7 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const auth_1 = __importDefault(require("./routes/auth"));
+const ai_1 = __importDefault(require("./routes/ai"));
 const qa_1 = __importDefault(require("./routes/qa"));
 const todo_1 = __importDefault(require("./routes/todo"));
 const admin_1 = __importDefault(require("./routes/admin"));
@@ -52,6 +53,7 @@ app.use("/api/qa", qa_1.default);
 app.use("/api/todo", todo_1.default);
 app.use("/api/admin", admin_1.default);
 app.use("/api/tools", tool_1.default);
+app.use("/api/ai", ai_1.default);
 app.get("/", (req, res) => {
   res.json({
     success: true,

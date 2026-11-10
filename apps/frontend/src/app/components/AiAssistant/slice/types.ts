@@ -25,3 +25,26 @@ export interface AiState {
   isLoading: boolean;
   error: string | null;
 }
+
+/* --- RTK Query API Types --- */
+
+export interface AiChatRequest {
+  message: string;
+  history: Array<{ role: 'user' | 'assistant'; content: string }>;
+}
+
+export interface AiChatResponse {
+  status: number;
+  statusText: string;
+  data: {
+    message: string;
+    data: {
+      message: string;
+      model: string;
+      isAdmin: boolean;
+    };
+  };
+  meta: {
+    url: string;
+  };
+}
