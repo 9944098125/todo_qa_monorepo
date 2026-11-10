@@ -9,19 +9,22 @@ type Props = {
   onSelectSuggestion?: (prompt: string) => void;
 };
 
-const SUGGESTIONS = [
-  'Create 3 urgent tasks for user authentication',
-  'Show all my pending todos',
-  'Add a React QA question: What is useMemo?',
-  'Summarize my tasks due this week',
-];
-
 export function ChatMessages({ onSelectSuggestion }: Props) {
   const messages = useSelector(selectAiMessages);
   const isLoading = useSelector(selectAiLoading);
   const user = useSelector(selectUser);
   const themeState = useSelector(selectTheme);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic suggestions tailored to user role and features
+  const suggestions = [
+    'Create 3 urgent tasks for payment gateway',
+    'Create a new Tool category: Docker',
+    'Add a React QA question: What is useMemo?',
+    ...(user?.isAdmin
+      ? ['Show all registered users in the system']
+      : ['Show all my pending todos due this week']),
+  ];
 
   // Auto-scroll to the bottom whenever a message arrives or loading state changes
   useEffect(() => {
@@ -48,7 +51,7 @@ export function ChatMessages({ onSelectSuggestion }: Props) {
           <p className="text-xs font-semibold uppercase tracking-wider text-green-600 text-left mb-1">
             Try asking:
           </p>
-          {SUGGESTIONS.map((suggestion, index) => (
+          {suggestions.map((suggestion, index) => (
             <button
               key={index}
               onClick={() => onSelectSuggestion?.(suggestion)}
