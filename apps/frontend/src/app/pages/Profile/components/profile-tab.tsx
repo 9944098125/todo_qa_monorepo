@@ -58,6 +58,7 @@ export function ProfileTab({ isLoading = false }: ProfileTabProps = {}) {
     register,
     handleSubmit,
     setValue,
+    getValues,
     watch,
     reset,
     control,
@@ -113,13 +114,56 @@ export function ProfileTab({ isLoading = false }: ProfileTabProps = {}) {
       setIsUploading(true);
       const imageUrl = await uploadToCloudinary(file);
       setValue('profilePicture', imageUrl, { shouldDirty: true });
-      toast({
-        description: 'Profile picture uploaded successfully',
-        variant: 'success',
-      });
+
+      if (loggedInUser?._id) {
+        const currentValues = getValues();
+        const body: ProfileFormData = {
+          name: currentValues.name || user?.name || '',
+          email: currentValues.email || user?.email || '',
+          phone: currentValues.phone || user?.phone || '',
+          bio: currentValues.bio || user?.bio || '',
+          profilePicture: imageUrl,
+        };
+
+        const response = await updateUser({
+          userId: loggedInUser._id,
+          body,
+        }).unwrap();
+
+        const updatedUser =
+          (response as any)?.data?.data?.user ||
+          (response as any)?.data?.user ||
+          (response as any)?.user;
+
+        if (updatedUser) {
+          dispatch(globalActions.setUser(updatedUser));
+          reset({
+            name: updatedUser.name || '',
+            email: updatedUser.email || '',
+            phone: normalizePhoneForInput(updatedUser.phone),
+            bio: updatedUser.bio || '',
+            profilePicture: updatedUser.profilePicture || '',
+          });
+        }
+
+        const successMsg =
+          (response as any)?.data?.message ||
+          (response as any)?.message ||
+          'Profile picture updated successfully 🤩';
+
+        toast({
+          description: successMsg,
+          variant: 'success',
+        });
+      } else {
+        toast({
+          description: 'Profile picture uploaded successfully',
+          variant: 'success',
+        });
+      }
     } catch (err: any) {
       toast({
-        description: err?.message || 'Failed to upload image',
+        description: err?.message || 'Failed to update profile picture',
         variant: 'destructive',
       });
     } finally {

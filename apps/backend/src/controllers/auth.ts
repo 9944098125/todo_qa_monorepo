@@ -183,15 +183,17 @@ export const updateUser = async (
       return;
     }
 
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+    if (phone !== undefined) updateData.phone = phone;
+    if (profilePicture !== undefined)
+      updateData.profilePicture = profilePicture;
+    if (bio !== undefined) updateData.bio = bio;
+
     const updatedUser = await User.findByIdAndUpdate(
       { _id: userId },
-      {
-        name,
-        email,
-        phone,
-        profilePicture,
-        bio,
-      },
+      updateData,
       { new: true },
     );
     const updatedUserWithoutPassword = await User.findOne({

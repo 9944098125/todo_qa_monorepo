@@ -224,15 +224,16 @@ const updateUser = (req, res, next) =>
         );
         return;
       }
+      const updateData = {};
+      if (name !== undefined) updateData.name = name;
+      if (email !== undefined) updateData.email = email;
+      if (phone !== undefined) updateData.phone = phone;
+      if (profilePicture !== undefined)
+        updateData.profilePicture = profilePicture;
+      if (bio !== undefined) updateData.bio = bio;
       const updatedUser = yield User_1.default.findByIdAndUpdate(
         { _id: userId },
-        {
-          name,
-          email,
-          phone,
-          profilePicture,
-          bio,
-        },
+        updateData,
         { new: true },
       );
       const updatedUserWithoutPassword = yield User_1.default
