@@ -1,6 +1,7 @@
 export interface LoginFormValues {
   emailOrPhone: string;
   password: string;
+  saveCredentials?: boolean;
 }
 
 export interface LoginResponse {

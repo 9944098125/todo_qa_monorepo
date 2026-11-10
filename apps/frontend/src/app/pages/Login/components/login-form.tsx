@@ -7,12 +7,29 @@ import { useGlobalSlice } from '@/app/slice';
 import { Icons } from '@/app/components/ui/icons';
 import { useDispatch } from 'react-redux';
 import { toast } from '@/app/components/ui/use-toast';
-import { data, Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LoginFormValues } from '@/types/login';
-import { EyeClosedIcon, EyeIcon, User } from 'lucide-react';
+import { Check, EyeClosedIcon, EyeIcon } from 'lucide-react';
+
+const SAVED_CREDENTIALS_KEY = 'tq_saved_credentials';
 
 export function LoginForm() {
-  const form = useForm<LoginFormValues>();
+  const savedCreds = (() => {
+    try {
+      const item = localStorage.getItem(SAVED_CREDENTIALS_KEY);
+      return item ? JSON.parse(item) : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const form = useForm<LoginFormValues>({
+    defaultValues: {
+      emailOrPhone: savedCreds?.emailOrPhone || '',
+      password: savedCreds?.password || '',
+      saveCredentials: Boolean(savedCreds),
+    },
+  });
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -25,11 +42,29 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = form;
 
-  const authenticate = (data: LoginFormValues) => {
-    login(data);
+  const isSaveCredsChecked = watch('saveCredentials');
+
+  const authenticate = (formData: LoginFormValues) => {
+    if (formData.saveCredentials) {
+      localStorage.setItem(
+        SAVED_CREDENTIALS_KEY,
+        JSON.stringify({
+          emailOrPhone: formData.emailOrPhone,
+          password: formData.password,
+        }),
+      );
+    } else {
+      localStorage.removeItem(SAVED_CREDENTIALS_KEY);
+    }
+
+    login({
+      emailOrPhone: formData.emailOrPhone,
+      password: formData.password,
+    });
   };
 
   useEffect(() => {
@@ -143,6 +178,50 @@ export function LoginForm() {
                 {String(errors?.password?.message)}
               </div>
             )}
+          </div>
+          {/* Save credentials interactive card */}
+          <div className="px-4 mb-5">
+            <label
+              htmlFor="saveCredentials"
+              className={`group flex items-center justify-between p-3.5 px-4 rounded-[.8rem] border transition-all duration-200 cursor-pointer select-none active:scale-[0.99] ${
+                isSaveCredsChecked
+                  ? 'bg-green-50/80 border-green-600/70 shadow-sm'
+                  : 'bg-white/60 hover:bg-white border-gray-200 hover:border-gray-300 shadow-sm'
+              }`}
+            >
+              <div className="flex items-center gap-3.5">
+                <div
+                  className={`w-7 h-7 rounded-[0.5rem] flex items-center justify-center border-2 transition-all duration-200 ${
+                    isSaveCredsChecked
+                      ? 'bg-green-600 border-green-600 text-white shadow-sm scale-100'
+                      : 'border-gray-300 group-hover:border-green-600 bg-white'
+                  }`}
+                >
+                  {isSaveCredsChecked && (
+                    <Check className="w-4 h-4 stroke-[3] text-white" />
+                  )}
+                </div>
+                <div className="flex flex-col text-left">
+                  <span
+                    className={`text-[1.4rem] font-semibold transition-colors duration-150 ${
+                      isSaveCredsChecked ? 'text-green-800' : 'text-gray-800'
+                    }`}
+                  >
+                    Save credentials
+                  </span>
+                  <span className="text-[1.1rem] text-gray-500 font-normal">
+                    Remember me on this browser
+                  </span>
+                </div>
+              </div>
+
+              <input
+                type="checkbox"
+                id="saveCredentials"
+                {...register('saveCredentials')}
+                className="sr-only"
+              />
+            </label>
           </div>
           {/* Button  */}
           <div className="px-4 py-2 mb-4">
