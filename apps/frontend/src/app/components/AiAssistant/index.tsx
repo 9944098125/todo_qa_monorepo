@@ -64,13 +64,15 @@ export function AiAssistant() {
         history,
       }).unwrap();
 
-      // 4. Extract response text from standard response envelope
+      // 4. Extract response text and any attached proposal from envelope
       const assistantText =
         response?.data?.data?.message ||
         response?.data?.message ||
         'I received your request.';
 
-      // 5. Append assistant reply to Redux chat history
+      const proposal = response?.data?.data?.proposal;
+
+      // 5. Append assistant reply and proposal to Redux chat history
       dispatch(
         actions.addMessage({
           id: `assistant-${Date.now()}`,
@@ -80,6 +82,7 @@ export function AiAssistant() {
             hour: '2-digit',
             minute: '2-digit',
           }),
+          proposal: proposal || undefined,
         }),
       );
     } catch (err: any) {
