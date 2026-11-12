@@ -408,6 +408,63 @@ export async function executeToolCall(
       };
     }
 
+    case "propose_update_tool": {
+      let existing: any = null;
+      if (args.toolId && /^[0-9a-fA-F]{24}$/.test(args.toolId)) {
+        existing = await Tool.findOne({
+          _id: args.toolId,
+          userId: context.userId,
+        });
+      } else if (args.searchName || args.name) {
+        const lookup = (args.searchName || args.name).trim();
+        existing = await Tool.findOne({
+          userId: context.userId,
+          name: { $regex: new RegExp(lookup, "i") },
+        });
+      }
+
+      if (!existing) {
+        return { toolResult: { error: `Tool category not found.` } };
+      }
+
+      const updates: any = {};
+      if (args.name) updates.name = args.name.trim();
+      if (args.slug) updates.slug = args.slug.trim().toLowerCase();
+      if (args.color) updates.color = args.color;
+      if (typeof args.description === "string")
+        updates.description = args.description;
+
+      const proposal: ProposalPayload = {
+        proposalId: `prop_${uuidv4()}`,
+        module: "TOOL",
+        actionType: "UPDATE",
+        items: [
+          {
+            toolId: existing._id.toString(),
+            original: {
+              name: existing.name,
+              slug: existing.slug,
+              color: existing.color,
+            },
+            updates,
+          },
+        ],
+        summary: `Update Tool Category: "${existing.name}"`,
+        isDestructive: false,
+      };
+
+      stageProposal(context.userId, proposal);
+
+      return {
+        toolResult: {
+          status: "STAGED",
+          proposalId: proposal.proposalId,
+          summary: proposal.summary,
+        },
+        proposal,
+      };
+    }
+
     case "propose_delete_tool": {
       let existing: any = null;
       if (args.toolId && /^[0-9a-fA-F]{24}$/.test(args.toolId)) {
@@ -530,6 +587,114 @@ export async function executeToolCall(
       };
     }
 
+    case "propose_update_qa": {
+      let existing: any = null;
+      if (args.qaId && /^[0-9a-fA-F]{24}$/.test(args.qaId)) {
+        existing = await Qa.findOne({ _id: args.qaId, userId: context.userId });
+      } else if (args.searchQuestion) {
+        existing = await Qa.findOne({
+          userId: context.userId,
+          question: { $regex: new RegExp(args.searchQuestion.trim(), "i") },
+        });
+      }
+
+      if (!existing) {
+        return { toolResult: { error: `QA item not found.` } };
+      }
+
+      const updates: any = {};
+      if (args.question) updates.question = args.question.trim();
+      if (args.answer) updates.answer = args.answer.trim();
+      if (
+        ["Important", "Very Important", "Not Important"].includes(
+          args.importance,
+        )
+      ) {
+        updates.importance = args.importance;
+      }
+
+      const proposal: ProposalPayload = {
+        proposalId: `prop_${uuidv4()}`,
+        module: "QA",
+        actionType: "UPDATE",
+        items: [
+          {
+            qaId: existing._id.toString(),
+            original: {
+              question: existing.question,
+              answer: existing.answer,
+              importance: existing.importance,
+            },
+            updates,
+          },
+        ],
+        summary: `Update QA: "${existing.question.slice(0, 40)}..."`,
+        isDestructive: false,
+      };
+
+      stageProposal(context.userId, proposal);
+
+      return {
+        toolResult: {
+          status: "STAGED",
+          proposalId: proposal.proposalId,
+          summary: proposal.summary,
+        },
+        proposal,
+      };
+    }
+
+    case "propose_delete_qa": {
+      let existing: any = null;
+      if (args.qaId && /^[0-9a-fA-F]{24}$/.test(args.qaId)) {
+        existing = await Qa.findOne({ _id: args.qaId, userId: context.userId });
+      } else if (args.questionSummary) {
+        const matches = await Qa.find({
+          userId: context.userId,
+          question: { $regex: new RegExp(args.questionSummary.trim(), "i") },
+        });
+        if (matches.length === 0) {
+          return {
+            toolResult: {
+              error: `No QA item found matching "${args.questionSummary}".`,
+            },
+          };
+        }
+        if (matches.length > 1) {
+          return {
+            toolResult: {
+              error: `Found ${matches.length} matching QA items. Please specify which one to delete.`,
+            },
+          };
+        }
+        existing = matches[0];
+      }
+
+      if (!existing) {
+        return { toolResult: { error: `QA item not found.` } };
+      }
+
+      const proposal: ProposalPayload = {
+        proposalId: `prop_${uuidv4()}`,
+        module: "QA",
+        actionType: "DELETE",
+        items: [{ qaId: existing._id.toString(), question: existing.question }],
+        summary: `Delete QA: "${existing.question.slice(0, 40)}..."`,
+        isDestructive: true,
+      };
+
+      stageProposal(context.userId, proposal);
+
+      return {
+        toolResult: {
+          status: "STAGED",
+          proposalId: proposal.proposalId,
+          summary: proposal.summary,
+        },
+        proposal,
+      };
+    }
+
     /**
      * ─── ADMIN USER DOMAIN ────────────────────────────────────
      */
@@ -558,6 +723,162 @@ export async function executeToolCall(
             createdAt: u.createdAt,
           })),
         },
+      };
+    }
+
+    case "admin_get_user": {
+      const query: any = {};
+      if (args.userId && /^[0-9a-fA-F]{24}$/.test(args.userId))
+        query._id = args.userId;
+      else if (args.email) query.email = args.email.trim();
+      else
+        return {
+          toolResult: { error: "Please provide either userId or email." },
+        };
+
+      const user = await User.findOne(query).select("-password");
+      if (!user) return { toolResult: { error: "User not found." } };
+
+      return { toolResult: { user } };
+    }
+
+    case "admin_propose_create_user": {
+      const proposal: ProposalPayload = {
+        proposalId: `prop_${uuidv4()}`,
+        module: "USER",
+        actionType: "CREATE",
+        items: [
+          {
+            name: String(args.name || "").trim(),
+            email: String(args.email || "").trim(),
+            password: String(args.password || "Password@123").trim(),
+            phone: String(args.phone || "").trim(),
+            bio: String(args.bio || "").trim(),
+            isAdmin: Boolean(args.isAdmin),
+          },
+        ],
+        summary: `Admin Create User: "${args.name}" (${args.email})`,
+        isDestructive: false,
+      };
+
+      stageProposal(context.userId, proposal);
+
+      return {
+        toolResult: {
+          status: "STAGED",
+          proposalId: proposal.proposalId,
+          summary: proposal.summary,
+        },
+        proposal,
+      };
+    }
+
+    case "admin_propose_update_user": {
+      let targetUser: any = null;
+      if (args.targetUserId && /^[0-9a-fA-F]{24}$/.test(args.targetUserId)) {
+        targetUser = await User.findById(args.targetUserId);
+      } else if (args.searchEmail || args.email) {
+        targetUser = await User.findOne({
+          email: (args.searchEmail || args.email).trim(),
+        });
+      }
+
+      if (!targetUser)
+        return { toolResult: { error: "Target user not found." } };
+
+      if (targetUser.isAdmin) {
+        return {
+          toolResult: {
+            error: `Security Rule: "${targetUser.name}" is also an admin, so changes are restricted.`,
+          },
+        };
+      }
+
+      const updates: any = {};
+      if (args.name) updates.name = args.name.trim();
+      if (args.email) updates.email = args.email.trim();
+      if (args.phone) updates.phone = args.phone.trim();
+      if (typeof args.bio === "string") updates.bio = args.bio;
+      if (typeof args.isAdmin === "boolean") updates.isAdmin = args.isAdmin;
+
+      const proposal: ProposalPayload = {
+        proposalId: `prop_${uuidv4()}`,
+        module: "USER",
+        actionType: "UPDATE",
+        items: [
+          {
+            targetUserId: targetUser._id.toString(),
+            original: {
+              name: targetUser.name,
+              email: targetUser.email,
+              isAdmin: targetUser.isAdmin,
+            },
+            updates,
+          },
+        ],
+        summary: `Admin Update User: "${targetUser.name}"`,
+        isDestructive: false,
+      };
+
+      stageProposal(context.userId, proposal);
+
+      return {
+        toolResult: {
+          status: "STAGED",
+          proposalId: proposal.proposalId,
+          summary: proposal.summary,
+        },
+        proposal,
+      };
+    }
+
+    case "admin_propose_delete_user": {
+      let targetUser: any = null;
+      if (args.targetUserId && /^[0-9a-fA-F]{24}$/.test(args.targetUserId)) {
+        targetUser = await User.findById(args.targetUserId);
+      } else if (args.email) {
+        targetUser = await User.findOne({ email: args.email.trim() });
+      } else if (args.userName) {
+        targetUser = await User.findOne({
+          name: { $regex: new RegExp(`^${args.userName.trim()}$`, "i") },
+        });
+      }
+
+      if (!targetUser)
+        return { toolResult: { error: "Target user not found." } };
+
+      if (targetUser.isAdmin) {
+        return {
+          toolResult: {
+            error: `Security Rule Violation: User "${targetUser.name}" is an administrator and cannot be deleted.`,
+          },
+        };
+      }
+
+      const proposal: ProposalPayload = {
+        proposalId: `prop_${uuidv4()}`,
+        module: "USER",
+        actionType: "DELETE",
+        items: [
+          {
+            targetUserId: targetUser._id.toString(),
+            name: targetUser.name,
+            email: targetUser.email,
+          },
+        ],
+        summary: `Admin Delete User Account: "${targetUser.name}" (${targetUser.email})`,
+        isDestructive: true,
+      };
+
+      stageProposal(context.userId, proposal);
+
+      return {
+        toolResult: {
+          status: "STAGED",
+          proposalId: proposal.proposalId,
+          summary: proposal.summary,
+        },
+        proposal,
       };
     }
 
@@ -642,6 +963,14 @@ export async function executeToolCall(
           for (const item of proposal.items) {
             await Tool.create({ ...item, userId: context.userId });
           }
+        } else if (proposal.actionType === "UPDATE") {
+          for (const item of proposal.items) {
+            await Tool.findOneAndUpdate(
+              { _id: item.toolId, userId: context.userId },
+              item.updates,
+              { new: true },
+            );
+          }
         } else if (proposal.actionType === "DELETE") {
           for (const item of proposal.items) {
             await Tool.findOneAndDelete({
@@ -663,6 +992,14 @@ export async function executeToolCall(
             userId: context.userId,
           }));
           await Qa.insertMany(docs);
+        } else if (proposal.actionType === "UPDATE") {
+          for (const item of proposal.items) {
+            await Qa.findOneAndUpdate(
+              { _id: item.qaId, userId: context.userId },
+              item.updates,
+              { new: true },
+            );
+          }
         } else if (proposal.actionType === "DELETE") {
           for (const item of proposal.items) {
             await Qa.findOneAndDelete({
@@ -689,6 +1026,16 @@ export async function executeToolCall(
               bio: item.bio,
               isAdmin: Boolean(item.isAdmin),
             });
+          }
+        } else if (proposal.actionType === "UPDATE") {
+          for (const item of proposal.items) {
+            await User.findByIdAndUpdate(item.targetUserId, item.updates, {
+              new: true,
+            });
+          }
+        } else if (proposal.actionType === "DELETE") {
+          for (const item of proposal.items) {
+            await User.findByIdAndDelete(item.targetUserId);
           }
         }
       }
