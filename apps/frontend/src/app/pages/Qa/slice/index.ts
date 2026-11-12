@@ -13,6 +13,7 @@ import {
   GetToolByIdRequest,
   GetToolByIdResponse,
   GetToolsResponse,
+  QaSortOrder,
   QaState,
   ToolRequest,
   ToolResponse,
@@ -30,6 +31,8 @@ export const initialState: QaState = {
   data: null,
   error: null,
   isLoading: false,
+  sortOrder: 'new-to-old',
+  importanceFilter: 'all',
   editableTool: null,
   editableQa: null,
 };
@@ -39,6 +42,12 @@ const slice = createSlice({
   initialState,
   reducers: {
     // required functions
+    setSortOrder(state, action: PayloadAction<QaSortOrder>) {
+      state.sortOrder = action.payload;
+    },
+    setImportanceFilter(state, action: PayloadAction<string>) {
+      state.importanceFilter = action.payload;
+    },
     editTool(state, action: PayloadAction<any>) {
       state.editableTool = {
         ...action.payload,
@@ -56,6 +65,15 @@ const slice = createSlice({
       state.editableQa = null;
     },
   },
+});
+
+const buildQaToolQuery = (
+  endpoint: { url: string; method: string },
+  requestParams: GetQaRequest,
+) => ({
+  url: `${endpoint.url}/${requestParams?.userId}/${requestParams?.toolId}`,
+  method: endpoint.method,
+  params: requestParams?.query,
 });
 
 export const api = createApi({
@@ -145,15 +163,34 @@ export const api = createApi({
       },
     }),
     getQaByTool: build.query<GetQaResponse, GetQaRequest>({
-      query: requestParams => {
-        return {
-          url: `${endpoints.getQaByToolId.url}/${requestParams?.userId}/${requestParams?.toolId}`,
-          method: endpoints.getQaByToolId.method,
-          params: requestParams?.query,
-        };
-      },
+      query: requestParams =>
+        buildQaToolQuery(endpoints.getQaByToolId, requestParams),
       providesTags: ['Qa'],
-      transformErrorResponse(baseQueryReturnValue, meta, arg) {
+      transformErrorResponse(baseQueryReturnValue) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    getQaNewToOld: build.query<GetQaResponse, GetQaRequest>({
+      query: requestParams =>
+        buildQaToolQuery(endpoints.getQaNewToOld, requestParams),
+      providesTags: ['Qa'],
+      transformErrorResponse(baseQueryReturnValue) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    getQaOldToNew: build.query<GetQaResponse, GetQaRequest>({
+      query: requestParams =>
+        buildQaToolQuery(endpoints.getQaOldToNew, requestParams),
+      providesTags: ['Qa'],
+      transformErrorResponse(baseQueryReturnValue) {
+        return formatErrors(baseQueryReturnValue);
+      },
+    }),
+    getQaByImportance: build.query<GetQaResponse, GetQaRequest>({
+      query: requestParams =>
+        buildQaToolQuery(endpoints.getQaByImportance, requestParams),
+      providesTags: ['Qa'],
+      transformErrorResponse(baseQueryReturnValue) {
         return formatErrors(baseQueryReturnValue);
       },
     }),

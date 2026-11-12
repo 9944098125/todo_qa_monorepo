@@ -18,9 +18,11 @@ export function ChatMessages({ onSelectSuggestion }: Props) {
 
   // Dynamic suggestions tailored to user role and features
   const suggestions = [
-    'Create 3 urgent tasks for payment gateway',
+    'Create an urgent task to exercise daily due in 1 month.',
     'Create a new Tool category: Docker',
     'Add a React QA question: What is useMemo?',
+    'update my profile picture with this image url:[url]',
+    'toggle the theme',
     ...(user?.isAdmin
       ? ['Show all registered users in the system']
       : ['Show all my pending todos due this week']),

@@ -16,7 +16,13 @@ import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
 import './../../../../styles/common.css';
 import 'react-phone-input-2/lib/style.css';
 import { Textarea } from '@/app/components/ui/textarea';
-import { EyeClosedIcon, EyeIcon } from 'lucide-react';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/app/components/ui/tabs';
+import { EyeClosedIcon, EyeIcon, Link as LinkIcon, Upload } from 'lucide-react';
 
 type Props = {
   createUser?: any;
@@ -63,6 +69,7 @@ export const UserDialog = ({
   const { actions } = useUsersSlice();
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [avatarTab, setAvatarTab] = useState<'upload' | 'url'>('upload');
 
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
@@ -84,12 +91,23 @@ export const UserDialog = ({
     }
 
     try {
+      clearErrors('profilePicture');
       setIsUploading(true);
 
       const imageUrl = await uploadToCloudinary(file);
-      setValue('profilePicture', imageUrl);
-    } catch (err) {
-      throw new Error(String(err));
+      setValue('profilePicture', imageUrl, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    } catch (err: any) {
+      setError('profilePicture', {
+        type: 'manual',
+        message: err?.message || 'Failed to upload image',
+      });
+      toast({
+        description: 'Failed to upload image. Please try again or paste a URL.',
+        variant: 'destructive',
+      });
     } finally {
       setIsUploading(false);
     }
@@ -98,6 +116,7 @@ export const UserDialog = ({
   const user = useSelector(selectUser);
   const editableUser = useSelector(selectEditableUser);
   const themeState = useSelector(selectTheme);
+  const isDark = themeState === 'dark';
   const dispatch = useDispatch();
 
   const [openEditConfirmation, setOpenEditConfirmation] =
@@ -124,8 +143,13 @@ export const UserDialog = ({
     reset,
     watch,
     setError,
+    clearErrors,
     setValue,
   } = form;
+
+  useEffect(() => {
+    register('profilePicture');
+  }, [register]);
 
   /**
    * Populate the form when editing a Todo.
@@ -145,7 +169,7 @@ export const UserDialog = ({
         bio: '',
         isAdmin: '',
       });
-
+      setAvatarTab('upload');
       return;
     }
 
@@ -158,6 +182,7 @@ export const UserDialog = ({
       bio: editableUser.bio || '',
       isAdmin: editableUser.isAdmin ? 'Yes' : 'No',
     });
+    setAvatarTab(editableUser.profilePicture ? 'url' : 'upload');
   }, [editableUser, reset]);
 
   const submitUserForm = (formData: UserForm) => {
@@ -286,87 +311,127 @@ export const UserDialog = ({
 
         {/* profilePicture */}
         <div className="px-2 mb-4">
-          <h4 className="text-[2.6rem] font-bold text-cyan-800 dark:text-cyan-400 mb-2">
-            Profile Pic...
-          </h4>
-          <div className="flex items-center w-full">
-            <Label htmlFor="imageUpload" className="cursor-pointer shrink-0">
-              <Input
-                id="imageUpload"
-                accept="image/*"
-                type="file"
-                className="hidden"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleImageUpload(e)
-                }
+          <Label
+            htmlFor={
+              avatarTab === 'upload' ? 'imageUpload' : 'profilePictureUrlInput'
+            }
+            className="text-[2rem] font-bold text-cyan-800 dark:text-cyan-400 mb-2 block"
+          >
+            Profile Picture
+          </Label>
+          <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
+            {/* Avatar Preview */}
+            <div className="relative h-[9rem] w-[9rem] rounded-full border-2 border-cyan-700 overflow-hidden shrink-0 bg-neutral-800/10 flex items-center justify-center">
+              <img
+                src={watch('profilePicture') || '/images/avatar.webp'}
+                alt="Profile Preview"
+                className="w-full h-full rounded-full object-cover"
+                onError={e => {
+                  (e.target as HTMLImageElement).src = '/images/avatar.webp';
+                }}
               />
-              <div
-                className={`h-[10rem] w-[10rem] rounded-full cursor-pointer border-2 border-cyan-700 relative overflow-hidden flex items-center justify-center ${errors.profilePicture ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
+              {isUploading && (
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                  <Icons.Spinner className="animate-spin h-7 w-7 text-cyan-400" />
+                </div>
+              )}
+            </div>
+
+            {/* Tabs for Upload File vs Image URL */}
+            <div className="flex-1 w-full min-w-0">
+              <Tabs
+                value={avatarTab}
+                onValueChange={val => setAvatarTab(val as 'upload' | 'url')}
+                className="w-full"
               >
-                {isUploading ? (
-                  <Icons.Spinner className="h-8 w-8 animate-spin text-cyan-800 dark:text-cyan-400" />
-                ) : (
-                  <img
-                    src={watch('profilePicture') || '/images/avatar.webp'}
-                    alt=""
-                    className="w-full h-full rounded-full object-cover"
+                <TabsList
+                  className={`p-1 rounded-xl border flex gap-1 mb-2 ${
+                    isDark
+                      ? 'bg-[#181818] border-gray-800'
+                      : 'bg-gray-100 border-gray-200'
+                  }`}
+                >
+                  <TabsTrigger
+                    value="upload"
+                    type="button"
+                    className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      isDark
+                        ? 'text-gray-300 hover:text-white data-[state=active]:bg-cyan-700 data-[state=active]:text-white'
+                        : 'text-gray-600 hover:text-black data-[state=active]:bg-cyan-700 data-[state=active]:text-white'
+                    }`}
+                  >
+                    <Upload size={14} />
+                    <span>Upload File</span>
+                  </TabsTrigger>
+
+                  <TabsTrigger
+                    value="url"
+                    type="button"
+                    className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      isDark
+                        ? 'text-gray-300 hover:text-white data-[state=active]:bg-cyan-700 data-[state=active]:text-white'
+                        : 'text-gray-600 hover:text-black data-[state=active]:bg-cyan-700 data-[state=active]:text-white'
+                    }`}
+                  >
+                    <LinkIcon size={14} />
+                    <span>Image URL</span>
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="upload" className="mt-1 outline-none">
+                  <label
+                    htmlFor="imageUpload"
+                    className={`flex items-center justify-center gap-2 px-3 py-3 rounded-[.8rem] text-xs font-medium border border-dashed cursor-pointer transition-colors ${
+                      isDark
+                        ? 'border-gray-700 hover:border-cyan-500 bg-neutral-900/60 text-gray-200'
+                        : 'border-gray-300 hover:border-cyan-600 bg-white text-gray-800'
+                    }`}
+                  >
+                    <Upload size={14} />
+                    <span>
+                      {isUploading ? 'Uploading...' : 'Choose file (Max 5MB)'}
+                    </span>
+                    <input
+                      id="imageUpload"
+                      accept="image/*"
+                      type="file"
+                      className="hidden"
+                      disabled={isUploading}
+                      onChange={handleImageUpload}
+                    />
+                  </label>
+                </TabsContent>
+
+                <TabsContent value="url" className="mt-1 outline-none">
+                  <Input
+                    id="profilePictureUrlInput"
+                    type="url"
+                    placeholder="Paste image URL (https://...)"
+                    value={watch('profilePicture') || ''}
+                    onChange={e => {
+                      clearErrors('profilePicture');
+                      setValue('profilePicture', e.target.value, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                    }}
+                    className={`h-[3.8rem] rounded-[.8rem] text-xs focus:outline-none focus:ring-2 focus:ring-cyan-600 focus:border-cyan-600 transition-all duration-200 ${
+                      isDark
+                        ? 'bg-black text-white border-cyan-700/70'
+                        : 'bg-white text-black'
+                    }`}
                   />
-                )}
-              </div>
-            </Label>
+                </TabsContent>
+              </Tabs>
 
-            {/* Thick wave arcs and straight line design with animation on isLoading */}
-            <div
-              className={`flex-1 flex items-center h-[10rem] ml-3 text-cyan-800 dark:text-cyan-400 min-w-0 pr-1 transition-all duration-300 ${
-                isLoading ? 'animate-pulse' : ''
-              }`}
-            >
-              <svg
-                viewBox="0 0 72 100"
-                className={`h-[10rem] w-[7.2rem] shrink-0 transition-all duration-300 ${
-                  isLoading
-                    ? 'text-green-500 dark:text-green-400 scale-105'
-                    : ''
-                }`}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="4"
-                strokeLinecap="round"
-              >
-                <path
-                  d="M 6 15 Q 38 50 6 85"
-                  className={isLoading ? 'animate-pulse' : ''}
-                />
-                <path
-                  d="M 22 22 Q 54 50 22 78"
-                  className={isLoading ? 'animate-pulse' : ''}
-                />
-                <path
-                  d="M 38 29 Q 70 50 38 71"
-                  className={isLoading ? 'animate-pulse' : ''}
-                />
-                <path
-                  d="M 54 36 Q 86 50 54 64"
-                  className={isLoading ? 'animate-pulse' : ''}
-                />
-              </svg>
-
-              <div className="flex-1 h-[4px] relative overflow-hidden bg-cyan-800 dark:bg-cyan-400 rounded-full -ml-[2px]">
-                {isLoading && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-400 to-transparent animate-shimmer bg-[length:200%_100%]" />
-                )}
-              </div>
-
-              <div
-                className={`w-[4px] h-[6rem] bg-cyan-800 dark:bg-cyan-400 rounded-full shrink-0 transition-all duration-300 ${
-                  isLoading
-                    ? 'bg-green-500 dark:bg-green-400 shadow-[0_0_12px_rgba(34,197,94,0.8)] scale-y-110'
-                    : ''
-                }`}
-              />
+              {errors?.profilePicture && (
+                <p className="text-red-600 font-[400] text-[1.2rem] mt-1">
+                  {errors.profilePicture?.message as string}
+                </p>
+              )}
             </div>
           </div>
-          {!watch('profilePicture') && (
+          {!watch('profilePicture') && !errors?.profilePicture && (
             <div className="text-red-600 text-[1rem] mt-1">
               Profile Picture is Required !
             </div>

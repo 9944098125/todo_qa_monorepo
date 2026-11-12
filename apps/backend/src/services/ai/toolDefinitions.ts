@@ -149,7 +149,7 @@ const toolCategoryTools: OpenAI.ChatCompletionTool[] = [
     function: {
       name: "list_user_tools",
       description:
-        "Retrieve all Tool categories created by the authenticated user.",
+        "Retrieve all Tool categories created by the authenticated user, including their name, slug, color, description, and logo image URL.",
       parameters: { type: "object", properties: {} },
     },
   },
@@ -158,16 +158,24 @@ const toolCategoryTools: OpenAI.ChatCompletionTool[] = [
     function: {
       name: "propose_create_tool",
       description:
-        "Propose creating a new Tool category for organizing QA items.",
+        "Propose creating a new Tool category for organizing QA items, optionally including a logo/image URL.",
       parameters: {
         type: "object",
         properties: {
-          name: { type: "string" },
-          slug: { type: "string" },
+          name: { type: "string", description: "Display name of the tool." },
+          slug: {
+            type: "string",
+            description: "URL-friendly lowercase slug (e.g. 'docker').",
+          },
           color: { type: "string", default: "#3b82f6" },
           description: { type: "string" },
+          image: {
+            type: "string",
+            description:
+              "Optional logo or image URL for the tool (e.g. 'https://example.com/logo.png').",
+          },
         },
-        required: ["name", "slug"],
+        required: ["name"],
       },
     },
   },
@@ -175,17 +183,36 @@ const toolCategoryTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "propose_update_tool",
-      description: "Propose updating an existing Tool category.",
+      description:
+        "Propose updating an existing Tool category (including name, slug, color, description, or logo/image URL). Can lookup by toolId or searchName.",
       parameters: {
         type: "object",
         properties: {
-          toolId: { type: "string" },
-          name: { type: "string" },
-          slug: { type: "string" },
-          color: { type: "string" },
-          description: { type: "string" },
+          toolId: {
+            type: "string",
+            description: "The MongoDB ObjectId of the tool if known.",
+          },
+          searchName: {
+            type: "string",
+            description:
+              "Current name of the tool to update if toolId is unknown.",
+          },
+          name: {
+            type: "string",
+            description: "New display name for the tool.",
+          },
+          slug: {
+            type: "string",
+            description: "New lowercase slug for the tool.",
+          },
+          color: { type: "string", description: "New hex color code." },
+          description: { type: "string", description: "New description." },
+          image: {
+            type: "string",
+            description:
+              "New logo or image URL for the tool (e.g. 'https://example.com/logo.png').",
+          },
         },
-        required: ["toolId"],
       },
     },
   },
@@ -213,16 +240,63 @@ const qaTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "list_qa_items",
-      description: "Query Question & Answer knowledge base records.",
+      description:
+        "Query Question & Answer knowledge base records. Supports filtering by tool/category, importance level ('all', 'Very Important', 'Important', 'Not Important'), keyword search, and sorting ('new-to-old' or 'old-to-new').",
       parameters: {
         type: "object",
         properties: {
-          toolId: { type: "string" },
+          toolId: {
+            type: "string",
+            description: "Optional Tool/Category ObjectId.",
+          },
+          toolName: {
+            type: "string",
+            description:
+              "Optional Tool/Category name (e.g. 'React', 'Docker') if toolId is unknown.",
+          },
           importance: {
             type: "string",
-            enum: ["Important", "Very Important", "Not Important"],
+            enum: ["all", "Important", "Very Important", "Not Important"],
+            description:
+              "Filter by importance level. Use 'all' or omit for all importance levels.",
           },
-          search: { type: "string" },
+          sort: {
+            type: "string",
+            enum: ["new-to-old", "old-to-new"],
+            description:
+              "Sort order by creation date: 'new-to-old' (newest first, default) or 'old-to-new' (oldest first).",
+          },
+          search: {
+            type: "string",
+            description: "Keyword to search in question or answer.",
+          },
+          limit: {
+            type: "number",
+            description: "Maximum QA items to return (default 20, max 50).",
+          },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "set_qa_filters",
+      description:
+        "Update the active sort order ('new-to-old' or 'old-to-new') and/or importance filter ('all', 'Important', 'Very Important', 'Not Important') on the QA page UI.",
+      parameters: {
+        type: "object",
+        properties: {
+          sort: {
+            type: "string",
+            enum: ["new-to-old", "old-to-new"],
+            description: "Sort order to apply on the QA page.",
+          },
+          importance: {
+            type: "string",
+            enum: ["all", "Important", "Very Important", "Not Important"],
+            description: "Importance filter to apply on the QA page.",
+          },
         },
       },
     },
@@ -293,19 +367,40 @@ const qaTools: OpenAI.ChatCompletionTool[] = [
 ];
 
 /**
- * 4. ADMIN USER TOOLS
+ * 4. USER MANAGEMENT & PROFILE TOOLS
  */
-const adminUserTools: OpenAI.ChatCompletionTool[] = [
+const userTools: OpenAI.ChatCompletionTool[] = [
   {
     type: "function",
     function: {
-      name: "admin_list_users",
-      description: "ADMIN ONLY: List registered users in the application.",
+      name: "get_my_profile",
+      description:
+        "Get the authenticated user's own profile details (name, email, phone, bio, profilePicture) as displayed on the Profile tab.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "propose_update_my_profile",
+      description:
+        "Propose updating the authenticated user's own profile on the Profile tab (name, email, phone, bio, or profilePicture image URL). Generates a staged proposal for user confirmation.",
       parameters: {
         type: "object",
         properties: {
-          limit: { type: "number", default: 10 },
-          search: { type: "string" },
+          name: { type: "string", description: "New display name." },
+          email: { type: "string", description: "New email address." },
+          phone: { type: "string", description: "New phone number." },
+          bio: { type: "string", description: "New bio text." },
+          profilePicture: {
+            type: "string",
+            description:
+              "New profile picture image URL (e.g. 'https://example.com/avatar.jpg').",
+          },
+          image: {
+            type: "string",
+            description: "Alias for profilePicture image URL.",
+          },
         },
       },
     },
@@ -313,13 +408,20 @@ const adminUserTools: OpenAI.ChatCompletionTool[] = [
   {
     type: "function",
     function: {
-      name: "admin_get_user",
-      description: "ADMIN ONLY: Get full account details of a specific user.",
+      name: "list_users",
+      description:
+        "List or search registered users in the application, returning their names, emails, phones, profile pictures, and admin roles.",
       parameters: {
         type: "object",
         properties: {
-          userId: { type: "string" },
-          email: { type: "string" },
+          search: {
+            type: "string",
+            description: "Optional keyword to search in name or email.",
+          },
+          limit: {
+            type: "number",
+            description: "Maximum users to return (default 10, max 50).",
+          },
         },
       },
     },
@@ -327,53 +429,124 @@ const adminUserTools: OpenAI.ChatCompletionTool[] = [
   {
     type: "function",
     function: {
-      name: "admin_propose_create_user",
-      description: "ADMIN ONLY: Propose creating a new user account.",
+      name: "get_user_details",
+      description:
+        "Get account details of a specific user by userId, email, or name.",
       parameters: {
         type: "object",
         properties: {
-          name: { type: "string" },
-          email: { type: "string" },
-          password: { type: "string" },
-          phone: { type: "string" },
-          bio: { type: "string" },
-          isAdmin: { type: "boolean", default: false },
+          userId: { type: "string", description: "MongoDB ObjectId." },
+          email: { type: "string", description: "User email address." },
+          name: { type: "string", description: "User name." },
         },
-        required: ["name", "email", "password", "phone"],
       },
     },
   },
   {
     type: "function",
     function: {
-      name: "admin_propose_update_user",
-      description: "ADMIN ONLY: Propose updating a user's details.",
+      name: "propose_create_user",
+      description:
+        "Propose creating a new user account with details and an optional profile picture / avatar image URL.",
       parameters: {
         type: "object",
         properties: {
-          targetUserId: { type: "string" },
-          name: { type: "string" },
-          email: { type: "string" },
-          phone: { type: "string" },
-          bio: { type: "string" },
-          isAdmin: { type: "boolean" },
+          name: { type: "string", description: "Full name of the user." },
+          email: {
+            type: "string",
+            description: "Email address of the user.",
+          },
+          profilePicture: {
+            type: "string",
+            description:
+              "Optional profile picture or avatar image URL (e.g. 'https://example.com/avatar.jpg').",
+          },
+          image: {
+            type: "string",
+            description: "Alias for profilePicture image URL.",
+          },
+          phone: {
+            type: "string",
+            description: "Phone number (e.g. '+919876543210').",
+          },
+          password: {
+            type: "string",
+            description:
+              "Account password (defaults to 'Password@123' if omitted).",
+          },
+          bio: { type: "string", description: "User biography." },
+          isAdmin: {
+            type: "boolean",
+            description:
+              "Whether this user has admin role (defaults to false).",
+          },
         },
-        required: ["targetUserId"],
+        required: ["name"],
       },
     },
   },
   {
     type: "function",
     function: {
-      name: "admin_propose_delete_user",
-      description: "ADMIN ONLY: Propose deleting a user account.",
+      name: "propose_update_user",
+      description:
+        "Propose updating an existing user's details, including their profile picture / avatar image URL. Can lookup by targetUserId, searchName, or searchEmail.",
       parameters: {
         type: "object",
         properties: {
-          targetUserId: { type: "string" },
-          userName: { type: "string" },
+          targetUserId: {
+            type: "string",
+            description: "The MongoDB ObjectId of the user if known.",
+          },
+          searchName: {
+            type: "string",
+            description: "Name of the user to update (e.g. 'John').",
+          },
+          searchEmail: {
+            type: "string",
+            description:
+              "Email of the user to update (e.g. 'john@example.com').",
+          },
+          name: { type: "string", description: "New name for the user." },
+          email: { type: "string", description: "New email for the user." },
+          profilePicture: {
+            type: "string",
+            description:
+              "New profile picture or avatar image URL (e.g. 'https://example.com/avatar.jpg').",
+          },
+          image: {
+            type: "string",
+            description: "Alias for profilePicture image URL.",
+          },
+          phone: { type: "string", description: "New phone number." },
+          bio: { type: "string", description: "New bio text." },
+          isAdmin: { type: "boolean", description: "Update admin status." },
         },
-        required: ["targetUserId"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "propose_delete_user",
+      description:
+        "Propose deleting a user account by targetUserId, email, or userName. Requires user confirmation.",
+      parameters: {
+        type: "object",
+        properties: {
+          targetUserId: {
+            type: "string",
+            description: "The MongoDB ObjectId of the user if known.",
+          },
+          userName: {
+            type: "string",
+            description: "Name of the user to delete.",
+          },
+          email: {
+            type: "string",
+            description: "Email of the user to delete.",
+          },
+        },
       },
     },
   },
@@ -408,17 +581,38 @@ const executionTools: OpenAI.ChatCompletionTool[] = [
   },
 ];
 
+const uiTools: OpenAI.ChatCompletionTool[] = [
+  {
+    type: "function",
+    function: {
+      name: "set_theme",
+      description:
+        "Change or toggle the UI application theme between light mode and dark mode.",
+      parameters: {
+        type: "object",
+        properties: {
+          theme: {
+            type: "string",
+            enum: ["light", "dark", "toggle"],
+            description:
+              "The target theme ('light', 'dark') or 'toggle' to flip the current theme.",
+          },
+        },
+        required: ["theme"],
+      },
+    },
+  },
+];
+
 export function getAvailableTools(
   isAdmin: boolean,
 ): OpenAI.ChatCompletionTool[] {
-  const baseTools = [
+  return [
     ...todoTools,
     ...toolCategoryTools,
     ...qaTools,
+    ...userTools,
+    ...uiTools,
     ...executionTools,
   ];
-  if (isAdmin) {
-    return [...baseTools, ...adminUserTools];
-  }
-  return baseTools;
 }

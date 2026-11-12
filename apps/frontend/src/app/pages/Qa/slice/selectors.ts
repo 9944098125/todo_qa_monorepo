@@ -13,3 +13,13 @@ export const selectEditableQa = createSelector(
   [selectSlice],
   state => state.editableQa,
 );
+
+export const selectQaSortOrder = createSelector(
+  [selectSlice],
+  state => state.sortOrder || 'new-to-old',
+);
+
+export const selectQaImportanceFilter = createSelector(
+  [selectSlice],
+  state => state.importanceFilter || 'all',
+);

@@ -4,7 +4,11 @@ import Tool from "../models/Tool";
 import { openai, AI_MODEL } from "../services/ai/openRouterClient";
 import { buildSystemPrompt } from "../services/ai/systemPrompt";
 import { getAvailableTools } from "../services/ai/toolDefinitions";
-import { executeToolCall, ProposalPayload } from "../services/ai/toolExecutor";
+import {
+  executeToolCall,
+  ProposalPayload,
+  QaFilterSync,
+} from "../services/ai/toolExecutor";
 import { sendError, sendSuccess } from "../helpers/response";
 
 /**
@@ -40,7 +44,7 @@ export const handleAiChat = async (
     // 1. Fetch user profile and available categories
     const [userDoc, tools] = await Promise.all([
       User.findById(userId).select("name email isAdmin"),
-      Tool.find({ userId }).select("_id name slug color"),
+      Tool.find({ userId }).select("_id name slug color image"),
     ]);
 
     const isAdmin = Boolean(userDoc?.isAdmin ?? userPayload.isAdmin);
@@ -56,6 +60,7 @@ export const handleAiChat = async (
         name: t.name,
         slug: t.slug,
         color: t.color,
+        image: t.image,
       })),
     });
 
@@ -90,6 +95,9 @@ export const handleAiChat = async (
     let generatedProposal: ProposalPayload | undefined;
     let wasExecuted = false;
     let executedModule: string | undefined;
+    let qaFilters: QaFilterSync | undefined;
+    let updatedUser: any = undefined;
+    let targetTheme: "light" | "dark" | "toggle" | undefined;
 
     // Multi-step tool execution loop (up to 5 iterations)
     let iterations = 0;
@@ -109,6 +117,8 @@ export const handleAiChat = async (
           proposal,
           executed,
           executedModule: mod,
+          qaFilters: nextQaFilters,
+          theme: nextTheme,
         } = await executeToolCall(
           toolCall.function.name,
           toolCall.function.arguments,
@@ -119,6 +129,15 @@ export const handleAiChat = async (
         if (executed) {
           wasExecuted = true;
           executedModule = mod;
+        }
+        if (nextQaFilters) {
+          qaFilters = { ...(qaFilters || {}), ...nextQaFilters };
+        }
+        if (nextTheme) {
+          targetTheme = nextTheme;
+        }
+        if (toolResult?.updatedUser) {
+          updatedUser = toolResult.updatedUser;
         }
 
         messages.push({
@@ -152,6 +171,9 @@ export const handleAiChat = async (
       proposal: generatedProposal || null,
       executed: wasExecuted,
       executedModule: executedModule || null,
+      updatedUser: updatedUser || null,
+      qaFilters: qaFilters || null,
+      theme: targetTheme || null,
       model: AI_MODEL,
       isAdmin,
     });

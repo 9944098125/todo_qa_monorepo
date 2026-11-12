@@ -12,11 +12,8 @@ export function Navbar() {
   const { actions: aiActions } = useAiSlice();
   const dispatch = useDispatch();
 
-  const [isDark, setIsDark] = useState<boolean>(true);
-
   const toggleTheme = () => {
-    setIsDark(prev => !prev);
-    dispatch(globalActions.setTheme(isDark ? 'dark' : 'light'));
+    dispatch(globalActions.setTheme(themeState === 'dark' ? 'light' : 'dark'));
   };
 
   const openAiAssistant = () => {

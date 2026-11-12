@@ -33,10 +33,13 @@ export interface ProposedToolItem {
   slug: string;
   color: string; // Hex color code e.g. "#3b82f6"
   description?: string;
+  image?: string;
   original?: {
     name: string;
     slug: string;
     color: string;
+    image?: string;
+    description?: string;
   };
   updates?: Partial<ProposedToolItem>;
 }
@@ -69,11 +72,17 @@ export interface ProposedUserItem {
   email: string;
   password?: string;
   phone: string;
+  profilePicture?: string;
+  image?: string;
   bio?: string;
   isAdmin: boolean;
   original?: {
     name: string;
     email: string;
+    phone?: string;
+    profilePicture?: string;
+    image?: string;
+    bio?: string;
     isAdmin?: boolean;
   };
   updates?: Partial<ProposedUserItem>;
@@ -134,6 +143,12 @@ export interface AiChatResponse {
       proposal: AiProposedAction | null;
       executed: any;
       executedModule: any;
+      updatedUser?: any;
+      qaFilters?: {
+        sort?: 'new-to-old' | 'old-to-new';
+        importance?: 'all' | 'Important' | 'Very Important' | 'Not Important';
+      } | null;
+      theme?: 'light' | 'dark' | 'toggle' | null;
     };
   };
   meta: {

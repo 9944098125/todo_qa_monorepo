@@ -20,11 +20,18 @@ export interface ProposalPayload {
   isDestructive: boolean;
 }
 
+export interface QaFilterSync {
+  sort?: "new-to-old" | "old-to-new";
+  importance?: "all" | "Important" | "Very Important" | "Not Important";
+}
+
 export interface ToolExecutionResult {
   toolResult: any;
   proposal?: ProposalPayload;
   executed?: boolean;
   executedModule?: string;
+  qaFilters?: QaFilterSync;
+  theme?: "light" | "dark" | "toggle";
 }
 
 interface StagedProposalEntry {
@@ -99,7 +106,13 @@ export async function executeToolCall(
   }
 
   // Strict Server-Side RBAC Gatekeeper
-  if (toolName.startsWith("admin_") && !context.isAdmin) {
+  if (
+    (toolName === "propose_delete_user" ||
+      toolName === "admin_propose_delete_user" ||
+      toolName === "propose_create_user" ||
+      toolName === "admin_propose_create_user") &&
+    !context.isAdmin
+  ) {
     return {
       toolResult: {
         error:
@@ -363,7 +376,7 @@ export async function executeToolCall(
      */
     case "list_user_tools": {
       const tools = await Tool.find({ userId: context.userId }).select(
-        "_id name slug color description",
+        "_id name slug color description image",
       );
       return {
         toolResult: {
@@ -373,6 +386,7 @@ export async function executeToolCall(
             name: t.name,
             slug: t.slug,
             color: t.color,
+            image: t.image || "",
             description: t.description,
           })),
         },
@@ -381,18 +395,29 @@ export async function executeToolCall(
 
     case "propose_create_tool": {
       const name = String(args.name || "").trim();
-      const slug = String(
-        args.slug || name.toLowerCase().replace(/\s+/g, "-"),
-      ).trim();
+      const slug = String(args.slug || name.toLowerCase().replace(/\s+/g, "-"))
+        .trim()
+        .toLowerCase();
       const color = args.color || "#3b82f6";
       const description = String(args.description || "").trim();
+      const rawImage = args.image ?? args.logoUrl ?? args.logo;
+      const image = typeof rawImage === "string" ? rawImage.trim() : "";
+
+      if (image && !/^(https?:\/\/|\/|data:image\/)/i.test(image)) {
+        return {
+          toolResult: {
+            error:
+              "Invalid tool image URL. Please provide a valid http/https image URL.",
+          },
+        };
+      }
 
       const proposal: ProposalPayload = {
         proposalId: `prop_${uuidv4()}`,
         module: "TOOL",
         actionType: "CREATE",
-        items: [{ name, slug, color, description }],
-        summary: `Create Tool Category: "${name}"`,
+        items: [{ name, slug, color, description, image }],
+        summary: `Create Tool Category: "${name}"${image ? " (with logo)" : ""}`,
         isDestructive: false,
       };
 
@@ -415,11 +440,14 @@ export async function executeToolCall(
           _id: args.toolId,
           userId: context.userId,
         });
-      } else if (args.searchName || args.name) {
-        const lookup = (args.searchName || args.name).trim();
+      } else if (args.searchName || args.toolName || args.name) {
+        const lookup = String(
+          args.searchName || args.toolName || args.name,
+        ).trim();
+        const escapedLookup = lookup.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         existing = await Tool.findOne({
           userId: context.userId,
-          name: { $regex: new RegExp(lookup, "i") },
+          name: { $regex: new RegExp(escapedLookup, "i") },
         });
       }
 
@@ -427,12 +455,36 @@ export async function executeToolCall(
         return { toolResult: { error: `Tool category not found.` } };
       }
 
+      const rawImage = args.image ?? args.logoUrl ?? args.logo;
+      if (
+        typeof rawImage === "string" &&
+        rawImage.trim() &&
+        !/^(https?:\/\/|\/|data:image\/)/i.test(rawImage.trim())
+      ) {
+        return {
+          toolResult: {
+            error:
+              "Invalid tool image URL. Please provide a valid http/https image URL.",
+          },
+        };
+      }
+
       const updates: any = {};
-      if (args.name) updates.name = args.name.trim();
-      if (args.slug) updates.slug = args.slug.trim().toLowerCase();
+      if (
+        typeof args.name === "string" &&
+        args.name.trim() &&
+        (args.searchName ||
+          args.toolName ||
+          args.toolId ||
+          args.name.trim() !== existing.name)
+      ) {
+        updates.name = args.name.trim();
+      }
+      if (args.slug) updates.slug = String(args.slug).trim().toLowerCase();
       if (args.color) updates.color = args.color;
       if (typeof args.description === "string")
         updates.description = args.description;
+      if (typeof rawImage === "string") updates.image = rawImage.trim();
 
       const proposal: ProposalPayload = {
         proposalId: `prop_${uuidv4()}`,
@@ -445,11 +497,13 @@ export async function executeToolCall(
               name: existing.name,
               slug: existing.slug,
               color: existing.color,
+              image: existing.image || "",
+              description: existing.description || "",
             },
             updates,
           },
         ],
-        summary: `Update Tool Category: "${existing.name}"`,
+        summary: `Update Tool Category: "${existing.name}"${updates.image !== undefined ? " (logo updated)" : ""}`,
         isDestructive: false,
       };
 
@@ -509,8 +563,32 @@ export async function executeToolCall(
      */
     case "list_qa_items": {
       const filter: any = { userId: context.userId };
-      if (args.toolId) filter.toolId = args.toolId;
-      if (args.importance) filter.importance = args.importance;
+
+      if (args.toolId) {
+        filter.toolId = args.toolId;
+      } else if (args.toolName) {
+        const matchedTool = await Tool.findOne({
+          userId: context.userId,
+          name: { $regex: new RegExp(String(args.toolName).trim(), "i") },
+        }).select("_id");
+        if (!matchedTool) {
+          return {
+            toolResult: {
+              error: `No tool category found matching "${args.toolName}".`,
+            },
+          };
+        }
+        filter.toolId = matchedTool._id.toString();
+      }
+
+      if (
+        args.importance &&
+        typeof args.importance === "string" &&
+        args.importance.toLowerCase() !== "all"
+      ) {
+        filter.importance = args.importance;
+      }
+
       if (args.search) {
         filter.$or = [
           { question: { $regex: args.search, $options: "i" } },
@@ -518,20 +596,85 @@ export async function executeToolCall(
         ];
       }
 
-      const qaList = await Qa.find(filter)
-        .limit(20)
-        .select("_id question answer importance toolId");
+      const sortParam =
+        args.sort === "old-to-new" ? "old-to-new" : "new-to-old";
+      const sortDirection = sortParam === "old-to-new" ? 1 : -1;
+      const limit = Math.min(Math.max(Number(args.limit) || 20, 1), 50);
+
+      const [totalMatchingCount, qaList] = await Promise.all([
+        Qa.countDocuments(filter),
+        Qa.find(filter)
+          .sort({ createdAt: sortDirection })
+          .limit(limit)
+          .select("_id question answer importance toolId createdAt"),
+      ]);
+
       return {
         toolResult: {
-          count: qaList.length,
+          totalMatchingCount,
+          returnedCount: qaList.length,
+          sortOrder: sortParam,
+          importanceFilter: args.importance || "all",
           qaItems: qaList.map((q) => ({
             id: q._id.toString(),
             question: q.question,
             answer: q.answer,
             importance: q.importance,
             toolId: q.toolId,
+            createdAt: (q as any).createdAt,
           })),
         },
+      };
+    }
+
+    case "set_qa_filters": {
+      const nextFilters: QaFilterSync = {};
+      if (args.sort === "new-to-old" || args.sort === "old-to-new") {
+        nextFilters.sort = args.sort;
+      }
+      if (
+        args.importance &&
+        ["all", "Important", "Very Important", "Not Important"].includes(
+          args.importance,
+        )
+      ) {
+        nextFilters.importance = args.importance;
+      }
+
+      if (!nextFilters.sort && !nextFilters.importance) {
+        return {
+          toolResult: {
+            error:
+              "Please specify either a valid sort order or importance filter.",
+          },
+        };
+      }
+
+      return {
+        toolResult: {
+          status: "UI_FILTERS_UPDATED",
+          qaFilters: nextFilters,
+        },
+        qaFilters: nextFilters,
+      };
+    }
+
+    case "set_theme": {
+      const theme = args.theme;
+      if (!["light", "dark", "toggle"].includes(theme)) {
+        return {
+          toolResult: {
+            error: "Invalid theme. Must be 'light', 'dark', or 'toggle'.",
+          },
+        };
+      }
+
+      return {
+        toolResult: {
+          status: "THEME_UPDATED",
+          theme,
+        },
+        theme,
       };
     }
 
@@ -696,68 +839,73 @@ export async function executeToolCall(
     }
 
     /**
-     * ─── ADMIN USER DOMAIN ────────────────────────────────────
+     * ─── USER & PROFILE DOMAIN ────────────────────────────────
      */
-    case "admin_list_users": {
-      const filter: any = {};
-      if (args.search) {
-        filter.$or = [
-          { name: { $regex: args.search, $options: "i" } },
-          { email: { $regex: args.search, $options: "i" } },
-        ];
+    case "get_my_profile": {
+      const user = await User.findById(context.userId).select("-password");
+      if (!user) return { toolResult: { error: "User profile not found." } };
+      return { toolResult: { profile: user } };
+    }
+
+    case "propose_update_my_profile": {
+      const existing = await User.findById(context.userId);
+      if (!existing)
+        return { toolResult: { error: "User profile not found." } };
+
+      const rawPic =
+        args.profilePicture ??
+        args.image ??
+        args.imageUrl ??
+        args.avatar ??
+        args.avatarUrl ??
+        args.logo ??
+        args.logoUrl;
+
+      if (typeof rawPic === "string" && rawPic.trim()) {
+        const cleanPic = rawPic.trim();
+        if (!/^(https?:\/\/|\/|data:image\/)/i.test(cleanPic)) {
+          return {
+            toolResult: {
+              error:
+                "Invalid profile picture URL. Please provide a valid http/https image URL.",
+            },
+          };
+        }
       }
-      const users = await User.find(filter)
-        .sort({ createdAt: -1 })
-        .limit(Number(args.limit) || 10)
-        .select("_id name email phone isAdmin createdAt");
 
-      return {
-        toolResult: {
-          count: users.length,
-          users: users.map((u) => ({
-            id: u._id.toString(),
-            name: u.name,
-            email: u.email,
-            phone: u.phone,
-            isAdmin: Boolean(u.isAdmin),
-            createdAt: u.createdAt,
-          })),
-        },
-      };
-    }
+      const updates: any = {};
+      if (
+        typeof args.name === "string" &&
+        args.name.trim() &&
+        args.name.trim() !== existing.name
+      ) {
+        updates.name = args.name.trim();
+      }
+      if (args.email && args.email.trim() !== existing.email)
+        updates.email = args.email.trim();
+      if (args.phone) updates.phone = args.phone.trim();
+      if (typeof args.bio === "string") updates.bio = args.bio;
+      if (typeof rawPic === "string") updates.profilePicture = rawPic.trim();
 
-    case "admin_get_user": {
-      const query: any = {};
-      if (args.userId && /^[0-9a-fA-F]{24}$/.test(args.userId))
-        query._id = args.userId;
-      else if (args.email) query.email = args.email.trim();
-      else
-        return {
-          toolResult: { error: "Please provide either userId or email." },
-        };
-
-      const user = await User.findOne(query).select("-password");
-      if (!user) return { toolResult: { error: "User not found." } };
-
-      return { toolResult: { user } };
-    }
-
-    case "admin_propose_create_user": {
       const proposal: ProposalPayload = {
         proposalId: `prop_${uuidv4()}`,
         module: "USER",
-        actionType: "CREATE",
+        actionType: "UPDATE",
         items: [
           {
-            name: String(args.name || "").trim(),
-            email: String(args.email || "").trim(),
-            password: String(args.password || "Password@123").trim(),
-            phone: String(args.phone || "").trim(),
-            bio: String(args.bio || "").trim(),
-            isAdmin: Boolean(args.isAdmin),
+            targetUserId: existing._id.toString(),
+            original: {
+              name: existing.name,
+              email: existing.email,
+              phone: existing.phone,
+              profilePicture: existing.profilePicture || "",
+              bio: existing.bio || "",
+              isAdmin: existing.isAdmin,
+            },
+            updates,
           },
         ],
-        summary: `Admin Create User: "${args.name}" (${args.email})`,
+        summary: `Update My Profile: "${existing.name}"${updates.profilePicture !== undefined ? " (profile picture updated)" : ""}`,
         isDestructive: false,
       };
 
@@ -773,33 +921,248 @@ export async function executeToolCall(
       };
     }
 
+    case "list_users":
+    case "admin_list_users": {
+      const filter: any = {};
+      if (args.search) {
+        filter.$or = [
+          { name: { $regex: args.search, $options: "i" } },
+          { email: { $regex: args.search, $options: "i" } },
+        ];
+      }
+      const limit = Math.min(Math.max(Number(args.limit) || 10, 1), 50);
+      const [totalMatchingCount, users] = await Promise.all([
+        User.countDocuments(filter),
+        User.find(filter)
+          .sort({ createdAt: -1 })
+          .limit(limit)
+          .select("_id name email phone profilePicture isAdmin createdAt"),
+      ]);
+
+      return {
+        toolResult: {
+          totalMatchingCount,
+          returnedCount: users.length,
+          users: users.map((u) => ({
+            id: u._id.toString(),
+            name: u.name,
+            email: u.email,
+            phone: u.phone,
+            profilePicture: u.profilePicture || "",
+            isAdmin: Boolean(u.isAdmin),
+            createdAt: u.createdAt,
+          })),
+        },
+      };
+    }
+
+    case "get_user_details":
+    case "admin_get_user": {
+      const query: any = {};
+      if (args.userId && /^[0-9a-fA-F]{24}$/.test(args.userId)) {
+        query._id = args.userId;
+      } else if (args.email) {
+        query.email = args.email.trim();
+      } else if (args.name) {
+        query.name = { $regex: new RegExp(args.name.trim(), "i") };
+      } else {
+        query._id = context.userId;
+      }
+
+      const user = await User.findOne(query).select("-password");
+      if (!user) return { toolResult: { error: "User not found." } };
+
+      return { toolResult: { user } };
+    }
+
+    case "propose_create_user":
+    case "admin_propose_create_user": {
+      if (!context.isAdmin) {
+        return {
+          toolResult: {
+            error:
+              "ACCESS DENIED: Administrator privileges are required to create new users.",
+          },
+        };
+      }
+
+      const name = String(args.name || "").trim();
+      if (!name) {
+        return { toolResult: { error: "User name is required." } };
+      }
+
+      const rawPic =
+        args.profilePicture ??
+        args.image ??
+        args.imageUrl ??
+        args.avatar ??
+        args.avatarUrl ??
+        args.logo ??
+        args.logoUrl;
+      const profilePicture = typeof rawPic === "string" ? rawPic.trim() : "";
+
+      if (
+        profilePicture &&
+        !/^(https?:\/\/|\/|data:image\/)/i.test(profilePicture)
+      ) {
+        return {
+          toolResult: {
+            error:
+              "Invalid profile picture URL. Please provide a valid http/https image URL.",
+          },
+        };
+      }
+
+      const cleanEmail =
+        args.email && String(args.email).trim()
+          ? String(args.email).trim()
+          : `${name.toLowerCase().replace(/[^a-z0-9]/g, "")}${Math.floor(100 + Math.random() * 900)}@example.com`;
+
+      const cleanPhone =
+        args.phone && String(args.phone).trim()
+          ? String(args.phone).trim()
+          : `+919${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+      const proposal: ProposalPayload = {
+        proposalId: `prop_${uuidv4()}`,
+        module: "USER",
+        actionType: "CREATE",
+        items: [
+          {
+            name,
+            email: cleanEmail,
+            password: String(args.password || "Password@123").trim(),
+            phone: cleanPhone,
+            profilePicture,
+            bio: String(args.bio || "").trim(),
+            isAdmin: Boolean(args.isAdmin),
+          },
+        ],
+        summary: `Create User: "${name}" (${cleanEmail})${profilePicture ? " (with profile picture)" : ""}`,
+        isDestructive: false,
+      };
+
+      stageProposal(context.userId, proposal);
+
+      return {
+        toolResult: {
+          status: "STAGED",
+          proposalId: proposal.proposalId,
+          summary: proposal.summary,
+        },
+        proposal,
+      };
+    }
+
+    case "propose_update_user":
     case "admin_propose_update_user": {
       let targetUser: any = null;
       if (args.targetUserId && /^[0-9a-fA-F]{24}$/.test(args.targetUserId)) {
         targetUser = await User.findById(args.targetUserId);
       } else if (args.searchEmail || args.email) {
+        const emailLookup = (args.searchEmail || args.email).trim();
         targetUser = await User.findOne({
-          email: (args.searchEmail || args.email).trim(),
+          email: {
+            $regex: new RegExp(
+              `^${emailLookup.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+              "i",
+            ),
+          },
         });
       }
 
-      if (!targetUser)
-        return { toolResult: { error: "Target user not found." } };
+      if (!targetUser) {
+        const nameLookup = String(
+          args.searchName || args.userName || args.name || "",
+        ).trim();
+        if (nameLookup) {
+          targetUser = await User.findOne({
+            name: {
+              $regex: new RegExp(
+                nameLookup.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+                "i",
+              ),
+            },
+          });
+        }
+      }
 
-      if (targetUser.isAdmin) {
+      // If user says "update my profile picture to https://..." without naming anyone, target current user
+      if (
+        !targetUser &&
+        !args.targetUserId &&
+        !args.searchName &&
+        !args.userName &&
+        !args.searchEmail
+      ) {
+        targetUser = await User.findById(context.userId);
+      }
+
+      if (!targetUser) {
+        return { toolResult: { error: "Target user not found." } };
+      }
+
+      if (!context.isAdmin && targetUser._id.toString() !== context.userId) {
         return {
           toolResult: {
-            error: `Security Rule: "${targetUser.name}" is also an admin, so changes are restricted.`,
+            error:
+              "ACCESS DENIED: Administrator privileges are required to update other users.",
           },
         };
       }
 
+      if (
+        context.isAdmin &&
+        targetUser.isAdmin &&
+        targetUser._id.toString() !== context.userId &&
+        args.isAdmin === false
+      ) {
+        return {
+          toolResult: {
+            error: `Security Rule: "${targetUser.name}" is also an admin, so demoting their admin status is restricted.`,
+          },
+        };
+      }
+
+      const rawPic =
+        args.profilePicture ??
+        args.image ??
+        args.imageUrl ??
+        args.avatar ??
+        args.avatarUrl ??
+        args.logo ??
+        args.logoUrl;
+
+      if (typeof rawPic === "string" && rawPic.trim()) {
+        const cleanPic = rawPic.trim();
+        if (!/^(https?:\/\/|\/|data:image\/)/i.test(cleanPic)) {
+          return {
+            toolResult: {
+              error:
+                "Invalid profile picture URL. Please provide a valid http/https image URL.",
+            },
+          };
+        }
+      }
+
       const updates: any = {};
-      if (args.name) updates.name = args.name.trim();
-      if (args.email) updates.email = args.email.trim();
+      if (
+        typeof args.name === "string" &&
+        args.name.trim() &&
+        (args.searchName ||
+          args.userName ||
+          args.targetUserId ||
+          args.name.trim() !== targetUser.name)
+      ) {
+        updates.name = args.name.trim();
+      }
+      if (args.email && args.email.trim() !== targetUser.email)
+        updates.email = args.email.trim();
       if (args.phone) updates.phone = args.phone.trim();
       if (typeof args.bio === "string") updates.bio = args.bio;
-      if (typeof args.isAdmin === "boolean") updates.isAdmin = args.isAdmin;
+      if (typeof args.isAdmin === "boolean" && context.isAdmin)
+        updates.isAdmin = args.isAdmin;
+      if (typeof rawPic === "string") updates.profilePicture = rawPic.trim();
 
       const proposal: ProposalPayload = {
         proposalId: `prop_${uuidv4()}`,
@@ -811,12 +1174,15 @@ export async function executeToolCall(
             original: {
               name: targetUser.name,
               email: targetUser.email,
+              phone: targetUser.phone,
+              profilePicture: targetUser.profilePicture || "",
+              bio: targetUser.bio || "",
               isAdmin: targetUser.isAdmin,
             },
             updates,
           },
         ],
-        summary: `Admin Update User: "${targetUser.name}"`,
+        summary: `Update User: "${targetUser.name}"${updates.profilePicture !== undefined ? " (profile picture updated)" : ""}`,
         isDestructive: false,
       };
 
@@ -832,15 +1198,31 @@ export async function executeToolCall(
       };
     }
 
+    case "propose_delete_user":
     case "admin_propose_delete_user": {
+      if (!context.isAdmin) {
+        return {
+          toolResult: {
+            error:
+              "ACCESS DENIED: Administrator privileges are required to delete users.",
+          },
+        };
+      }
+
       let targetUser: any = null;
       if (args.targetUserId && /^[0-9a-fA-F]{24}$/.test(args.targetUserId)) {
         targetUser = await User.findById(args.targetUserId);
       } else if (args.email) {
         targetUser = await User.findOne({ email: args.email.trim() });
-      } else if (args.userName) {
+      } else if (args.userName || args.name) {
+        const lookup = String(args.userName || args.name).trim();
         targetUser = await User.findOne({
-          name: { $regex: new RegExp(`^${args.userName.trim()}$`, "i") },
+          name: {
+            $regex: new RegExp(
+              `^${lookup.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+              "i",
+            ),
+          },
         });
       }
 
@@ -866,7 +1248,7 @@ export async function executeToolCall(
             email: targetUser.email,
           },
         ],
-        summary: `Admin Delete User Account: "${targetUser.name}" (${targetUser.email})`,
+        summary: `Delete User Account: "${targetUser.name}" (${targetUser.email})`,
         isDestructive: true,
       };
 
@@ -926,6 +1308,8 @@ export async function executeToolCall(
         `[AI Executing] ${proposal.module} ${proposal.actionType}:`,
         proposal.items,
       );
+
+      let updatedUserDoc: any = null;
 
       // ── EXECUTE TODO MUTATIONS ──
       if (proposal.module === "TODO") {
@@ -1010,9 +1394,9 @@ export async function executeToolCall(
         }
       }
 
-      // ── EXECUTE USER MUTATIONS (ADMIN) ──
-      if (proposal.module === "USER" && context.isAdmin) {
-        if (proposal.actionType === "CREATE") {
+      // ── EXECUTE USER MUTATIONS ──
+      if (proposal.module === "USER") {
+        if (proposal.actionType === "CREATE" && context.isAdmin) {
           for (const item of proposal.items) {
             const hashedPassword = bcryptJS.hashSync(
               item.password || "Password@123",
@@ -1023,17 +1407,24 @@ export async function executeToolCall(
               email: item.email,
               password: hashedPassword,
               phone: item.phone,
-              bio: item.bio,
+              profilePicture: item.profilePicture || "",
+              bio: item.bio || "",
               isAdmin: Boolean(item.isAdmin),
             });
           }
         } else if (proposal.actionType === "UPDATE") {
           for (const item of proposal.items) {
-            await User.findByIdAndUpdate(item.targetUserId, item.updates, {
-              new: true,
-            });
+            if (context.isAdmin || item.targetUserId === context.userId) {
+              updatedUserDoc = await User.findByIdAndUpdate(
+                item.targetUserId,
+                item.updates,
+                {
+                  new: true,
+                },
+              ).select("-password");
+            }
           }
-        } else if (proposal.actionType === "DELETE") {
+        } else if (proposal.actionType === "DELETE" && context.isAdmin) {
           for (const item of proposal.items) {
             await User.findByIdAndDelete(item.targetUserId);
           }
@@ -1053,6 +1444,9 @@ export async function executeToolCall(
           status: "EXECUTED",
           message: `Successfully executed: ${proposal.summary}. Database updated.`,
           module: proposal.module,
+          updatedUser: updatedUserDoc
+            ? updatedUserDoc.toObject?.() || updatedUserDoc
+            : undefined,
         },
         executed: true,
         executedModule: proposal.module,

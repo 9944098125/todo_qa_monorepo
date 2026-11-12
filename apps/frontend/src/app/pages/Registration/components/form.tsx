@@ -8,7 +8,13 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { useForm, Controller } from 'react-hook-form';
 import { RegistrationRequest } from '../slice/types';
-import { EyeClosedIcon, EyeIcon } from 'lucide-react';
+import { EyeClosedIcon, EyeIcon, Link as LinkIcon, Upload } from 'lucide-react';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/app/components/ui/tabs';
 import { Textarea } from '@/app/components/ui/textarea';
 import { Registration } from '@/types/register';
 import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
@@ -40,6 +46,7 @@ export const RegistrationForm = () => {
     register,
     watch,
     setError,
+    clearErrors,
     setValue,
     formState: { errors },
   } = form;
@@ -48,6 +55,7 @@ export const RegistrationForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [avatarTab, setAvatarTab] = useState<'upload' | 'url'>('upload');
 
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
@@ -73,12 +81,23 @@ export const RegistrationForm = () => {
     }
 
     try {
+      clearErrors('profilePicture');
       setIsUploading(true);
 
       const imageUrl = await uploadToCloudinary(file);
-      setValue('profilePicture', imageUrl);
-    } catch (err) {
-      throw new Error(String(err));
+      setValue('profilePicture', imageUrl, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    } catch (err: any) {
+      setError('profilePicture', {
+        type: 'manual',
+        message: err?.message || 'Failed to upload image',
+      });
+      toast({
+        description: 'Failed to upload image. Please try again or paste a URL.',
+        variant: 'destructive',
+      });
     } finally {
       setIsUploading(false);
     }
@@ -290,37 +309,106 @@ export const RegistrationForm = () => {
 
           {/* Profile Picture & Bio */}
           <div className="px-4 py-2 mb-4 grid grid-cols-12 gap-4">
-            <div className="px-2 col-space-12 md:col-span-3">
-              <h4 className="text-[2.6rem] font-bold text-cyan-800">
-                Profile Pic...
+            <div className="px-2 col-span-12 md:col-span-5">
+              <h4 className="text-[2.2rem] font-bold text-cyan-800 mb-2">
+                Profile Picture
               </h4>
-              <Label htmlFor="imageUpload">
-                <Input
-                  id="imageUpload"
-                  accept="image/*"
-                  type="file"
-                  className="hidden"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleImageUpload(e)
-                  }
-                />
+              <div className="flex items-center gap-3">
                 <div
-                  className={`h-[10rem] w-[10rem] rounded-full cursor-pointer border-2 border-cyan-700 ${errors.profilePicture ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
+                  className={`h-[9rem] w-[9rem] rounded-full overflow-hidden shrink-0 border-2 ${errors.profilePicture ? 'border-red-600' : 'border-cyan-800'} relative flex items-center justify-center bg-gray-100`}
                 >
                   <img
                     src={watch('profilePicture') || '/images/avatar.webp'}
-                    alt=""
+                    alt="Preview"
                     className="w-full h-full rounded-full object-cover"
+                    onError={e => {
+                      (e.target as HTMLImageElement).src =
+                        '/images/avatar.webp';
+                    }}
                   />
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <Icons.Spinner className="h-6 w-6 animate-spin text-cyan-400" />
+                    </div>
+                  )}
                 </div>
-              </Label>
-              {!watch('profilePicture') && (
+
+                <div className="flex-1 min-w-0">
+                  <Tabs
+                    value={avatarTab}
+                    onValueChange={val => setAvatarTab(val as 'upload' | 'url')}
+                    className="w-full"
+                  >
+                    <TabsList className="p-1 rounded-xl border bg-gray-100 border-gray-200 flex gap-1 mb-2">
+                      <TabsTrigger
+                        value="upload"
+                        type="button"
+                        className="flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer data-[state=active]:bg-cyan-700 data-[state=active]:text-white text-gray-700"
+                      >
+                        <Upload size={12} />
+                        <span>Upload</span>
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="url"
+                        type="button"
+                        className="flex-1 px-2 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 cursor-pointer data-[state=active]:bg-cyan-700 data-[state=active]:text-white text-gray-700"
+                      >
+                        <LinkIcon size={12} />
+                        <span>URL</span>
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="upload" className="mt-1 outline-none">
+                      <label
+                        htmlFor="imageUpload"
+                        className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-[.8rem] text-xs font-medium border border-dashed border-gray-300 hover:border-cyan-600 bg-white text-gray-800 cursor-pointer"
+                      >
+                        <Upload size={12} />
+                        <span>
+                          {isUploading ? 'Uploading...' : 'Choose file'}
+                        </span>
+                        <input
+                          id="imageUpload"
+                          accept="image/*"
+                          type="file"
+                          className="hidden"
+                          disabled={isUploading}
+                          onChange={handleImageUpload}
+                        />
+                      </label>
+                    </TabsContent>
+
+                    <TabsContent value="url" className="mt-1 outline-none">
+                      <Input
+                        id="regProfilePicUrl"
+                        type="url"
+                        placeholder="Paste image URL (https://...)"
+                        value={watch('profilePicture') || ''}
+                        onChange={e => {
+                          clearErrors('profilePicture');
+                          setValue('profilePicture', e.target.value, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }}
+                        className="h-[3.6rem] rounded-[.8rem] text-xs focus:ring-2 focus:ring-cyan-600 focus:border-cyan-600"
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </div>
+              </div>
+              {!watch('profilePicture') && !errors?.profilePicture && (
                 <div className="text-red-600 text-[1rem] mt-1">
                   Profile Picture is Required !
                 </div>
               )}
+              {errors?.profilePicture && (
+                <div className="text-red-600 text-[1rem] mt-1">
+                  {errors.profilePicture?.message as string}
+                </div>
+              )}
             </div>
-            <div className="px-2 col-span-12 md:col-span-9">
+            <div className="px-2 col-span-12 md:col-span-7">
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 rows={4}
@@ -328,7 +416,7 @@ export const RegistrationForm = () => {
                   required: 'Bio is Required !',
                 })}
                 placeholder="Enter your Bio"
-                className={`w-full rounded-[.8rem] text-[1.8rem] ${errors?.firstName ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
+                className={`w-full rounded-[.8rem] text-[1.8rem] ${errors?.bio ? 'border-2 border-red-600' : 'border-2 border-cyan-800'}`}
               />
               {errors.bio && (
                 <div className="text-red-600 text-[1rem] mt-1">

@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Add } from './components/add';
 import { useQaSlice } from './slice';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectUser } from '@/app/slice/selectors';
-import { ToolItem } from './slice/types';
+import { selectQaImportanceFilter, selectQaSortOrder } from './slice/selectors';
+import { QaSortOrder, ToolItem } from './slice/types';
 import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { ToolItem as ToolItemComponent } from './components/tool-item';
 import { ToolContent } from './components/tool-content';
@@ -19,10 +20,16 @@ export interface QaProps {}
 
 export function Qa(props: QaProps) {
   const [searchParams] = useSearchParams();
-  const { useLazyGetQaByToolQuery } = useQaSlice();
+  const {
+    actions,
+    useGetQaNewToOldQuery,
+    useGetQaOldToNewQuery,
+    useGetQaByImportanceQuery,
+  } = useQaSlice();
+  const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  const [getQaByTool, { isFetching: isQaLoading, data, isError, error }] =
-    useLazyGetQaByToolQuery();
+  const sortOrder = useSelector(selectQaSortOrder);
+  const importanceFilter = useSelector(selectQaImportanceFilter);
   const { tools, isToolsLoading } = useOutletContext<{
     tools: ToolItem[];
     isToolsLoading: boolean;
@@ -36,19 +43,61 @@ export function Qa(props: QaProps) {
 
   const tool = tools?.find(t => t._id === toolId);
 
-  useEffect(() => {
+  const canFetch = Boolean(toolId && user?._id);
+  const isImportanceFiltered = importanceFilter !== 'all';
+
+  const newToOldResult = useGetQaNewToOldQuery(
+    {
+      toolId: toolId || '',
+      userId: user?._id || '',
+      query: { page, limit: 10 },
+    },
+    { skip: !canFetch || isImportanceFiltered || sortOrder !== 'new-to-old' },
+  );
+
+  const oldToNewResult = useGetQaOldToNewQuery(
+    {
+      toolId: toolId || '',
+      userId: user?._id || '',
+      query: { page, limit: 10 },
+    },
+    { skip: !canFetch || isImportanceFiltered || sortOrder !== 'old-to-new' },
+  );
+
+  const importanceResult = useGetQaByImportanceQuery(
+    {
+      toolId: toolId || '',
+      userId: user?._id || '',
+      query: {
+        page,
+        limit: 10,
+        importance: importanceFilter,
+        sort: sortOrder,
+      },
+    },
+    { skip: !canFetch || !isImportanceFiltered },
+  );
+
+  const activeResult = isImportanceFiltered
+    ? importanceResult
+    : sortOrder === 'old-to-new'
+      ? oldToNewResult
+      : newToOldResult;
+  const { isFetching: isQaLoading, data, isError, error } = activeResult;
+
+  const handleSortChange = (nextSort: QaSortOrder) => {
+    dispatch(actions.setSortOrder(nextSort));
     setPage(1);
-  }, [toolId]);
+  };
+
+  const handleImportanceChange = (nextImportance: string) => {
+    dispatch(actions.setImportanceFilter(nextImportance));
+    setPage(1);
+  };
 
   useEffect(() => {
-    if (toolId && user?._id) {
-      getQaByTool({
-        toolId: toolId,
-        userId: user?._id,
-        query: { page, limit: 10 },
-      });
-    }
-  }, [toolId, user?._id, page, getQaByTool]);
+    setPage(1);
+  }, [toolId, sortOrder, importanceFilter]);
 
   useEffect(() => {
     if (isError || error) {
@@ -59,15 +108,7 @@ export function Qa(props: QaProps) {
     }
   }, [isError, error]);
 
-  // Sort QA sets: first created stay first, last created stay last
-  const qaItems = useMemo(() => {
-    const docs = data?.data?.documents || [];
-    return [...docs].sort((a, b) => {
-      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return aTime - bTime;
-    });
-  }, [data?.data?.documents]);
+  const qaItems = data?.data?.documents || [];
   const totalPages = data?.data?.totalPages || 1;
 
   useEffect(() => {
@@ -94,6 +135,10 @@ export function Qa(props: QaProps) {
               tools={tools || []}
               open={openQaDialog}
               setOpen={setOpenQaDialog}
+              sortOrder={sortOrder}
+              onSortChange={handleSortChange}
+              importanceFilter={importanceFilter}
+              onImportanceChange={handleImportanceChange}
             />
           ) : null}
           {/* show the qa items according to toolId here */}

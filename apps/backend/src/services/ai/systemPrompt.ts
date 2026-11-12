@@ -2,7 +2,13 @@ export interface SystemPromptContext {
   userName: string;
   userId: string;
   isAdmin: boolean;
-  tools: Array<{ _id: string; name: string; slug: string; color?: string }>;
+  tools: Array<{
+    _id: string;
+    name: string;
+    slug: string;
+    color?: string;
+    image?: string;
+  }>;
 }
 
 /**
@@ -18,16 +24,19 @@ export function buildSystemPrompt(context: SystemPromptContext): string {
   const categoriesList =
     context.tools.length > 0
       ? context.tools
-          .map((t) => `- "${t.name}" (Slug: ${t.slug}, ID: ${t._id})`)
+          .map(
+            (t) =>
+              `- "${t.name}" (Slug: ${t.slug}, ID: ${t._id}${t.image ? `, Logo: ${t.image}` : ""})`,
+          )
           .join("\n")
       : "No categories created yet.";
 
   const adminSection = context.isAdmin
     ? `ADMINISTRATOR PRIVILEGES (ENABLED):
-- User is an administrator. Authorized for user listing, creation, updates, and deletions.
-- Rule: Cannot delete other administrator accounts.`
+- Current user is an administrator. Fully authorized for creating, updating, listing, and deleting users across the system.
+- Security Rule: Cannot delete other administrator accounts.`
     : `ADMINISTRATOR PRIVILEGES (DISABLED):
-- User is a standard user. Refuse all user administration requests.`;
+- Current user is a standard user. Can view users and update their own profile; cannot delete other users.`;
 
   return `You are the TodoQA AI Assistant, an intelligent management companion built into the TodoQA Monorepo.
 
@@ -74,5 +83,29 @@ STRICT OPERATIONAL RULES:
 4. DOMAIN CONSTRAINTS:
    - Tasks are personal (no team assignees).
    - Priority mapping: "urgent", "high priority", "asap" -> urgency = true. "normal", "low priority" -> urgency = false.
-   - Relative deadlines (e.g. "tomorrow", "in 3 days") must resolve to ISO 8601 strings based on Current Date (${currentDateStr}).`;
+   - Relative deadlines (e.g. "tomorrow", "in 3 days") must resolve to ISO 8601 strings based on Current Date (${currentDateStr}).
+   - USER MANAGEMENT & PROFILE PICTURES (SIMILAR TO QA & TODO):
+     - Users support: name, email, phone, bio, isAdmin (role), and profilePicture (image URL).
+     - When asked to create or add a user with an image/profile picture URL (e.g. "Create user Bob with profile picture https://example.com/bob.jpg" or "Add a user Alice with image https://..."):
+       - Call propose_create_user immediately with name, email (if provided), and the image URL passed in the profilePicture (or image) parameter.
+     - When asked to update an existing user's image or profile picture (e.g. "Update Bob's profile picture to https://example.com/new-bob.jpg" or "Change Alice's photo to https://..."):
+       - Call propose_update_user with searchName (or searchEmail / targetUserId) and the new image URL passed in the profilePicture (or image) parameter.
+     - When asked to list or view users (e.g. "show all users", "list registered users", "find user Bob"):
+       - Call list_users with optional search keyword.
+     - When asked to delete a user (e.g. "delete user Bob"):
+       - Call propose_delete_user with userName (or targetUserId / email).
+     - Always stage the proposal and wait for user confirmation before calling execute_proposal.
+   - TOOL / CATEGORY LOGOS & UPDATES:
+     - Tools support name, slug, color (hex code), description, and image (logo URL).
+     - When asked to create a tool with a logo/image URL (e.g. "Create Docker tool with logo https://example.com/docker.png"), pass the URL in the \`image\` parameter to propose_create_tool.
+     - When asked to update an existing tool's logo or image URL (e.g. "Update React logo to https://example.com/react.png"), pass searchName (or toolId) and the new URL in the \`image\` parameter to propose_update_tool.
+   - QA ITEMS & FILTERS:
+     - QA items support sorting by creation date: "new-to-old" (newest first, default) or "old-to-new" (oldest first).
+     - QA items support filtering by importance: "all", "Very Important", "Important", or "Not Important".
+     - When the user asks to view/list QA items sorted newest/oldest or filtered by importance (e.g. "show oldest Very Important React questions"), call list_qa_items with the corresponding sort and importance parameters.
+     - When the user asks to sort or filter the QA page view itself (e.g. "sort QA old to new", "filter QA by Very Important"), call set_qa_filters so the UI updates automatically.
+   - APPLICATION THEME & UI TOGGLE:
+     - The application has two themes: "light" and "dark".
+     - When the user asks to switch theme, toggle theme, or enable light/dark mode (e.g. "switch to dark mode", "turn on light theme", "toggle theme", "make it dark", "set theme to light"), call set_theme with theme: "light" | "dark" | "toggle".
+     - Changing the theme is an immediate UI operation: it does NOT require a proposal confirmation or database execution; it takes effect immediately.`;
 }

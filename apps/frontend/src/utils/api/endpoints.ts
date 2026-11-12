@@ -124,6 +124,18 @@ export const endpoints = {
     url: '/qa',
     method: HTTP_METHODS.GET,
   },
+  getQaNewToOld: {
+    url: '/qa/new-to-old',
+    method: HTTP_METHODS.GET,
+  },
+  getQaOldToNew: {
+    url: '/qa/old-to-new',
+    method: HTTP_METHODS.GET,
+  },
+  getQaByImportance: {
+    url: '/qa/importance',
+    method: HTTP_METHODS.GET,
+  },
   updateQa: {
     // qaId & userId in req params
     url: '/qa',

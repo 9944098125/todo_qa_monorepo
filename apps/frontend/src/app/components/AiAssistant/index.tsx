@@ -13,8 +13,10 @@ import { Sparkles, Trash2, X } from 'lucide-react';
 import { ChatMessages } from './components/chat-messages';
 import { ChatInput } from './components/chat-input';
 import { api as todoApi } from '@/app/pages/Todo/slice';
-import { api as qaApi } from '@/app/pages/Qa/slice';
+import { api as qaApi, qaActions } from '@/app/pages/Qa/slice';
 import { api as adminApi } from '@/app/pages/Users/slice';
+import { api as profileApi } from '@/app/pages/Profile/slice';
+import { globalActions } from '@/app/slice';
 
 export function AiAssistant() {
   const { actions, useSendChatMessageMutation } = useAiSlice();
@@ -97,7 +99,37 @@ export function AiAssistant() {
         if (mod === 'TODO') dispatch(todoApi.util.invalidateTags(['Todo']));
         if (mod === 'TOOL') dispatch(qaApi.util.invalidateTags(['Tools']));
         if (mod === 'QA') dispatch(qaApi.util.invalidateTags(['Qa']));
-        if (mod === 'USER') dispatch(adminApi.util.invalidateTags(['Users']));
+        if (mod === 'USER') {
+          dispatch(adminApi.util.invalidateTags(['Users']));
+          dispatch(profileApi.util.invalidateTags(['Profile']));
+          const updatedUser = response?.data?.data?.updatedUser;
+          if (updatedUser) {
+            dispatch(globalActions.setUser(updatedUser));
+          }
+        }
+      }
+
+      // Live UI Filter Sync: Update QA sort/importance filters if AI changed them
+      const qaFilters = response?.data?.data?.qaFilters;
+      if (qaFilters) {
+        if (qaFilters.sort) {
+          dispatch(qaActions.setSortOrder(qaFilters.sort));
+        }
+        if (qaFilters.importance) {
+          dispatch(qaActions.setImportanceFilter(qaFilters.importance));
+        }
+      }
+
+      // Live UI Theme Sync: Switch or toggle theme if AI instructed
+      const nextTheme = response?.data?.data?.theme;
+      if (nextTheme) {
+        if (nextTheme === 'toggle') {
+          dispatch(
+            globalActions.setTheme(themeState === 'dark' ? 'light' : 'dark'),
+          );
+        } else {
+          dispatch(globalActions.setTheme(nextTheme));
+        }
       }
     } catch (err: any) {
       console.error('AI Chat Mutation Error:', err);
@@ -148,20 +180,20 @@ export function AiAssistant() {
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-600/10 border border-green-600/30 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-green-600" />
+            <div className="w-20 h-20 rounded-xl bg-green-600/10 border border-green-600/30 flex items-center justify-center">
+              <Sparkles className="w-15 h-15 text-green-600" />
             </div>
             <div>
-              <SheetTitle className="text-base font-bold flex items-center gap-2">
-                TodoQA Assistant
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-green-600/10 text-green-600 border border-green-600/20">
+              <SheetTitle className="text-[1.8rem] font-bold flex items-center gap-2">
+                TodoQA AI Assistant
+                {/* <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-green-600/10 text-green-600 border border-green-600/20">
                   Live
-                </span>
+                </span> */}
               </SheetTitle>
               <p
-                className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
+                className={`text-base ${isDark ? 'text-gray-400' : 'text-gray-500'}`}
               >
-                Connected via RTK Query & OpenRouter (LLaMA 3.1)
+                Connected via OpenRouter (LLaMA 3.1)
               </p>
             </div>
           </div>
@@ -177,7 +209,7 @@ export function AiAssistant() {
                   : 'border-gray-200 hover:bg-gray-100 text-gray-600 hover:text-black'
               }`}
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-10 h-10" />
             </button>
             <button
               onClick={() => handleOpenChange(false)}
@@ -189,7 +221,7 @@ export function AiAssistant() {
                   : 'border-gray-200 hover:bg-gray-100 text-gray-600 hover:text-black'
               }`}
             >
-              <X className="w-4 h-4" />
+              <X className="w-10 h-10" />
             </button>
           </div>
         </SheetHeader>

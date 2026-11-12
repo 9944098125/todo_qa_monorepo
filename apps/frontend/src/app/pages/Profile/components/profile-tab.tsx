@@ -12,7 +12,19 @@ import ErrorMessage from '@/app/components/ui/error-message';
 import { toast } from '@/app/components/ui/use-toast';
 import { Icons } from '@/app/components/ui/icons';
 import { uploadToCloudinary } from '@/utils/upload-to-cloudinary';
-import { Camera, Mail, User as UserIcon } from 'lucide-react';
+import {
+  Camera,
+  Link as LinkIcon,
+  Mail,
+  Upload,
+  User as UserIcon,
+} from 'lucide-react';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/app/components/ui/tabs';
 import { ProfileTabSkeleton } from './profile-skeleton';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
@@ -38,6 +50,7 @@ export function ProfileTab({ isLoading = false }: ProfileTabProps = {}) {
   const { useGetUserWithIdQuery, useUpdateUserMutation } = useProfileSlice();
 
   const [isUploading, setIsUploading] = useState(false);
+  const [avatarTab, setAvatarTab] = useState<'upload' | 'url'>('upload');
 
   const {
     data: profileData,
@@ -84,6 +97,7 @@ export function ProfileTab({ isLoading = false }: ProfileTabProps = {}) {
         bio: user.bio || '',
         profilePicture: user.profilePicture || '',
       });
+      setAvatarTab(user.profilePicture ? 'url' : 'upload');
     }
   }, [user, reset]);
 
@@ -226,52 +240,129 @@ export function ProfileTab({ isLoading = false }: ProfileTabProps = {}) {
         isDark ? 'bg-black text-white' : 'bg-white text-gray-900'
       }`}
     >
-      <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-gray-700/30">
-        <div className="relative group">
-          <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-green-600/40 shadow-inner bg-gray-200 dark:bg-gray-800">
-            {profilePictureWatch ? (
-              <img
-                src={profilePictureWatch}
-                alt={user?.name || 'Avatar'}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <UserIcon size={48} />
-              </div>
-            )}
-          </div>
-          <label
-            htmlFor="profile-picture-upload"
-            className="absolute bottom-0 right-0 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded-full cursor-pointer shadow-lg transition-transform active:scale-95"
-            title="Upload photo"
-          >
-            {isUploading ? (
-              <Icons.Spinner className="h-4 w-4 animate-spin" />
-            ) : (
-              <Camera size={16} />
-            )}
-            <input
-              id="profile-picture-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              disabled={isUploading}
-              onChange={handleImageUpload}
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-6 border-b border-gray-700/30">
+        <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-green-600/40 shadow-inner bg-gray-200 dark:bg-gray-800 shrink-0 relative flex items-center justify-center">
+          {profilePictureWatch ? (
+            <img
+              src={profilePictureWatch}
+              alt={user?.name || 'Avatar'}
+              className="w-full h-full object-cover"
+              onError={e => {
+                (e.target as HTMLImageElement).src = '/images/avatar.webp';
+              }}
             />
-          </label>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400">
+              <UserIcon size={48} />
+            </div>
+          )}
+          {isUploading && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+              <Icons.Spinner className="animate-spin h-7 w-7 text-green-500" />
+            </div>
+          )}
         </div>
 
-        <div className="text-center sm:text-left">
-          <h3 className="text-2xl font-bold">{user?.name || 'User'}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {user?.email}
-          </p>
-          {user?.isAdmin && (
-            <span className="inline-block mt-2 px-3 py-1 bg-green-600/20 text-green-500 border border-green-600/30 rounded-full text-xs font-semibold">
-              Admin
-            </span>
-          )}
+        <div className="flex-1 w-full min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 className="text-2xl font-bold">{user?.name || 'User'}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {user?.email}
+              </p>
+            </div>
+            {user?.isAdmin && (
+              <span className="self-start sm:self-auto px-3 py-1 bg-green-600/20 text-green-500 border border-green-600/30 rounded-full text-xs font-semibold">
+                Admin
+              </span>
+            )}
+          </div>
+
+          {/* Profile Picture Tabs: Upload vs URL */}
+          <div className="max-w-md">
+            <Tabs
+              value={avatarTab}
+              onValueChange={val => setAvatarTab(val as 'upload' | 'url')}
+              className="w-full"
+            >
+              <TabsList
+                className={`p-1 rounded-xl border flex gap-1 mb-2 ${
+                  isDark
+                    ? 'bg-[#181818] border-gray-800'
+                    : 'bg-gray-100 border-gray-200'
+                }`}
+              >
+                <TabsTrigger
+                  value="upload"
+                  type="button"
+                  className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    isDark
+                      ? 'text-gray-300 hover:text-white data-[state=active]:bg-green-600 data-[state=active]:text-white'
+                      : 'text-gray-600 hover:text-black data-[state=active]:bg-green-600 data-[state=active]:text-white'
+                  }`}
+                >
+                  <Upload size={14} />
+                  <span>Upload Photo</span>
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="url"
+                  type="button"
+                  className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    isDark
+                      ? 'text-gray-300 hover:text-white data-[state=active]:bg-green-600 data-[state=active]:text-white'
+                      : 'text-gray-600 hover:text-black data-[state=active]:bg-green-600 data-[state=active]:text-white'
+                  }`}
+                >
+                  <LinkIcon size={14} />
+                  <span>Photo URL</span>
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="upload" className="mt-1 outline-none">
+                <label
+                  htmlFor="profile-picture-upload"
+                  className={`flex items-center justify-center gap-2 px-3 py-2 rounded-[.8rem] text-xs font-medium border border-dashed cursor-pointer transition-colors ${
+                    isDark
+                      ? 'border-gray-700 hover:border-green-500 bg-neutral-900/60 text-gray-200'
+                      : 'border-gray-300 hover:border-green-600 bg-white text-gray-800'
+                  }`}
+                >
+                  <Upload size={14} />
+                  <span>
+                    {isUploading ? 'Uploading...' : 'Choose photo (Max 5MB)'}
+                  </span>
+                  <input
+                    id="profile-picture-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={isUploading}
+                    onChange={handleImageUpload}
+                  />
+                </label>
+              </TabsContent>
+
+              <TabsContent value="url" className="mt-1 outline-none">
+                <Input
+                  id="profile-picture-url"
+                  type="url"
+                  placeholder="Paste photo URL (https://...)"
+                  value={watch('profilePicture') || ''}
+                  onChange={e => {
+                    setValue('profilePicture', e.target.value, {
+                      shouldDirty: true,
+                    });
+                  }}
+                  className={`h-[3.6rem] rounded-[.8rem] text-xs focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${
+                    isDark
+                      ? 'bg-black text-white border-green-600/70'
+                      : 'bg-white text-black'
+                  }`}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
 

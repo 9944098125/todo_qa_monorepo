@@ -49,19 +49,28 @@ export const createQa = async (
   }
 };
 
-export const getQa = async (
+const fetchFilteredQa = async (
   req: Request,
   res: Response,
   next: NextFunction,
+  sortOrder: 1 | -1,
+  importanceFilter?: string,
 ): Promise<void> => {
   try {
     const { userId, toolId } = req.params;
     const user = await User.findOne({ _id: userId });
     const { page, limit, skip } = getPagination(req, 10);
-    const filter = { userId, toolId };
+
+    const filter: Record<string, any> = { userId, toolId };
+    const importance =
+      importanceFilter ?? (req.query.importance as string | undefined);
+    if (importance && importance.toLowerCase() !== "all") {
+      filter.importance = importance;
+    }
+
     const totalDocuments = await Qa.countDocuments(filter);
     const qaSet = await Qa.find(filter)
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: sortOrder })
       .skip(skip)
       .limit(limit);
     sendPaginated(req, res, {
@@ -75,6 +84,42 @@ export const getQa = async (
   } catch (err: any) {
     next(err);
   }
+};
+
+export const getQa = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const sortOrder = req.query.sort === "old-to-new" ? 1 : -1;
+  return fetchFilteredQa(req, res, next, sortOrder);
+};
+
+export const getQaNewToOld = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => fetchFilteredQa(req, res, next, -1);
+
+export const getQaOldToNew = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => fetchFilteredQa(req, res, next, 1);
+
+export const getQaByImportance = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const sortOrder = req.query.sort === "old-to-new" ? 1 : -1;
+  return fetchFilteredQa(
+    req,
+    res,
+    next,
+    sortOrder,
+    req.query.importance as string | undefined,
+  );
 };
 
 export const updateQa = async (

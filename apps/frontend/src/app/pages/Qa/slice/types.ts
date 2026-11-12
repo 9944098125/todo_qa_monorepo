@@ -1,9 +1,13 @@
 export type QaImportance = 'Important' | 'Very Important' | 'Not Important';
 
+export type QaSortOrder = 'new-to-old' | 'old-to-new';
+
 export interface QaState {
   data: any | null;
   isLoading: boolean;
   error: string | null;
+  sortOrder?: QaSortOrder;
+  importanceFilter?: string;
   editableTool: {
     _id: string;
     userId: string;
@@ -55,6 +59,8 @@ export interface GetQaRequest {
     page?: number;
     pageSize?: number;
     limit?: number;
+    importance?: string;
+    sort?: QaSortOrder;
   };
 }
 
@@ -62,6 +68,8 @@ export interface QaState {
   data: any | null;
   isLoading: boolean;
   error: string | null;
+  sortOrder?: QaSortOrder;
+  importanceFilter?: string;
   editableTool: {
     _id: string;
     userId: string;

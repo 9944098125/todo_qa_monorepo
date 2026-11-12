@@ -41,6 +41,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateAnswerWithAI =
   exports.deleteQa =
   exports.updateQa =
+  exports.getQaByImportance =
+  exports.getQaOldToNew =
+  exports.getQaNewToOld =
   exports.getQa =
   exports.createQa =
     void 0;
@@ -78,17 +81,24 @@ const createQa = (req, res, next) =>
     }
   });
 exports.createQa = createQa;
-const getQa = (req, res, next) =>
+const fetchFilteredQa = (req, res, next, sortOrder, importanceFilter) =>
   __awaiter(void 0, void 0, void 0, function* () {
     try {
       const { userId, toolId } = req.params;
       const user = yield User_1.default.findOne({ _id: userId });
       const { page, limit, skip } = (0, response_1.getPagination)(req, 10);
       const filter = { userId, toolId };
+      const importance =
+        importanceFilter !== null && importanceFilter !== void 0
+          ? importanceFilter
+          : req.query.importance;
+      if (importance && importance.toLowerCase() !== "all") {
+        filter.importance = importance;
+      }
       const totalDocuments = yield Qa_1.default.countDocuments(filter);
       const qaSet = yield Qa_1.default
         .find(filter)
-        .sort({ createdAt: 1 })
+        .sort({ createdAt: sortOrder })
         .skip(skip)
         .limit(limit);
       (0, response_1.sendPaginated)(req, res, {
@@ -103,7 +113,20 @@ const getQa = (req, res, next) =>
       next(err);
     }
   });
+const getQa = (req, res, next) => {
+  const sortOrder = req.query.sort === "old-to-new" ? 1 : -1;
+  return fetchFilteredQa(req, res, next, sortOrder);
+};
 exports.getQa = getQa;
+const getQaNewToOld = (req, res, next) => fetchFilteredQa(req, res, next, -1);
+exports.getQaNewToOld = getQaNewToOld;
+const getQaOldToNew = (req, res, next) => fetchFilteredQa(req, res, next, 1);
+exports.getQaOldToNew = getQaOldToNew;
+const getQaByImportance = (req, res, next) => {
+  const sortOrder = req.query.sort === "old-to-new" ? 1 : -1;
+  return fetchFilteredQa(req, res, next, sortOrder, req.query.importance);
+};
+exports.getQaByImportance = getQaByImportance;
 const updateQa = (req, res, next) =>
   __awaiter(void 0, void 0, void 0, function* () {
     try {

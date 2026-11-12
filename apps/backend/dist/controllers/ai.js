@@ -83,7 +83,7 @@ const handleAiChat = (req, res, next) =>
       // 1. Fetch user profile and available categories
       const [userDoc, tools] = yield Promise.all([
         User_1.default.findById(userId).select("name email isAdmin"),
-        Tool_1.default.find({ userId }).select("_id name slug color"),
+        Tool_1.default.find({ userId }).select("_id name slug color image"),
       ]);
       const isAdmin = Boolean(
         (_c =
@@ -105,6 +105,7 @@ const handleAiChat = (req, res, next) =>
           name: t.name,
           slug: t.slug,
           color: t.color,
+          image: t.image,
         })),
       });
       const availableTools = (0, toolDefinitions_1.getAvailableTools)(isAdmin);
@@ -134,6 +135,9 @@ const handleAiChat = (req, res, next) =>
       let generatedProposal;
       let wasExecuted = false;
       let executedModule;
+      let qaFilters;
+      let updatedUser = undefined;
+      let targetTheme;
       // Multi-step tool execution loop (up to 5 iterations)
       let iterations = 0;
       while (
@@ -152,6 +156,8 @@ const handleAiChat = (req, res, next) =>
             proposal,
             executed,
             executedModule: mod,
+            qaFilters: nextQaFilters,
+            theme: nextTheme,
           } = yield (0, toolExecutor_1.executeToolCall)(
             toolCall.function.name,
             toolCall.function.arguments,
@@ -161,6 +167,22 @@ const handleAiChat = (req, res, next) =>
           if (executed) {
             wasExecuted = true;
             executedModule = mod;
+          }
+          if (nextQaFilters) {
+            qaFilters = Object.assign(
+              Object.assign({}, qaFilters || {}),
+              nextQaFilters,
+            );
+          }
+          if (nextTheme) {
+            targetTheme = nextTheme;
+          }
+          if (
+            toolResult === null || toolResult === void 0
+              ? void 0
+              : toolResult.updatedUser
+          ) {
+            updatedUser = toolResult.updatedUser;
           }
           messages.push({
             role: "tool",
@@ -196,6 +218,9 @@ const handleAiChat = (req, res, next) =>
           proposal: generatedProposal || null,
           executed: wasExecuted,
           executedModule: executedModule || null,
+          updatedUser: updatedUser || null,
+          qaFilters: qaFilters || null,
+          theme: targetTheme || null,
           model: openRouterClient_1.AI_MODEL,
           isAdmin,
         },

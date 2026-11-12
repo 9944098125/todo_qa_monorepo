@@ -19,6 +19,13 @@ import { selectEditableTool } from '../slice/selectors';
 import { useDispatch } from 'react-redux';
 import { Icons } from '@/app/components/ui/icons';
 import { ConfirmationDialog } from '@/app/components/Parts/confirmation-dialog';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/app/components/ui/tabs';
+import { Link as LinkIcon, Upload } from 'lucide-react';
 
 type Props = {
   open: boolean;
@@ -60,7 +67,9 @@ export const AddTool = (props: Props) => {
 
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [openConfirmation, setOpenConfirmation] = useState<boolean>(false);
+  const [logoTab, setLogoTab] = useState<'upload' | 'url'>('upload');
   const form = useForm();
+  const isDark = themeState === 'dark';
 
   const {
     register,
@@ -69,7 +78,12 @@ export const AddTool = (props: Props) => {
     formState: { errors },
     setValue,
     setError,
+    clearErrors,
   } = form;
+
+  useEffect(() => {
+    register('image');
+  }, [register]);
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -87,12 +101,20 @@ export const AddTool = (props: Props) => {
     }
 
     try {
+      clearErrors('image');
       setIsUploading(true);
 
       const imageUrl = await uploadToCloudinary(file);
-      setValue('image', imageUrl);
-    } catch (err) {
-      throw new Error(String(err));
+      setValue('image', imageUrl, { shouldValidate: true, shouldDirty: true });
+    } catch (err: any) {
+      setError('image', {
+        type: 'manual',
+        message: err?.message || 'Failed to upload image',
+      });
+      toast({
+        description: 'Failed to upload image. Please try again or paste a URL.',
+        variant: 'destructive',
+      });
     } finally {
       setIsUploading(false);
     }
@@ -171,12 +193,14 @@ export const AddTool = (props: Props) => {
           color: '',
           description: '',
         });
+        setLogoTab('upload');
       }
       if (editableTool) {
         // assigning the clicked item's values to dialog form
         form.reset({
           ...editableTool,
         });
+        setLogoTab(editableTool.image ? 'url' : 'upload');
       }
     }
   }, [open, editableTool, form]);
@@ -235,39 +259,154 @@ export const AddTool = (props: Props) => {
                   className={`h-[5rem] focus:h-[5.5rem] rounded-[.8rem] focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${themeState === 'dark' ? 'bg-black text-white' : ''}`}
                 />
               </div>
-              <div className="flex items-center">
-                <div className="mb-4 p-2 w-1/2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4 p-2">
+                <div className="w-full sm:w-1/3">
                   <Label htmlFor="color">Color</Label>
-                  <Input
-                    type="color"
-                    {...register('color', { required: 'Colour is Required !' })}
-                    placeholder="Enter Tool Name"
-                    className="h-[10rem] w-[10rem] rounded-[.8rem]"
-                  />
+                  <div className="flex items-center gap-3 mt-2">
+                    <Input
+                      id="color"
+                      type="color"
+                      {...register('color', {
+                        required: 'Colour is Required !',
+                      })}
+                      className="h-[5rem] w-[5rem] rounded-[.8rem] p-1 cursor-pointer border border-green-600/70"
+                    />
+                    <span className="text-sm font-mono uppercase font-semibold text-gray-500">
+                      {watch('color') || '#000000'}
+                    </span>
+                  </div>
+                  {errors?.color && (
+                    <p className="text-red-600 font-[400] text-[1.2rem] mt-1">
+                      {errors.color?.message as string}
+                    </p>
+                  )}
                 </div>
-                <div className="px-4 py-2 mb-4 grid grid-cols-12 gap-4">
-                  <div className="px-2 col-space-12 md:col-span-3">
-                    <Label htmlFor="imageUpload">
-                      Tool Logo
-                      <Input
-                        id="imageUpload"
-                        accept="image/*"
-                        type="file"
-                        className="hidden"
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleImageUpload(e)
-                        }
+
+                <div className="w-full sm:w-2/3">
+                  <Label
+                    htmlFor={
+                      logoTab === 'upload' ? 'imageUpload' : 'imageUrlInput'
+                    }
+                  >
+                    Tool Logo
+                  </Label>
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="relative h-[8rem] w-[8rem] rounded-full border-2 border-green-600/70 overflow-hidden shrink-0 bg-neutral-800/10 flex items-center justify-center">
+                      <img
+                        src={watch('image') || '/images/tool-placeholder.jpg'}
+                        alt="Tool Logo"
+                        className="w-full h-full rounded-full object-cover"
+                        onError={e => {
+                          (e.target as HTMLImageElement).src =
+                            '/images/tool-placeholder.jpg';
+                        }}
                       />
-                      <div
-                        className={`h-[10rem] w-[10rem] rounded-full cursor-pointer border-2 border-cyan-700`}
+                      {isUploading && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <Icons.Spinner className="animate-spin h-6 w-6 text-green-500" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 w-full min-w-0">
+                      <Tabs
+                        value={logoTab}
+                        onValueChange={val =>
+                          setLogoTab(val as 'upload' | 'url')
+                        }
+                        className="w-full"
                       >
-                        <img
-                          src={watch('image') || '/images/tool-placeholder.jpg'}
-                          alt=""
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      </div>
-                    </Label>
+                        <TabsList
+                          className={`p-1 rounded-xl border flex gap-1 mb-2 ${
+                            isDark
+                              ? 'bg-[#181818] border-gray-800'
+                              : 'bg-gray-100 border-gray-200'
+                          }`}
+                        >
+                          <TabsTrigger
+                            value="upload"
+                            type="button"
+                            className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                              isDark
+                                ? 'text-gray-300 hover:text-white data-[state=active]:bg-green-600 data-[state=active]:text-white'
+                                : 'text-gray-600 hover:text-black data-[state=active]:bg-green-600 data-[state=active]:text-white'
+                            }`}
+                          >
+                            <Upload size={14} />
+                            <span>Upload File</span>
+                          </TabsTrigger>
+
+                          <TabsTrigger
+                            value="url"
+                            type="button"
+                            className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                              isDark
+                                ? 'text-gray-300 hover:text-white data-[state=active]:bg-green-600 data-[state=active]:text-white'
+                                : 'text-gray-600 hover:text-black data-[state=active]:bg-green-600 data-[state=active]:text-white'
+                            }`}
+                          >
+                            <LinkIcon size={14} />
+                            <span>Image URL</span>
+                          </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent
+                          value="upload"
+                          className="mt-1 outline-none"
+                        >
+                          <label
+                            htmlFor="imageUpload"
+                            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-[.8rem] text-xs font-medium border border-dashed cursor-pointer transition-colors ${
+                              isDark
+                                ? 'border-gray-700 hover:border-green-500 bg-neutral-900/60 text-gray-200'
+                                : 'border-gray-300 hover:border-green-600 bg-white text-gray-800'
+                            }`}
+                          >
+                            <Upload size={14} />
+                            <span>
+                              {isUploading
+                                ? 'Uploading...'
+                                : 'Choose file (Max 5MB)'}
+                            </span>
+                            <input
+                              id="imageUpload"
+                              accept="image/*"
+                              type="file"
+                              className="hidden"
+                              disabled={isUploading}
+                              onChange={handleImageUpload}
+                            />
+                          </label>
+                        </TabsContent>
+
+                        <TabsContent value="url" className="mt-1 outline-none">
+                          <Input
+                            id="imageUrlInput"
+                            type="url"
+                            placeholder="Paste image URL (https://...)"
+                            value={watch('image') || ''}
+                            onChange={e => {
+                              clearErrors('image');
+                              setValue('image', e.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            }}
+                            className={`h-[3.8rem] rounded-[.8rem] text-xs focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-all duration-200 ${
+                              isDark
+                                ? 'bg-black text-white border-green-600/70'
+                                : 'bg-white text-black'
+                            }`}
+                          />
+                        </TabsContent>
+                      </Tabs>
+
+                      {errors?.image && (
+                        <p className="text-red-600 font-[400] text-[1.2rem] mt-1">
+                          {errors.image?.message as string}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
