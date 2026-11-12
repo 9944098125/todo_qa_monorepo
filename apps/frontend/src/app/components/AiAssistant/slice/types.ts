@@ -132,6 +132,8 @@ export interface AiChatResponse {
       isAdmin: boolean;
       /** Strongly-typed proposal (null for informational/read queries) */
       proposal: AiProposedAction | null;
+      executed: any;
+      executedModule: any;
     };
   };
   meta: {

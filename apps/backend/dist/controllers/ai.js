@@ -132,42 +132,50 @@ const handleAiChat = (req, res, next) =>
       });
       let choice = completion.choices[0];
       let generatedProposal;
-      // 6. Handle Tool Calling Loop if the model invoked any tools
-      if (
-        choice.finish_reason === "tool_calls" &&
-        ((_a = choice.message.tool_calls) === null || _a === void 0
+      let wasExecuted = false;
+      let executedModule;
+      // Multi-step tool execution loop (up to 5 iterations)
+      let iterations = 0;
+      while (
+        ((_a = choice.message) === null || _a === void 0
           ? void 0
-          : _a.length)
+          : _a.tool_calls) &&
+        choice.message.tool_calls.length > 0 &&
+        iterations < 5
       ) {
-        // Append assistant's tool-call request to messages chain
+        iterations++;
         messages.push(choice.message);
         for (const toolCall of choice.message.tool_calls) {
           if (toolCall.type !== "function") continue;
-          const toolName = toolCall.function.name;
-          const toolArgs = toolCall.function.arguments;
-          // Execute tool securely
-          const { toolResult, proposal } = yield (0,
-          toolExecutor_1.executeToolCall)(toolName, toolArgs, {
-            userId,
-            userName,
-            isAdmin,
-          });
-          if (proposal) {
-            generatedProposal = proposal;
+          const {
+            toolResult,
+            proposal,
+            executed,
+            executedModule: mod,
+          } = yield (0, toolExecutor_1.executeToolCall)(
+            toolCall.function.name,
+            toolCall.function.arguments,
+            { userId, userName, isAdmin },
+          );
+          if (proposal) generatedProposal = proposal;
+          if (executed) {
+            wasExecuted = true;
+            executedModule = mod;
           }
-          // Feed tool execution output back to the model
           messages.push({
             role: "tool",
             tool_call_id: toolCall.id,
             content: JSON.stringify(toolResult),
           });
         }
-        // 7. Request second completion so the model formulates a natural response
+        // Feed tool outputs back to the model (keeping tools available for multi-step chains)
         completion = yield openRouterClient_1.openai.chat.completions.create({
           model: openRouterClient_1.AI_MODEL,
           messages,
-          temperature: 0.2,
-          max_tokens: 400,
+          tools: availableTools,
+          tool_choice: "auto",
+          temperature: 0.1,
+          max_tokens: 500,
         });
         choice = completion.choices[0];
       }
@@ -176,9 +184,8 @@ const handleAiChat = (req, res, next) =>
           ? void 0
           : _b.content) ||
         (generatedProposal
-          ? `I have prepared the following proposal: ${generatedProposal.summary}. Please review and confirm below.`
-          : "I processed your request.");
-      // 8. Return response containing conversational message + any generated proposal
+          ? `I have prepared the proposal: ${generatedProposal.summary}. Please confirm to execute.`
+          : "Done.");
       (0, response_1.sendSuccess)(
         req,
         res,
@@ -187,6 +194,8 @@ const handleAiChat = (req, res, next) =>
         {
           message: responseContent,
           proposal: generatedProposal || null,
+          executed: wasExecuted,
+          executedModule: executedModule || null,
           model: openRouterClient_1.AI_MODEL,
           isAdmin,
         },

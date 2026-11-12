@@ -8,9 +8,15 @@ type Props = {
   onSendMessage: (message: string) => void;
   presetText?: string;
   onClearPreset?: () => void;
+  isOpen: boolean;
 };
 
-export function ChatInput({ onSendMessage, presetText, onClearPreset }: Props) {
+export function ChatInput({
+  onSendMessage,
+  presetText,
+  onClearPreset,
+  isOpen,
+}: Props) {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const themeState = useSelector(selectTheme);
@@ -25,14 +31,17 @@ export function ChatInput({ onSendMessage, presetText, onClearPreset }: Props) {
       onClearPreset?.();
       textareaRef.current?.focus();
     }
-  }, [presetText, onClearPreset]);
+    if (isOpen) {
+      textareaRef.current?.focus();
+    }
+  }, [presetText, onClearPreset, isOpen]);
 
   // Auto-resize textarea height as the user types
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 150)}px`;
     }
   };
 
@@ -62,8 +71,8 @@ export function ChatInput({ onSendMessage, presetText, onClearPreset }: Props) {
       <div
         className={`relative rounded-2xl border transition-all ${
           isDark
-            ? 'border-gray-800 bg-gray-950 focus-within:border-green-600/70'
-            : 'border-gray-300 bg-gray-50 focus-within:border-green-600 focus-within:bg-white'
+            ? 'border-gray-800 bg-gray-950 focus-within:border-4 focus-within:border-green-600'
+            : 'border-gray-300 bg-gray-50 focus-within:border-4 focus-within:border-green-600 focus-within:bg-white'
         }`}
       >
         <textarea
@@ -74,7 +83,7 @@ export function ChatInput({ onSendMessage, presetText, onClearPreset }: Props) {
           disabled={isLoading}
           rows={4}
           placeholder="Ask AI to create, edit or find Todo/Qa items..."
-          className={`w-full resize-none bg-transparent px-4 py-3.5 pr-14 text-sm outline-none placeholder:text-gray-400 disabled:opacity-50 max-h-[120px] ${
+          className={`w-full resize-none bg-transparent px-4 py-3.5 pr-14 text-[1.8rem] outline-none placeholder:text-gray-400 disabled:opacity-50 max-h-[150px] ${
             isDark ? 'text-white' : 'text-black'
           }`}
         />

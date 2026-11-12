@@ -22,7 +22,6 @@ export const openai = new OpenAI({
   },
 });
 
-/**
- * Primary model identifier for natural language command processing.
- */
-export const AI_MODEL = "meta-llama/llama-3.1-8b-instruct";
+// Recommended fast, inexpensive, rock-solid tool-calling models on OpenRouter:
+// "openai/gpt-4o-mini" OR "google/gemini-2.0-flash-001" OR "meta-llama/llama-3.3-70b-instruct"
+export const AI_MODEL = "openai/gpt-4o-mini";

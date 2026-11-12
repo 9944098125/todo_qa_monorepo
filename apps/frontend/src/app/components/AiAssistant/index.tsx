@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAiSlice } from './slice';
 import { selectAiMessages, selectIsAiDrawerOpen } from './slice/selectors';
@@ -12,6 +12,9 @@ import {
 import { Sparkles, Trash2, X } from 'lucide-react';
 import { ChatMessages } from './components/chat-messages';
 import { ChatInput } from './components/chat-input';
+import { api as todoApi } from '@/app/pages/Todo/slice';
+import { api as qaApi } from '@/app/pages/Qa/slice';
+import { api as adminApi } from '@/app/pages/Users/slice';
 
 export function AiAssistant() {
   const { actions, useSendChatMessageMutation } = useAiSlice();
@@ -24,10 +27,13 @@ export function AiAssistant() {
   const themeState = useSelector(selectTheme);
   const [presetPrompt, setPresetPrompt] = useState<string>('');
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const isDark = themeState === 'dark';
 
   const handleOpenChange = (open: boolean) => {
     dispatch(actions.toggleDrawer(open));
+    inputRef.current?.focus();
   };
 
   const handleSendMessage = async (text: string) => {
@@ -85,6 +91,14 @@ export function AiAssistant() {
           proposal: proposal || undefined,
         }),
       );
+      // Live Cache Invalidation: Refresh the screen automatically if something was executed in DB
+      if (response?.data?.data?.executed) {
+        const mod = response.data.data.executedModule;
+        if (mod === 'TODO') dispatch(todoApi.util.invalidateTags(['Todo']));
+        if (mod === 'TOOL') dispatch(qaApi.util.invalidateTags(['Tools']));
+        if (mod === 'QA') dispatch(qaApi.util.invalidateTags(['Qa']));
+        if (mod === 'USER') dispatch(adminApi.util.invalidateTags(['Users']));
+      }
     } catch (err: any) {
       console.error('AI Chat Mutation Error:', err);
       const errorMessage =
@@ -114,16 +128,15 @@ export function AiAssistant() {
 
   const handleClearChat = () => {
     dispatch(actions.clearMessages());
+    inputRef.current?.focus();
   };
 
   return (
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetContent
         side="right"
-        className={`w-full sm:max-w-[48rem] p-0 flex flex-col h-full border-l transition-colors duration-200 ${
-          isDark
-            ? 'bg-black border-gray-800 text-white'
-            : 'bg-white border-gray-200 text-black'
+        className={`w-full md:max-w-[80rem] p-0 flex flex-col h-full shadow-[-4px_0_0_0_#16a34a] ${
+          isDark ? 'bg-black text-white' : 'bg-white text-black'
         }`}
       >
         {/* Drawer Header */}
@@ -189,6 +202,7 @@ export function AiAssistant() {
           presetText={presetPrompt}
           onClearPreset={() => setPresetPrompt('')}
           onSendMessage={handleSendMessage}
+          isOpen={isOpen}
         />
       </SheetContent>
     </Sheet>

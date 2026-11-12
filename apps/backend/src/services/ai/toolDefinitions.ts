@@ -9,14 +9,34 @@ const todoTools: OpenAI.ChatCompletionTool[] = [
     function: {
       name: "list_todo_items",
       description:
-        "List or search the authenticated user's existing Todo tasks. Supports filtering by urgency or keyword.",
+        "List, search, or filter the authenticated user's Todo tasks by completion status, urgency, keyword, or deadline dates (overdue, passed deadlines, or due within a timeframe).",
       parameters: {
         type: "object",
         properties: {
+          isCompleted: {
+            type: "boolean",
+            description:
+              "Filter by completion status: false for pending tasks, true for completed tasks.",
+          },
           urgency: {
             type: "boolean",
             description:
               "Filter by urgency: true for urgent tasks, false for regular.",
+          },
+          overdue: {
+            type: "boolean",
+            description:
+              "If true, returns only uncompleted (pending) tasks whose deadline has already passed.",
+          },
+          deadlineBefore: {
+            type: "string",
+            description:
+              "ISO 8601 date string (e.g. '2026-11-22T23:59:59.999Z'). Returns tasks with a deadline on or before this timestamp.",
+          },
+          deadlineAfter: {
+            type: "string",
+            description:
+              "ISO 8601 date string (e.g. '2026-11-12T00:00:00.000Z'). Returns tasks with a deadline on or after this timestamp.",
           },
           search: {
             type: "string",
@@ -24,7 +44,7 @@ const todoTools: OpenAI.ChatCompletionTool[] = [
           },
           limit: {
             type: "number",
-            description: "Maximum items to return (default 15, max 30).",
+            description: "Maximum items to return (default 30, max 50).",
           },
         },
       },
@@ -35,7 +55,7 @@ const todoTools: OpenAI.ChatCompletionTool[] = [
     function: {
       name: "propose_create_todos",
       description:
-        "Propose creating one or more Todo items. Generates a staged proposal for user review and confirmation.",
+        "Propose creating one or more Todo items. Generates a staged proposal for user confirmation.",
       parameters: {
         type: "object",
         properties: {
@@ -51,25 +71,20 @@ const todoTools: OpenAI.ChatCompletionTool[] = [
                 },
                 description: {
                   type: "string",
-                  description: "Helpful task description or steps.",
+                  description: "Task description or details.",
                 },
-                urgency: {
-                  type: "boolean",
-                  description:
-                    "True for urgent/high-priority tasks, false otherwise.",
-                  default: false,
-                },
+                urgency: { type: "boolean", default: false },
                 deadline: {
                   type: "string",
                   description:
-                    "Strict ISO 8601 string representing the deadline (e.g. '2026-11-20T18:00:00.000Z').",
+                    "ISO 8601 string representing the deadline (e.g. '2026-11-20T18:00:00.000Z').",
                 },
               },
               required: ["title", "description", "deadline"],
             },
           },
         },
-        required: ["items"],
+        required: ["title"],
       },
     },
   },
@@ -78,23 +93,27 @@ const todoTools: OpenAI.ChatCompletionTool[] = [
     function: {
       name: "propose_update_todo",
       description:
-        "Propose updating fields of an existing Todo item (title, description, urgency, deadline).",
+        "Propose updating fields of an existing Todo item. Can lookup by todoId or searchTitle.",
       parameters: {
         type: "object",
         properties: {
           todoId: {
             type: "string",
-            description: "The 24-character MongoDB ObjectId of the Todo.",
+            description: "The MongoDB ObjectId if known.",
+          },
+          searchTitle: {
+            type: "string",
+            description: "Title of the task to update if todoId is unknown.",
           },
           title: { type: "string" },
           description: { type: "string" },
           urgency: { type: "boolean" },
-          deadline: {
-            type: "string",
-            description: "ISO 8601 deadline string.",
+          deadline: { type: "string" },
+          isCompleted: {
+            type: "boolean",
+            description: "Mark as completed (true) or pending (false).",
           },
         },
-        required: ["todoId"],
       },
     },
   },
@@ -103,21 +122,19 @@ const todoTools: OpenAI.ChatCompletionTool[] = [
     function: {
       name: "propose_delete_todo",
       description:
-        "Propose deleting a specific Todo item. Requires user confirmation.",
+        "Propose deleting a specific Todo item by its ID or by its title. Requires confirmation.",
       parameters: {
         type: "object",
         properties: {
           todoId: {
             type: "string",
-            description: "The 24-character MongoDB ObjectId of the Todo.",
+            description: "The MongoDB ObjectId if known.",
           },
           title: {
             type: "string",
-            description:
-              "Title of the task being deleted for confirmation display.",
+            description: "Title of the task to delete if todoId is unknown.",
           },
         },
-        required: ["todoId"],
       },
     },
   },
@@ -132,11 +149,8 @@ const toolCategoryTools: OpenAI.ChatCompletionTool[] = [
     function: {
       name: "list_user_tools",
       description:
-        "Retrieve all Tool categories created by the authenticated user (e.g., React, NodeJS, Docker).",
-      parameters: {
-        type: "object",
-        properties: {},
-      },
+        "Retrieve all Tool categories created by the authenticated user.",
+      parameters: { type: "object", properties: {} },
     },
   },
   {
@@ -148,23 +162,10 @@ const toolCategoryTools: OpenAI.ChatCompletionTool[] = [
       parameters: {
         type: "object",
         properties: {
-          name: {
-            type: "string",
-            description: "Name of the category (e.g. 'Docker', 'GraphQL').",
-          },
-          slug: {
-            type: "string",
-            description:
-              "URL-friendly lowercase slug (e.g. 'docker', 'graphql').",
-          },
-          color: {
-            type: "string",
-            description: "Hex color code (e.g. '#3b82f6', '#ef4444').",
-          },
-          description: {
-            type: "string",
-            description: "Brief description of the category.",
-          },
+          name: { type: "string" },
+          slug: { type: "string" },
+          color: { type: "string", default: "#3b82f6" },
+          description: { type: "string" },
         },
         required: ["name", "slug"],
       },
@@ -174,15 +175,11 @@ const toolCategoryTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "propose_update_tool",
-      description:
-        "Propose updating an existing Tool category's name, color, or description.",
+      description: "Propose updating an existing Tool category.",
       parameters: {
         type: "object",
         properties: {
-          toolId: {
-            type: "string",
-            description: "MongoDB ObjectId of the tool category.",
-          },
+          toolId: { type: "string" },
           name: { type: "string" },
           slug: { type: "string" },
           color: { type: "string" },
@@ -196,21 +193,13 @@ const toolCategoryTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "propose_delete_tool",
-      description:
-        "Propose deleting a Tool category. Destructive action requiring user confirmation.",
+      description: "Propose deleting a Tool category by ID or name.",
       parameters: {
         type: "object",
         properties: {
-          toolId: {
-            type: "string",
-            description: "MongoDB ObjectId of the tool category to delete.",
-          },
-          name: {
-            type: "string",
-            description: "Name of the category for confirmation display.",
-          },
+          toolId: { type: "string" },
+          name: { type: "string" },
         },
-        required: ["toolId"],
       },
     },
   },
@@ -224,24 +213,16 @@ const qaTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "list_qa_items",
-      description:
-        "Query the user's Question & Answer knowledge base records across one or all categories.",
+      description: "Query Question & Answer knowledge base records.",
       parameters: {
         type: "object",
         properties: {
-          toolId: {
-            type: "string",
-            description: "Optional: filter by a specific Tool/Category ID.",
-          },
+          toolId: { type: "string" },
           importance: {
             type: "string",
             enum: ["Important", "Very Important", "Not Important"],
-            description: "Filter by importance level.",
           },
-          search: {
-            type: "string",
-            description: "Keyword to search in questions or answers.",
-          },
+          search: { type: "string" },
         },
       },
     },
@@ -250,32 +231,21 @@ const qaTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "propose_create_qa",
-      description:
-        "Propose creating one or more QA items under a specific Tool category.",
+      description: "Propose creating QA items under a specific Tool category.",
       parameters: {
         type: "object",
         properties: {
-          toolId: {
-            type: "string",
-            description: "The target Tool/Category ObjectId.",
-          },
+          toolId: { type: "string" },
           items: {
             type: "array",
             items: {
               type: "object",
               properties: {
-                question: {
-                  type: "string",
-                  description: "The question or scenario.",
-                },
-                answer: {
-                  type: "string",
-                  description: "Detailed formatted answer or explanation.",
-                },
+                question: { type: "string" },
+                answer: { type: "string" },
                 importance: {
                   type: "string",
                   enum: ["Important", "Very Important", "Not Important"],
-                  default: "Important",
                 },
               },
               required: ["question", "answer"],
@@ -290,15 +260,11 @@ const qaTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "propose_update_qa",
-      description:
-        "Propose updating an existing QA item's question, answer, or importance.",
+      description: "Propose updating an existing QA item.",
       parameters: {
         type: "object",
         properties: {
-          qaId: {
-            type: "string",
-            description: "MongoDB ObjectId of the QA item.",
-          },
+          qaId: { type: "string" },
           question: { type: "string" },
           answer: { type: "string" },
           importance: {
@@ -314,43 +280,32 @@ const qaTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "propose_delete_qa",
-      description: "Propose deleting a QA item. Requires user confirmation.",
+      description: "Propose deleting a QA item.",
       parameters: {
         type: "object",
         properties: {
-          qaId: {
-            type: "string",
-            description: "MongoDB ObjectId of the QA item.",
-          },
-          questionSummary: {
-            type: "string",
-            description: "Summary of question being deleted.",
-          },
+          qaId: { type: "string" },
+          questionSummary: { type: "string" },
         },
-        required: ["qaId"],
       },
     },
   },
 ];
 
 /**
- * 4. ADMIN USER TOOLS (Strictly for isAdmin = true)
+ * 4. ADMIN USER TOOLS
  */
 const adminUserTools: OpenAI.ChatCompletionTool[] = [
   {
     type: "function",
     function: {
       name: "admin_list_users",
-      description:
-        "ADMIN ONLY: List registered users in the application with pagination.",
+      description: "ADMIN ONLY: List registered users in the application.",
       parameters: {
         type: "object",
         properties: {
           limit: { type: "number", default: 10 },
-          search: {
-            type: "string",
-            description: "Filter by name, email, or phone.",
-          },
+          search: { type: "string" },
         },
       },
     },
@@ -359,8 +314,7 @@ const adminUserTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "admin_get_user",
-      description:
-        "ADMIN ONLY: Get full account details of a specific user by ID or email.",
+      description: "ADMIN ONLY: Get full account details of a specific user.",
       parameters: {
         type: "object",
         properties: {
@@ -374,17 +328,13 @@ const adminUserTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "admin_propose_create_user",
-      description:
-        "ADMIN ONLY: Propose creating a new user account with credentials and roles.",
+      description: "ADMIN ONLY: Propose creating a new user account.",
       parameters: {
         type: "object",
         properties: {
           name: { type: "string" },
           email: { type: "string" },
-          password: {
-            type: "string",
-            description: "Temporary or assigned password.",
-          },
+          password: { type: "string" },
           phone: { type: "string" },
           bio: { type: "string" },
           isAdmin: { type: "boolean", default: false },
@@ -397,15 +347,11 @@ const adminUserTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "admin_propose_update_user",
-      description:
-        "ADMIN ONLY: Propose updating a user's profile, bio, or admin status.",
+      description: "ADMIN ONLY: Propose updating a user's details.",
       parameters: {
         type: "object",
         properties: {
-          targetUserId: {
-            type: "string",
-            description: "ObjectId of the user to update.",
-          },
+          targetUserId: { type: "string" },
           name: { type: "string" },
           email: { type: "string" },
           phone: { type: "string" },
@@ -420,19 +366,12 @@ const adminUserTools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "admin_propose_delete_user",
-      description:
-        "ADMIN ONLY: Propose deleting a user account. Requires confirmation.",
+      description: "ADMIN ONLY: Propose deleting a user account.",
       parameters: {
         type: "object",
         properties: {
-          targetUserId: {
-            type: "string",
-            description: "ObjectId of user to delete.",
-          },
-          userName: {
-            type: "string",
-            description: "Name of user for confirmation display.",
-          },
+          targetUserId: { type: "string" },
+          userName: { type: "string" },
         },
         required: ["targetUserId"],
       },
@@ -441,13 +380,43 @@ const adminUserTools: OpenAI.ChatCompletionTool[] = [
 ];
 
 /**
- * Dynamically exports the authorized tool catalog based on user role.
- * Non-admins never receive admin user tools in their schema.
+ * 5. EXECUTION TOOL (Connects Proposals to MongoDB)
  */
+const executionTools: OpenAI.ChatCompletionTool[] = [
+  {
+    type: "function",
+    function: {
+      name: "execute_proposal",
+      description:
+        "Execute the user's pending proposal (create, update, or delete) after they confirm in chat. Commits changes directly to MongoDB.",
+      parameters: {
+        type: "object",
+        properties: {
+          proposalId: {
+            type: "string",
+            description:
+              "Optional proposal ID. If omitted, executes the user's most recent pending proposal.",
+          },
+          confirmed: {
+            type: "boolean",
+            description: "Must be true to execute.",
+          },
+        },
+        required: ["confirmed"],
+      },
+    },
+  },
+];
+
 export function getAvailableTools(
   isAdmin: boolean,
 ): OpenAI.ChatCompletionTool[] {
-  const baseTools = [...todoTools, ...toolCategoryTools, ...qaTools];
+  const baseTools = [
+    ...todoTools,
+    ...toolCategoryTools,
+    ...qaTools,
+    ...executionTools,
+  ];
   if (isAdmin) {
     return [...baseTools, ...adminUserTools];
   }
